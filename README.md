@@ -1,2 +1,2 @@
-# Dogger
+# Doggr
 Matchmaking for Dogs!
