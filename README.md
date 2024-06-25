@@ -1,2 +1,0 @@
-# Doggr
-Matchmaking for Dogs!
