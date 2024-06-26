@@ -60,23 +60,30 @@ html, body {
   position: relative;
   overflow: hidden; /* Hide overflow */
 }
-
 .maindogimg {
   border-radius: 20px;
-  border-style: solid;
-  width: 30%;  
-  aspect-ratio: 1 / 1; 
-  object-fit: contain; 
+  border: solid 2px; /* Adjust the border width as needed */
+  width: 60%;
+  height: auto;
+  max-height: 70vh;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
   z-index: 1;
+  box-sizing: border-box; /* Include padding and borders in the element's total width and height */
 }
 .text {
-  width: 80%;
   z-index: 10;
   position: absolute;
-  width: 30%;
   opacity: 0; 
   transition: opacity 0.5s ease;
   background-color: red; 
+
+}
+
+
+.emojis{
+  width: 3%;
+  width: 30%;
 
 }
 
@@ -86,11 +93,12 @@ html, body {
 }
 
 .left {
-  left: 0;
-
-  font-size: 200px;
+  left: 10%;
+  width: 5%;
+  height: 60%;
+  font-size: 100%;
   transition: 0.5s ease;
-
+  /* background-color: white; */
   transform: translateX(-100%);
 }
 
