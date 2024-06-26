@@ -15,7 +15,7 @@ const Test = () => {
 
     useEffect(() => {
         const handleScroll = () => {
-            const showAnimation = window.scrollY > 50;
+            const showAnimation = window.scrollY > 20;
             if (showAnimation !== animate) {
                 setAnimate(showAnimation);
             }
