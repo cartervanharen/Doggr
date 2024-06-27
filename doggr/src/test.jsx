@@ -1,76 +1,68 @@
-// Import CSS files
-import './desktop.css';
-import './mobile.css';
-
-import { useState, useEffect } from "react";
+import "./desktop.css";
 
 const Test = () => {
-  const [animate, setAnimate] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 777);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const showAnimation = window.scrollY > 1  ;
-      setAnimate(showAnimation);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsDesktop(window.innerWidth > 400);
-      console.log(window.innerWidth > 400)
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   const emojis = "🐶 🐕 🎾 🐾 🐕‍🦺 🥳 🤗 🤪 😟".split(" ");
+  const dogPicture1 =
+    "https://cdn.outsideonline.com/wp-content/uploads/2023/03/Funny_Dog_S.jpg";
 
+  const dogPicture2 =
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQcJkEHHWM9n4Xptqcsp661O0Cgl-kvCSPxA&s";
+  const dogPicture3 =
+    "https://static01.nyt.com/images/2022/05/10/science/28DOGS-BEHAVIOR1/28DOGS-BEHAVIOR1-mediumSquareAt3X-v2.jpg";
+  const dogPicture4 =
+    "https://supertails.com/cdn/shop/articles/1-2-1703948078392.jpg?v=1713875436";
+  const dogPicture5 =
+    "https://www.statnews.com/wp-content/uploads/2024/03/AP110520117877-645x645.jpg";
   return (
-    <div className={`container ${isDesktop ? 'desktop' : 'mobile'}`}>
+    <div>
+      <div className="Whole_MainPage">
+
+
+
+        <div className="DogImageCard_MainPage BorderRadius10px_MainPage">
+          <img
+            src={dogPicture1}
+            id="MainDogImage_MainPage" className="BorderRadius10px_MainPage"/>
+
+          <div className="SmallDogImageGrid_MainPage BorderRadius10px_MainPage">
+            <img src={dogPicture2} className="SmallDogImage_MainPage" />
+            <img src={dogPicture3} className="SmallDogImage_MainPage" />
+            <img src={dogPicture4} className="SmallDogImage_MainPage" />
+            <img src={dogPicture5} className="SmallDogImage_MainPage" />
+          </div>
+        </div>
+
+
+
+        <div className="BorderRadius10px_MainPage">
+         
+        </div>
 
 
 
 
-    <div className='wholepage_mainprofile'>
 
 
- 
 
-    <div className='mainprofilecontent'> 
 
-      <div className={`image-container toppageimg ${animate ? "bottomimgpage" : ""}`}>
-        <img
-          src="https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-          alt="Smiling Dog"
-          className="maindogimg"
-        />
+
+
+
+
+
+
+
+        <div>
+          <div>
+            {emojis.map((emoji, index) => (
+              <div key={index}>{emoji}</div>
+            ))}
+          </div>
+        </div>
+
+        <p>Badges Go here</p>
       </div>
-
-
-    <div className='sidecontent_mainprofile'>
-      <div className={`emojis left ${animate ? "slide-in-left" : ""}`}>
-        {emojis.map((emoji, index) => (
-          <div key={index}>{emoji}</div>
-        ))}
-      </div>
-
-      <p className={`text right ${animate ? "slide-in-right" : ""}`}>Sammy</p>
-
-      </div>
-
-
     </div>
-
-    </div>
-
-    </div>
-
-
   );
 };
 
