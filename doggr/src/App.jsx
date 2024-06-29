@@ -1,6 +1,9 @@
 
-import Home from "./home.jsx";
-import Test from "./test.jsx";
+
+import MainPage from "./MainPage.jsx";
+import Settings from "./SettingsPage.jsx";
+import LoginPage from "./LoginPage.jsx";
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
@@ -21,8 +24,9 @@ function App() {
 
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/test" element={<Test />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/" element={<MainPage />} />
+        <Route path="login" element={<LoginPage />} />
 
       </Routes>
     </Router>
