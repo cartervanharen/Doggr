@@ -1,0 +1,1 @@
+Doggr is a social platform designed to facilitate connections between dog owners based on the personalities of their canine companions, with the goal of arranging playdates and fostering a sense of community among dog lovers.
