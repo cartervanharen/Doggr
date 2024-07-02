@@ -4,6 +4,8 @@ import MainPage from "./MainPage.jsx";
 import Settings from "./SettingsPage.jsx";
 import LoginPage from "./LoginPage.jsx";
 
+import SignUp from "./SignUpPage.jsx";
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
@@ -26,6 +28,8 @@ function App() {
       <Routes>
         <Route path="/settings" element={<Settings />} />
         <Route path="/" element={<MainPage />} />
+        <Route path="/signup" element={<SignUp />} />
+
         <Route path="login" element={<LoginPage />} />
 
       </Routes>

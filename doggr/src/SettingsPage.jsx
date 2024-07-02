@@ -1,5 +1,5 @@
 
-import "./desktop.css";
+import "./global.css";
 import { AiFillHome } from "react-icons/ai";
 import { IoSettings } from "react-icons/io5";
 import { useState } from "react";

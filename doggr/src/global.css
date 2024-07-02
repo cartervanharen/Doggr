@@ -146,5 +146,37 @@
 }
 
 
+.Whole_LoginPage{
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  padding: 20px;
+  justify-content: center;
+  display: flex;
+
+}
 
 
+
+.UserInput_LoginPage{
+  text-align: center;
+
+  justify-content: center;
+  padding: 30px;
+  width: 500px;
+  height: 500px;
+  display: inline-block;
+
+  background-color: lightgray;
+  border-radius: 30px;
+}
+
+
+.InputField_LoginPage{
+  border-radius: 10px;
+  border-style: none;
+
+  margin: 3px;
+  padding: 4px;
+  width: 100%;
+}
