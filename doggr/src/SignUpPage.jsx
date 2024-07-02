@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./global.css";
-import axios from 'axios';
+import axios from "axios";
 
 function SignUp() {
   const [email, setEmail] = useState("");
@@ -12,26 +12,28 @@ function SignUp() {
 
   const handleSignUp = async () => {
     const userData = {
-      first_name: firstName,
-      last_name: lastName,
+        human_first_name: firstName,
+        human_last_name: lastName,
       email: email,
       address: address,
       dog_name: dogName,
-      password: password 
+      password: password,
     };
 
     try {
       const response = await createUser(userData);
       console.log("User created successfully:", response);
+      // Optionally, redirect the user or clear the form
     } catch (error) {
       console.error("Error creating user:", error);
+      // Optionally, display an error message to the user
     }
   };
 
   const createUser = async (userData) => {
     try {
       const response = await axios.post(
-        "http://localhost:3000/create-user",
+        "http://localhost:3000/signup",
         userData
       );
       return response.data;
@@ -104,10 +106,7 @@ function SignUp() {
 
         <h1>Already Have an Account?</h1>
 
-        <button
-          className="InputField_LoginPage"
-          onClick={() => console.log("Sign In functionality not implemented yet")}
-        >
+        <button className="InputField_LoginPage" onClick={() => console.log("need to add redirect!!!!!***")}>
           Sign In
         </button>
       </div>
