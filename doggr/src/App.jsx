@@ -3,6 +3,8 @@
 import MainPage from "./MainPage.jsx";
 import Settings from "./SettingsPage.jsx";
 import LoginPage from "./LoginPage.jsx";
+import Test from "./test.jsx";
+import VerifyPage from "./VerifyPage.jsx";
 
 import SignUp from "./SignUpPage.jsx";
 
@@ -29,6 +31,8 @@ function App() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/" element={<MainPage />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/test" element={<Test />} />
+        <Route path="/verify" element={<VerifyPage />} />
 
         <Route path="login" element={<LoginPage />} />
 

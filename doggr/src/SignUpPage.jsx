@@ -12,8 +12,8 @@ function SignUp() {
 
   const handleSignUp = async () => {
     const userData = {
-        human_first_name: firstName,
-        human_last_name: lastName,
+      human_first_name: firstName,
+      human_last_name: lastName,
       email: email,
       address: address,
       dog_name: dogName,
@@ -23,10 +23,8 @@ function SignUp() {
     try {
       const response = await createUser(userData);
       console.log("User created successfully:", response);
-      // Optionally, redirect the user or clear the form
     } catch (error) {
       console.error("Error creating user:", error);
-      // Optionally, display an error message to the user
     }
   };
 
@@ -56,7 +54,7 @@ function SignUp() {
           type="text"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
-          placeholder="First Name"
+          placeholder=" First Name"
         />
 
         <input
@@ -64,7 +62,7 @@ function SignUp() {
           type="text"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
-          placeholder="Last Name"
+          placeholder=" Last Name"
         />
 
         <input
@@ -72,7 +70,7 @@ function SignUp() {
           type="text"
           value={dogName}
           onChange={(e) => setDogName(e.target.value)}
-          placeholder="Dog's Name"
+          placeholder=" Dog's Name"
         />
 
         <input
@@ -80,7 +78,7 @@ function SignUp() {
           type="text"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          placeholder="Address"
+          placeholder=" Full Home Address"
         />
 
         <input
@@ -88,7 +86,7 @@ function SignUp() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
+          placeholder=" Email"
         />
 
         <input
@@ -96,7 +94,7 @@ function SignUp() {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
+          placeholder=" Password  (6+ characters long)"
         />
 
         <button className="InputField_LoginPage" onClick={handleSignUp}>
@@ -104,9 +102,12 @@ function SignUp() {
         </button>
         <p>Your email will be your username.</p>
 
-        <h1>Already Have an Account?</h1>
+        <h1 className="BottomText_LoginPage">Already Have an Account?</h1>
 
-        <button className="InputField_LoginPage" onClick={() => console.log("need to add redirect!!!!!***")}>
+        <button
+          className="InputField_LoginPage"
+          onClick={() => console.log("need to add redirect!!!!!***")}
+        >
           Sign In
         </button>
       </div>

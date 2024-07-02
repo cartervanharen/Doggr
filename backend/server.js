@@ -72,8 +72,7 @@ app.post("/verify-token", async (req, res) => {
 app.post("/signin", async (req, res) => {
   console.log("Signin route hit");
 
-  const { email, password, first_name, last_name, address, dog_name } =
-    req.body;
+  const { email, password } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({ error: "Email and password are required" });
@@ -92,10 +91,8 @@ app.post("/signin", async (req, res) => {
     return res.status(401).json({ error: error.message });
   }
 });
-
 app.post("/signup", async (req, res) => {
   console.log("Signup route hit");
-
   const {
     email,
     password,
@@ -104,47 +101,50 @@ app.post("/signup", async (req, res) => {
     address,
     dog_name,
   } = req.body;
-  
+
   const currentTime = new Date().toISOString();
-  console.log(req.body)
-
-  if (!email || !password || !human_first_name || !human_last_name || !address || !dog_name) {
-    return res.status(400).json({ error: "All fields are required and must not be empty" });
-  }  
-
+  console.log(req.body);
+  if (
+    !email ||
+    !password ||
+    !human_first_name ||
+    !human_last_name ||
+    !address ||
+    !dog_name
+  ) {
+    return res
+      .status(400)
+      .json({ error: "All fields are required and must not be empty" });
+  }
   try {
     const { user, session, error } = await supabase.auth.signUp({
       email: email,
       password: password,
     });
 
-    if (error) throw error;
-    console.log(user.id)
     const { error: insertError } = await supabase.from("users").insert([
-        {
-          uuid: user.id,
-          human_first_name: human_first_name,
-          human_last_name: human_last_name,
-          address: address,
-          dog_name: dog_name,
-          created_at: currentTime,
-          last_active: currentTime,
-          user_level: 1,
-        },
-      ]);
-      if (insertError) {
-        console.error('Insert Error:', insertError.message);
-        return res.status(500).json({ error: insertError.message });
-      }
+      {
+        uuid: user.id,
+        human_first_name: human_first_name,
+        human_last_name: human_last_name,
+        address: address,
+        dog_name: dog_name,
+        created_at: currentTime,
+        last_active: currentTime,
+        user_level: 1,
+      },
+    ]);
 
-    return res.status(200).json({ message: "user account create successful", user, session });
+    if (insertError) {
+      console.error("Insert Error:", insertError.message);
+      return res.status(500).json({ error: insertError.message });
+    }
+    return res
+      .status(200)
+      .json({ message: "User account created successfully", user, session });
   } catch (error) {
     return res.status(401).json({ error: error.message });
   }
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
 });
 
 app.get("/allusr", async (req, res) => {
@@ -153,4 +153,8 @@ app.get("/allusr", async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
   res.json(data);
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
