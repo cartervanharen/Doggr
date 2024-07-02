@@ -1,0 +1,182 @@
+.Whole_MainPage {
+  display: flex;
+  overflow: wrap;
+  width: 80%;
+  max-width: 800px;
+
+  height: 100vh;
+  padding-top: 70px;
+  margin: 0;
+  justify-content: center;
+  align-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.DogImageCard_MainPage {
+  max-width: 300px;
+
+  background-color: lightgray;
+  height: auto;
+  min-width: 300px;
+  margin: 10px;
+
+  width: 40%;
+  transition: background-color 1s ease;
+  max-height: 380px !important;
+}
+
+.DogImageCard_MainPage:hover {
+  background-color: lightblue;
+}
+
+#MainDogImage_MainPage {
+  height: auto;
+  width: 100%;
+}
+
+.SmallDogImage_MainPage {
+  border-radius: 10px;
+  height: 25%;
+  width: 25%;
+  padding: 3px;
+}
+
+.SmallDogImageGrid_MainPage {
+  width: 100%;
+  padding: 3px;
+
+  display: flex;
+}
+
+.BorderRadius10px_MainPage {
+  border-radius: 10px;
+}
+
+.EmojiCard_MainPage {
+  max-width: 300px;
+
+  background-color: white;
+  min-width: 300px;
+  margin: 10px;
+  justify-content: center;
+  width: 40%;
+  height: 60px;
+  align-items: center;
+  background-color: lightgray;
+  text-align: center;
+  display: inline-block;
+  transition: background-color 1s ease;
+}
+.EmojiCard_MainPage:hover {
+  background-color: lightblue;
+}
+.InnerEmojiCard_MainPage {
+  justify-content: center;
+  max-height: 500px;
+  font-size: 30pt;
+  display: block;
+  overflow: hidden;
+}
+
+.Emojis_MainPage {
+  justify-content: center;
+  display: inline-block;
+}
+.footer {
+  justify-content: center;
+  bottom: 0;
+  left: 0;
+  width: 30s;
+  height: 100px;
+  position: fixed;
+  background-color: pink;
+  padding: 10px;
+}
+
+.RootofRoot_MainPage {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  background-color: white;
+}
+
+.LeftMenuBar_MainPage {
+  background-color: black;
+  top: 150px;
+  height: 600px;
+
+  width: 35px;
+  justify-content: center;
+  color: white;
+  padding: 0px;
+  border-radius: 20px;
+  text-align: center;
+  transition: background-color 1s ease;
+
+  position: relative;
+}
+.RightMenuBar_MainPage {
+  background-color: black;
+  top: 150px;
+  height: 600px;
+
+  width: 35px;
+  justify-content: center;
+  color: white;
+  padding: 0px;
+  border-radius: 20px;
+  position: relative;
+  text-align: center;
+  transition: background-color 1s ease;
+}
+
+.RightMenuBar_MainPage:hover {
+  background-color: green;
+}
+
+.LeftMenuBar_MainPage:hover {
+  background-color: red;
+}
+#HomeIcon_MainPage {
+  height: 90px;
+}
+
+.HomeButton_MainPage {
+  padding-top: 20px;
+}
+
+
+.Whole_LoginPage{
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  padding: 20px;
+  justify-content: center;
+  display: flex;
+
+}
+
+
+
+.UserInput_LoginPage{
+  text-align: center;
+
+  justify-content: center;
+  padding: 30px;
+  width: 500px;
+  height: 500px;
+  display: inline-block;
+
+  background-color: lightgray;
+  border-radius: 30px;
+}
+
+
+.InputField_LoginPage{
+  border-radius: 10px;
+  border-style: none;
+
+  margin: 3px;
+  padding: 4px;
+  width: 100%;
+}
