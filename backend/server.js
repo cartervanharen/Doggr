@@ -91,6 +91,7 @@ app.post("/signin", async (req, res) => {
     return res.status(401).json({ error: error.message });
   }
 });
+
 app.post("/signup", async (req, res) => {
   console.log("Signup route hit");
   const {

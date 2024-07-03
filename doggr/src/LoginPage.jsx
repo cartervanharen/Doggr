@@ -43,6 +43,8 @@ function LoginPage() {
 
   return (
     <div className="Whole_LoginPage">
+    <div className="Inner_LoginPage">
+
       <div className="UserInput_LoginPage">
         <h1>Sign in to Doggr</h1>
         {error && <p className="Error_Message">{error}</p>}
@@ -64,6 +66,9 @@ function LoginPage() {
           Sign In
         </button>
       </div>
+
+      </div>
+
     </div>
   );
 }

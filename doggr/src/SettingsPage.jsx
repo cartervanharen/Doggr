@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import "./global.css";
 import { AiFillHome } from "react-icons/ai";
 import { IoSettings } from "react-icons/io5";
+import TraitModal from "./TraitModal.jsx";
 
 const SettingsPage = () => {
   const emojis = "🎾🐾🐕‍🦺🥳🤗🤪".split(" ");
@@ -113,8 +114,9 @@ const SettingsPage = () => {
         <IoSettings size={35} className="HomeIcon_MainPage" />
         <div>PASS</div>
       </button>
+
       <div className="Whole_MainPage">
-        <div className="DogImageCard_MainPage BorderRadius10px_MainPage">
+        <div className="generalInfo_SettingsPage BorderRadius10px_MainPage">
           <div className="UserInfo_SettingsPage">
             <div className="UserInput_SettingsPage">
               <h1>General Info</h1>
@@ -150,7 +152,6 @@ const SettingsPage = () => {
                 placeholder="Full Home Address"
                 disabled={!editMode}
               />
-
               <div className="EditButtons__SettingsPage">
                 {!editMode && (
                   <button
@@ -172,14 +173,27 @@ const SettingsPage = () => {
             </div>
           </div>
         </div>
+
+
+
+        <div className="traits_SettingsPage BorderRadius10px_MainPage">
+          <TraitModal></TraitModal>
+        </div>
+
+
+
         <div className="DogImageCard_MainPage BorderRadius10px_MainPage">
           <h1>Location</h1>
           <p>{Array(18).fill("Dog ").join("")}</p>
         </div>
+
         <div className="DogImageCard_MainPage BorderRadius10px_MainPage">
           <h1>Filters</h1>
           <p>{Array(18).fill("Dog ").join("")}</p>
         </div>
+
+
+
         <div className="EmojiCard_MainPage BorderRadius10px_MainPage">
           {emojis.map((emoji, index) => (
             <span key={index} className="Emojis_MainPage">

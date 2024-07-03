@@ -46,7 +46,7 @@ function SignUp() {
 
   return (
     <div className="Whole_LoginPage">
-      <div className="UserInput_LoginPage">
+      <div className="UserInput_SignUpPage">
         <h1>Sign Up for Doggr</h1>
 
         <input
