@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./global.css";
-import axios from 'axios';
+import axios from "axios";
 
 function SignUp() {
   const [email, setEmail] = useState("");
@@ -12,12 +12,12 @@ function SignUp() {
 
   const handleSignUp = async () => {
     const userData = {
-      first_name: firstName,
-      last_name: lastName,
+      human_first_name: firstName,
+      human_last_name: lastName,
       email: email,
       address: address,
       dog_name: dogName,
-      password: password 
+      password: password,
     };
 
     try {
@@ -31,7 +31,7 @@ function SignUp() {
   const createUser = async (userData) => {
     try {
       const response = await axios.post(
-        "http://localhost:3000/create-user",
+        "http://localhost:3000/signup",
         userData
       );
       return response.data;
@@ -54,7 +54,7 @@ function SignUp() {
           type="text"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
-          placeholder="First Name"
+          placeholder=" First Name"
         />
 
         <input
@@ -62,7 +62,7 @@ function SignUp() {
           type="text"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
-          placeholder="Last Name"
+          placeholder=" Last Name"
         />
 
         <input
@@ -70,7 +70,7 @@ function SignUp() {
           type="text"
           value={dogName}
           onChange={(e) => setDogName(e.target.value)}
-          placeholder="Dog's Name"
+          placeholder=" Dog's Name"
         />
 
         <input
@@ -78,7 +78,7 @@ function SignUp() {
           type="text"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          placeholder="Address"
+          placeholder=" Full Home Address"
         />
 
         <input
@@ -86,7 +86,7 @@ function SignUp() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
+          placeholder=" Email"
         />
 
         <input
@@ -94,7 +94,7 @@ function SignUp() {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
+          placeholder=" Password  (6+ characters long)"
         />
 
         <button className="InputField_LoginPage" onClick={handleSignUp}>
@@ -102,11 +102,11 @@ function SignUp() {
         </button>
         <p>Your email will be your username.</p>
 
-        <h1>Already Have an Account?</h1>
+        <h1 className="BottomText_LoginPage">Already Have an Account?</h1>
 
         <button
           className="InputField_LoginPage"
-          onClick={() => console.log("Sign In functionality not implemented yet")}
+          onClick={() => console.log("need to add redirect!!!!!***")}
         >
           Sign In
         </button>

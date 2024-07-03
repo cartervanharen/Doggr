@@ -1,62 +1,71 @@
 import { useState } from "react";
-
 import "./global.css";
-
-function Login() {
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [address, setAddress] = useState("");
-  const [FirstName, setFirstName] = useState("");
-  const [LastName, setLastName] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const handleSignIn = async () => {
+    const userData = {
+      email: email,
+      password: password,
+    };
 
+    try {
+      const response = await signUserIn(userData);
+      console.log("User sign in successfully:", response);
+      navigate("/dogs");
+    } catch (error) {
+      console.error("Error signing in user:", error);
+      setError("Failed to sign in. Check your email and password.");
+    }
+  };
 
-  const handleLogin = async () => {
-    console.log(email);
-    console.log(password);
+  const signUserIn = async (userData) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/signin",
+        userData
+      );
+      console.log(response.data.session.access_token);
+      localStorage.setItem("accessToken", response.data.session.access_token);
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error signing in user:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
   };
 
   return (
     <div className="Whole_LoginPage">
       <div className="UserInput_LoginPage">
+        <h1>Sign in to Doggr</h1>
+        {error && <p className="Error_Message">{error}</p>}
         <input
+          className="InputField_LoginPage"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
+          placeholder=" Email"
         />
-
         <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-        />
-
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-        />
-
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-        />
-
-        <input
+          className="InputField_LoginPage"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
+          placeholder=" Password"
         />
-
-        <button onClick={handleLogin}>Login</button>
+        <button className="InputField_LoginPage" onClick={handleSignIn}>
+          Sign In
+        </button>
       </div>
     </div>
   );
 }
 
-export default Login;
+export default LoginPage;

@@ -16,6 +16,7 @@
     "@supabase/supabase-js": "^2.44.2",
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
+    "cors": "^2.8.5",
     "env": "^0.0.2",
     "jsonwebtoken": "^9.0.2",
     "onsenui": "^2.12.8",
