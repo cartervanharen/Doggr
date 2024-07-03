@@ -29,7 +29,7 @@ function LoginPage() {
         "http://localhost:3000/signin",
         userData
       );
-      console.log(response.data.session.access_token)
+      console.log(response.data.session.access_token);
       localStorage.setItem("accessToken", response.data.session.access_token);
       return response.data;
     } catch (error) {
@@ -40,10 +40,6 @@ function LoginPage() {
       throw error;
     }
   };
-
-
-
-
 
   return (
     <div className="Whole_LoginPage">

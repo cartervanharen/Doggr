@@ -48,7 +48,7 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/verify-token", async (req, res) => {
-  const token = req.body.authorization?.split(" ")[1]; // Bearer <token>
+  const token = req.body.authorization?.split(" ")[1]; 
 
   if (!token) {
     return res
