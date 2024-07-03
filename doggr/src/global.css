@@ -179,3 +179,35 @@
 .BottomText_LoginPage {
   font-size: 30px;
 }
+
+.InputField_SettingsPage {
+  border-radius: 10px;
+  border-style: none;
+
+  margin: 3px;
+  padding: 4px;
+  justify-content: center;
+
+  width: 90%;
+}
+
+.UserInfo_SettingsPage {
+  justify-content: center;
+  display: flex;
+
+  text-align: center;
+}
+
+.UserInput_SettingsPage {
+  padding: 5px;
+  margin: 10px;
+
+  justify-content: center;
+}
+
+.EditButtons__SettingsPage {
+  display: flex;
+  width: 93;
+  margin: 10px;
+  padding: auto;
+}

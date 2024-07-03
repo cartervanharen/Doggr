@@ -48,7 +48,7 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/verify-token", async (req, res) => {
-  const token = req.body.authorization?.split(" ")[1]; 
+  const token = req.body.authorization?.split(" ")[1];
 
   if (!token) {
     return res
@@ -153,6 +153,77 @@ app.get("/allusr", async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
   res.json(data);
+});
+
+app.post("/user-info", async (req, res) => {
+  const token = req.body.accessToken;
+
+  if (!token) {
+    return res.status(403).json({ error: "Access token is required" });
+  }
+
+  try {
+    const { data: user, error } = await supabase.auth.api.getUser(token);
+
+    if (error) {
+      throw error;
+    }
+
+    const { data: userData, fetchError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("uuid", user.id)
+      .single();
+
+    if (fetchError) {
+      throw fetchError;
+    }
+
+    return res.status(200).json({ user: userData });
+  } catch (error) {
+    console.error("Error fetching user data:", error.message);
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+});
+
+app.post("/update-user-info", async (req, res) => {
+  const { accessToken, firstName, lastName, dogName, address, email } =
+    req.body;
+
+  if (!accessToken) {
+    return res.status(401).json({ error: "Access token is required" });
+  }
+
+  try {
+    const { data: user, error } = await supabase.auth.api.getUser(accessToken);
+
+    if (error) {
+      throw error;
+    }
+
+    const { error: updateError } = await supabase
+      .from("users")
+      .update({
+        human_first_name: firstName,
+        human_last_name: lastName,
+        dog_name: dogName,
+        address: address,
+        email: email,
+      })
+      .eq("uuid", user.id);
+
+    if (updateError) {
+      console.error("Update Error:", updateError.message);
+      return res.status(500).json({ error: updateError.message });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "User information updated successfully" });
+  } catch (error) {
+    console.error("Error updating user information:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
 });
 
 app.listen(PORT, () => {
