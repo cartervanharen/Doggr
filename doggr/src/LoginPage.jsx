@@ -16,7 +16,7 @@ function LoginPage() {
     try {
       const response = await signUserIn(userData);
       console.log("User sign in successfully:", response);
-      navigate("/home");
+      navigate("/dogs");
     } catch (error) {
       console.error("Error signing in user:", error);
       setError("Failed to sign in. Check your email and password.");
@@ -29,6 +29,7 @@ function LoginPage() {
         "http://localhost:3000/signin",
         userData
       );
+      console.log(response.data.session.access_token)
       localStorage.setItem("accessToken", response.data.session.access_token);
       return response.data;
     } catch (error) {
@@ -39,6 +40,10 @@ function LoginPage() {
       throw error;
     }
   };
+
+
+
+
 
   return (
     <div className="Whole_LoginPage">
@@ -57,7 +62,7 @@ function LoginPage() {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder=" Password  (6+ characters long)"
+          placeholder=" Password"
         />
         <button className="InputField_LoginPage" onClick={handleSignIn}>
           Sign In

@@ -1,8 +1,45 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./global.css";
 import { AiFillHome } from "react-icons/ai";
 import { IoSettings } from "react-icons/io5";
 
 const MainPage = () => {
+  const navigate = useNavigate();
+
+  const verifyTokenAndGetUserID = async () => {
+    const token = localStorage.getItem("accessToken");
+    const wholeToken = "Bearer " + token;
+    console.log(wholeToken);
+    if (!token) {
+      console.error("No token found in local storage.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      console.log("line28");
+
+      const response = await axios.post("http://localhost:3000/verify-token", {
+        authorization: wholeToken,
+      });
+
+      const userId = response.data.user.id;
+      console.log("User ID retrieved:", userId);
+    } catch (error) {
+      console.error(
+        "Error verifying token:",
+        error.response ? error.response.data : error.message
+      );
+      navigate("/login");
+    }
+  };
+
+  useEffect(() => {
+    verifyTokenAndGetUserID();
+  });
+
   const emojis = "🎾🐾🐕‍🦺🥳🤗🤪".split(" ");
   const dogPicture1 =
     "https://cdn.outsideonline.com/wp-content/uploads/2023/03/Funny_Dog_S.jpg";
@@ -15,10 +52,9 @@ const MainPage = () => {
     "https://supertails.com/cdn/shop/articles/1-2-1703948078392.jpg?v=1713875436";
   const dogPicture5 =
     "https://www.statnews.com/wp-content/uploads/2024/03/AP110520117877-645x645.jpg";
+
   return (
     <div className="RootofRoot_MainPage">
-
-
       <button className="LeftMenuBar_MainPage">
         <IoSettings size={35} className="HomeIcon_MainPage" />
         ___
@@ -36,7 +72,6 @@ const MainPage = () => {
             id="MainDogImage_MainPage"
             className="BorderRadius10px_MainPage"
           />
-
           <div className="SmallDogImageGrid_MainPage BorderRadius10px_MainPage">
             <img src={dogPicture2} className="SmallDogImage_MainPage" />
             <img src={dogPicture3} className="SmallDogImage_MainPage" />
@@ -44,11 +79,12 @@ const MainPage = () => {
             <img src={dogPicture5} className="SmallDogImage_MainPage" />
           </div>
         </div>
+
         <div className="DogImageCard_MainPage BorderRadius10px_MainPage">
           <h1>Julio</h1>
           <p>
             Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog
-            Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog{" "}
+            Dog Dog Dog Dog Dog Dog Dog Dog Dog{" "}
           </p>
         </div>
 
@@ -65,8 +101,6 @@ const MainPage = () => {
         <div className="EmojiCard_MainPage BorderRadius10px_MainPage">
           <p>Age: 5 | 9 mi | 30 lbs</p>
         </div>
-
-        {/* <div className="footer">testtesttesttesttesttesttest</div> */}
       </div>
 
       <button className="RightMenuBar_MainPage">
