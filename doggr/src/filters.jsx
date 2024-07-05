@@ -2,16 +2,16 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-function TraitModal() {
+function FilterModal() {
   const navigate = useNavigate();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [likeability, setLikeability] = useState(5);
-  const [energy, setEnergy] = useState(5);
-  const [playfulness, setPlayfulness] = useState(5);
-  const [aggression, setAggression] = useState(5);
-  const [size, setSize] = useState(5);
-  const [trainingLevel, setTrainingLevel] = useState(5);
+  const [likeability, setLikeability] = useState({ min: 1, max: 10 });
+  const [energy, setEnergy] = useState({ min: 1, max: 10 });
+  const [playfulness, setPlayfulness] = useState({ min: 1, max: 10 });
+  const [aggression, setAggression] = useState({ min: 1, max: 10 });
+  const [size, setSize] = useState({ min: 1, max: 10 });
+  const [trainingLevel, setTrainingLevel] = useState({ min: 1, max: 10 });
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -23,16 +23,26 @@ function TraitModal() {
       }
 
       try {
-        const response = await axios.post("http://localhost:3000/userdata", {
-          accessToken: token,
-        });
-        const userData = response.data.user;
-        setLikeability(userData.likeability);
-        setEnergy(userData.energy);
-        setPlayfulness(userData.playfulness);
-        setAggression(userData.aggression);
-        setSize(userData.size);
-        setTrainingLevel(userData.training);
+        const response = await axios.post(
+          "http://localhost:3000/current-dog-filters",
+          {
+            accessToken: token,
+          }
+        );
+        const {
+          likeabilityFilter,
+          energyFilter,
+          playfulnessFilter,
+          aggressionFilter,
+          sizeFilter,
+          trainingFilter,
+        } = response.data.userFilters;
+        setLikeability(likeabilityFilter);
+        setEnergy(energyFilter);
+        setPlayfulness(playfulnessFilter);
+        setAggression(aggressionFilter);
+        setSize(sizeFilter);
+        setTrainingLevel(trainingFilter);
       } catch (error) {
         console.error(
           "Error fetching user information:",
@@ -45,7 +55,6 @@ function TraitModal() {
     fetchUserInfo();
   }, [navigate]);
 
-  // eslint-disable-next-line react/prop-types
   function Modal({ isOpen, close, children }) {
     if (!isOpen) return null;
 
@@ -66,21 +75,51 @@ function TraitModal() {
       </div>
     );
   }
-  // eslint-disable-next-line react/prop-types
+
   function TraitSelector({ label, value, setValue }) {
+    const handleMinChange = (e) => {
+      const newMin = 11 - Number(e.target.value);
+      if (newMin > value.max) {
+        alert("Minimum value cannot be greater than maximum value.");
+        return;
+      } else {
+        setValue({ ...value, min: newMin });
+      }
+    };
+
+    const handleMaxChange = (e) => {
+      const newMax = Number(e.target.value);
+      if (newMax < value.min) {
+        alert("Maximum value cannot be less than minimum value.");
+        return;
+      } else {
+        setValue({ ...value, max: newMax });
+      }
+    };
+
     return (
-      <div>
-        <label>
-          {label}: {value}
+      <div className="traitSelector_filterPage">
+        <label className="label_filterPage">
+          {label} ({value.min} - {value.max})
         </label>
-        <input
-          className="slider_SettingsPage"
-          type="range"
-          min="1"
-          max="10"
-          value={value}
-          onChange={(e) => setValue(Number(e.target.value))}
-        />
+        <div className="sliderContainer_filterPage">
+          <input
+            className="sliderMin_filterPage"
+            type="range"
+            min="1"
+            max="10"
+            value={11 - value.min}
+            onChange={handleMinChange}
+          />
+          <input
+            className="sliderMax_filterPage"
+            type="range"
+            min="1"
+            max="10"
+            value={value.max}
+            onChange={handleMaxChange}
+          />
+        </div>
       </div>
     );
   }
@@ -94,26 +133,25 @@ function TraitModal() {
     }
 
     try {
-      await axios.post("http://localhost:3000/update-dog-traits", {
+      await axios.post("http://localhost:3000/update-dog-filter", {
         accessToken: token,
-        likeability,
-        energy,
-        playfulness,
-        aggression,
-        size,
-        training: trainingLevel,
+        likeabilityFilter: likeability,
+        energyFilter: energy,
+        playfulnessFilter: playfulness,
+        aggressionFilter: aggression,
+        sizeFilter: size,
+        trainingFilter: trainingLevel,
       });
-      console.log("Dog traits updated successfully.");
+      console.log("User filters updated successfully.");
+      setIsOpen(false);
     } catch (error) {
       console.error(
-        "Error updating dog traits:",
+        "Error updating user filters:",
         error.response
           ? JSON.stringify(error.response.data, null, 2)
           : error.message
       );
     }
-
-    setIsOpen(false);
   };
 
   const handleCloseNoSave = () => {
@@ -122,12 +160,12 @@ function TraitModal() {
 
   return (
     <div style={{ margin: "20px" }}>
-      <h1>Trait Evaluation</h1>
+      <h1>User Filtering</h1>
       <button
         onClick={() => setIsOpen(true)}
         className="InputField_SettingsPage"
       >
-        Select Traits
+        Set Filters
       </button>
       <Modal isOpen={isOpen} close={handleClose}>
         <TraitSelector
@@ -135,51 +173,26 @@ function TraitModal() {
           value={likeability}
           setValue={setLikeability}
         />
-        <p>
-          (1 being very reserved or anxious with strangers, 10 being extremely
-          outgoing and sociable)
-        </p>
         <TraitSelector label="Energy" value={energy} setValue={setEnergy} />
-        <p>
-          (1 being minimal exercise needed, satisfied with short walks, 10 being
-          needs extensive, vigorous exercise)
-        </p>
         <TraitSelector
           label="Playfulness"
           value={playfulness}
           setValue={setPlayfulness}
         />
-        <p>
-          (1 being seldom initiates play, generally inactive, 10 being
-          constantly seeking play and interaction)
-        </p>
         <TraitSelector
           label="Aggression"
           value={aggression}
           setValue={setAggression}
         />
-        <p>
-          (1 being highly aggressive or defensive, 10 being completely welcoming
-          and unbothered)
-        </p>
         <TraitSelector label="Size" value={size} setValue={setSize} />
-        <p>
-          (1 being significantly smaller than the breed average, 10 being
-          significantly larger than the breed average)
-        </p>
         <TraitSelector
           label="Training Level"
           value={trainingLevel}
           setValue={setTrainingLevel}
         />
-        <p>
-          (1 being easily distracted and rarely follows commands, 10 being
-          highly focused and consistently obeys commands)
-        </p>
       </Modal>
     </div>
   );
 }
 
-export default TraitModal;
-
+export default FilterModal;

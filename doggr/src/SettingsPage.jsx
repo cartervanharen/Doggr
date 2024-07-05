@@ -5,16 +5,17 @@ import { useNavigate } from "react-router-dom";
 import "./global.css";
 import { AiFillHome } from "react-icons/ai";
 import TraitModal from "./TraitModal.jsx";
-import EmojiSelector from "./EmojiSelector.jsx";
+import FilterModal from "./filters.jsx";
+
 import { MdMessage } from "react-icons/md";
 
 const SettingsPage = () => {
-  const emojis = ["😀", "😂", "👍", "💖", "🎉", "🚀"];
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [dogName, setDogName] = useState("");
   const [address, setAddress] = useState("");
   const [editMode, setEditMode] = useState(false);
+  const [maxDistance, setMaxDistance] = useState(5);
 
   const navigate = useNavigate();
 
@@ -45,7 +46,53 @@ const SettingsPage = () => {
   useEffect(() => {
     verifyTokenAndGetUserID();
   });
+
+  const saveMaxDistance = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      console.error("No token found in local storage.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      await axios.post("http://localhost:3000/update-max-distance", {
+        accessToken: token,
+        maxDistance,
+      });
+      console.log("Max distance updated successfully.");
+    } catch (error) {
+      console.error(
+        "Error updating max distance:",
+        error.response
+          ? JSON.stringify(error.response.data, null, 2)
+          : error.message
+      );
+    }
+  };
+
   useEffect(() => {
+    const fetchMaxDistance = async () => {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        console.error("No token found in local storage.");
+        return;
+      }
+
+      try {
+        const response = await axios.post(
+          "http://localhost:3000/max-distance",
+          {
+            accessToken: token,
+          }
+        );
+
+        setMaxDistance(response.data.maxDistance);
+      } catch (error) {
+        console.error("Error fetching max distance:", error.message);
+      }
+    };
+
     const fetchUserInfo = async () => {
       const token = localStorage.getItem("accessToken");
       if (!token) {
@@ -67,7 +114,7 @@ const SettingsPage = () => {
         console.error("Error fetching user information:", error.message);
       }
     };
-
+    fetchMaxDistance();
     fetchUserInfo();
   }, []);
 
@@ -185,26 +232,40 @@ const SettingsPage = () => {
           </div>
         </div>
 
+        <div className="UserFilters_SettingsPage BorderRadius10px_MainPage">
+          <h1>Filters</h1>
+
+          <FilterModal></FilterModal>
+        </div>
+
         <div className="traits_SettingsPage BorderRadius10px_MainPage">
           <TraitModal></TraitModal>
         </div>
 
-        <div className="DogImageCard_MainPage BorderRadius10px_MainPage">
-          <h1>Location</h1>
-          <p>{Array(18).fill("Dog ").join("")}</p>
-        </div>
+        <div className="Distance_SettingsPage BorderRadius10px_MainPage">
+          <h1>Range</h1>
+          <p>Select the max distance of users.</p>
 
-        <div className="DogImageCard_MainPage BorderRadius10px_MainPage">
-          <h1>Select an Emoji</h1>
-          <EmojiSelector emojis={emojis} />
-        </div>
+          <div className="RangeSlider_SettingsPage">
+            <div className="InnerFlexDistance_SettingsPage">
+              <input
+                className="SliderInnerFlexDistance_SettingsPage"
+                type="range"
+                min="1"
+                max="100"
+                value={maxDistance}
+                onChange={(e) => setMaxDistance(e.target.value)}
+              />
 
-        <div className="EmojiCard_MainPage BorderRadius10px_MainPage">
-          {emojis.map((emoji, index) => (
-            <span key={index} className="Emojis_MainPage">
-              {emoji}
-            </span>
-          ))}
+              <h2> {maxDistance} Miles</h2>
+            </div>
+            <button
+              className="InputField_SettingsPage"
+              onClick={saveMaxDistance}
+            >
+              Save
+            </button>
+          </div>
         </div>
       </div>
     </div>

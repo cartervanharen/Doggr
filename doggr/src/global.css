@@ -24,6 +24,21 @@
   max-height: 380px !important;
 }
 
+.UserFilters_SettingsPage {
+  padding: 20px;
+
+  max-width: 300px;
+  justify-content: center;
+  text-align: center;
+  background-color: lightgray;
+  height: auto;
+  min-width: 300px;
+  margin: 10px;
+  width: 40%;
+  transition: background-color 1s ease;
+  max-height: 380px !important;
+}
+
 .DogImageCard_MainPage:hover {
   background-color: lightblue;
 }
@@ -103,7 +118,7 @@
   background-color: black;
   top: 150px;
   height: 600px;
-  left:2px;
+  left: 2px;
   width: 35px;
   justify-content: center;
   color: white;
@@ -112,16 +127,13 @@
   text-align: center;
   transition: background-color 1s ease;
   position: fixed;
-
-
 }
-
 
 .Varient2RightMenuBar_MainPage {
   background-color: black;
   top: 150px;
   height: 600px;
-  right:2px;
+  right: 2px;
   width: 35px;
   justify-content: center;
   color: white;
@@ -130,21 +142,15 @@
   text-align: center;
   transition: background-color 1s ease;
   position: fixed;
-
-
 }
 
-
-
-.innerPage_MainPage{
-
+.innerPage_MainPage {
   background-color: yellow;
   width: 35px;
   justify-content: center;
 
   height: 300px;
   transition: background-color 1s ease;
-
 }
 
 .TopInnerPage_MainPage {
@@ -169,7 +175,7 @@
   }
 }
 
-.BottomInnerPage_MainPage{
+.BottomInnerPage_MainPage {
   /* background-color: yellow; */
   width: 35px;
   justify-content: center;
@@ -177,8 +183,6 @@
   height: 500px;
   transition: background-color 1s ease;
 }
-
-
 
 .BottomInnerPage_MainPage:hover {
   animation: strobe 1s infinite;
@@ -193,68 +197,52 @@
   }
 }
 
-
-.TopHomeIcon_MainPage{
+.TopHomeIcon_MainPage {
   padding: 0;
   left: 7px;
-  top:185px;
+  top: 185px;
   position: fixed;
-
 }
 
-.RightTopHomeIcon_MainPage{
+.RightTopHomeIcon_MainPage {
   padding: 0;
   right: 7px;
-  top:185px;
+  top: 185px;
   position: fixed;
-
 }
 
-
-
-
-
-.RightBottomHomeIcon_MainPage{
+.RightBottomHomeIcon_MainPage {
   border-radius: 20px;
 
   padding: 0;
   right: 8px;
-  top:480px;
+  top: 480px;
   position: fixed;
-
 }
 
-
-
-
-.BottomHomeIcon_MainPage{
+.BottomHomeIcon_MainPage {
   border-radius: 20px;
 
   padding: 0;
   left: 8px;
-  top:480px;
+  top: 480px;
   position: fixed;
-
 }
 
-
-.xMarkBottomHomeIcon_MainPage{
+.xMarkBottomHomeIcon_MainPage {
   border-radius: 20px;
 
   padding: 0;
   left: 2px;
-  top:480px;
+  top: 480px;
   position: fixed;
-
 }
 
-
 .LeftMenuBar_MainPage {
-  
   background-color: black;
   top: 150px;
   height: 600px;
-  left:2px;
+  left: 2px;
   width: 35px;
   justify-content: center;
   color: white;
@@ -263,7 +251,6 @@
   text-align: center;
   transition: background-color 1s ease;
   position: fixed;
-
 }
 .RightMenuBar_MainPage {
   background-color: black;
@@ -311,12 +298,13 @@
 
 .UserInput_LoginPage {
   margin-top: 220px;
+
   padding: 5px;
   text-align: center;
   justify-content: center;
   padding: 30px;
   width: 300px;
-  height: 200px;
+  height: 260;
   display: inline-block;
 
   background-color: lightgray;
@@ -392,18 +380,18 @@
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
-  
+
   align-items: center;
   overflow-y: scroll;
-
 }
 
 .modalContent_SettingsPage {
   padding: 20px;
   z-index: 10000;
   overflow-y: scroll;
-  height: 500;
-  
+  height: 500 !important;
+  margin: 10px;
+  border-radius: px;
   background: #fff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: relative;
@@ -417,7 +405,6 @@
   font-size: 20pt;
   padding: 4px;
   margin: 4px;
-
 }
 .generalInfo_SettingsPage {
   max-width: 300px;
@@ -431,23 +418,19 @@
   max-height: 380px !important;
 }
 
-
-.traits_SettingsPage{
+.traits_SettingsPage {
   max-width: 300px;
+  padding: 20px;
+
   text-align: center;
   background-color: lightgray;
-  height:120px;
+  height: 240px;
   min-width: 300px;
 
   margin: 10px;
   width: 40%;
   transition: background-color 1s ease;
   max-height: 380px !important;
-}
-
-.slider_SettingsPage{
-
-  width:300px
 }
 
 .EmojiCard_MainPage {
@@ -468,35 +451,120 @@
 }
 
 .Emojis_MainPage.selected {
-  background-color: #007BFF; /* Highlight color */
+  background-color: #007bff; /* Highlight color */
   color: white;
 }
 
+.RangeSlider_SettingsPage {
+  justify-content: center;
+  width: 300;
+}
 
+.Distance_SettingsPage {
+  padding: 20px;
+  max-width: 300px;
+  justify-content: center;
+  text-align: center;
+  background-color: lightgray;
+  height: 240px;
+  min-width: 300px;
+  margin: 10px;
+  width: 0%;
+  transition: background-color 1s ease;
+  max-height: 380px !important;
+}
 
-/* 
+.InnerFlexDistance_SettingsPage {
+  justify-content: center;
+  padding: 20 px;
+  display: flex;
+}
 
-<button className="RightMenuBar_MainPage">
-<AiFillHome size={35} className="HomeButton_MainPage" />
-<div>LIKE</div>
-</button>
+.SliderInnerFlexDistance_SettingsPage {
+  margin-right: 30px;
+}
 
+.traitSelector_filterPage {
+  margin-bottom: 20px;
+}
 
+.label_filterPage {
+  display: block;
+  margin-bottom: 2px;
+  font-weight: bold;
+}
 
+.sliderContainer_filterPage {
+  display: flex;
+  gap: -30;
+}
 
+.sliderMin_filterPage,
+.sliderMax_filterPage {
+  width: calc(50% - 1px);
+  cursor: pointer;
+  height: 8px;
+  border-radius: 5px;
+  background: #007bff;
+  outline: none;
+}
 
+.sliderMin_filterPage::-webkit-slider-thumb,
+.sliderMax_filterPage::-webkit-slider-thumb {
+  width: 10px;
+  height: 16px;
+  background: white;
+  border: 2px solid #007bff;
+  border-radius: 50%;
+  cursor: pointer;
+  -webkit-appearance: none;
+}
 
+.sliderMin_filterPage {
+  direction: rtl;
+}
 
+.modalBackdrop_filterPage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
 
+.modalContent_filterPage {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 600px;
+}
 
+.closeButton_filterPage {
+  padding: 10px 20px;
+  margin-top: 10px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
 
+.closeButton_filterPage:hover {
+  background-color: #0056b3;
+}
 
-
-
-
-
-
-
-
-
-*/
+.InputField_filterPage {
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #28a745;
+  border: none;
+  color: white;
+}

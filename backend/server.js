@@ -298,9 +298,18 @@ app.post("/update-dog-traits", async (req, res) => {
   }
 });
 
-app.post("/update-dog-traits", async (req, res) => {
-  const { accessToken, firstName, lastName, dogName, address, email } =
-    req.body;
+app.post("/update-dog-filter", async (req, res) => {
+  const {
+    accessToken,
+    likeabilityFilter, // Expected to be { min: number, max: number }
+    energyFilter,
+    playfulnessFilter,
+    aggressionFilter,
+    sizeFilter,
+    trainingFilter,
+  } = req.body;
+
+  console.log(req.body);
 
   if (!accessToken) {
     return res.status(401).json({ error: "Access token is required" });
@@ -308,19 +317,17 @@ app.post("/update-dog-traits", async (req, res) => {
 
   try {
     const { data: user, error } = await supabase.auth.api.getUser(accessToken);
-
-    if (error) {
-      throw error;
-    }
+    if (error) throw error;
 
     const { error: updateError } = await supabase
-      .from("users")
+      .from("userdata")
       .update({
-        human_first_name: firstName,
-        human_last_name: lastName,
-        dog_name: dogName,
-        address: address,
-        email: email,
+        likeabilityFilter,
+        energyFilter,
+        playfulnessFilter,
+        aggressionFilter,
+        sizeFilter,
+        trainingFilter,
       })
       .eq("uuid", user.id);
 
@@ -331,9 +338,109 @@ app.post("/update-dog-traits", async (req, res) => {
 
     return res
       .status(200)
-      .json({ message: "User information updated successfully" });
+      .json({ message: "Dog traits updated successfully." });
   } catch (error) {
-    console.error("Error updating user information:", error.message);
+    console.error("Error updating dog traits:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/current-dog-filters", async (req, res) => {
+  const { accessToken } = req.body;
+
+  if (!accessToken) {
+    return res.status(401).json({ error: "Access token is required" });
+  }
+
+  try {
+    const { data: user, error: userError } = await supabase.auth.api.getUser(
+      accessToken
+    );
+    if (userError) throw userError;
+
+    const { data: userData, error: dataError } = await supabase
+      .from("userdata")
+      .select(
+        "likeabilityFilter, energyFilter, playfulnessFilter, aggressionFilter, sizeFilter, trainingFilter"
+      )
+      .eq("uuid", user.id)
+      .single();
+
+    if (dataError) {
+      throw dataError;
+    }
+
+    return res.status(200).json({ userFilters: userData });
+  } catch (error) {
+    console.error("Error fetching dog traits:", error.message);
+    return res
+      .status(500)
+      .json({ error: "Failed to fetch dog traits: " + error.message });
+  }
+});
+
+app.post("/update-max-distance", async (req, res) => {
+  const { accessToken, maxDistance } = req.body;
+
+  if (!accessToken) {
+    return res.status(401).json({ error: "Access token is required" });
+  }
+
+  try {
+    const { data: user, error } = await supabase.auth.api.getUser(accessToken);
+    if (error) {
+      throw error;
+    }
+
+    const { error: updateError } = await supabase
+      .from("userdata")
+      .update({ maxDistance })
+      .eq("uuid", user.id);
+
+    if (updateError) {
+      console.error("Update Error:", updateError.message);
+      return res.status(500).json({ error: updateError.message });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Max distance updated successfully" });
+  } catch (error) {
+    console.error("Error updating max distance:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/max-distance", async (req, res) => {
+  const { accessToken } = req.body;
+
+  if (!accessToken) {
+    return res.status(401).json({ error: "Access token is required" });
+  }
+
+  try {
+    const { data: user, error: userError } = await supabase.auth.api.getUser(
+      accessToken
+    );
+    if (userError) throw userError;
+
+    const { data, error: dataError } = await supabase
+      .from("userdata")
+      .select("maxDistance")
+      .eq("uuid", user.id)
+      .single();
+
+    if (dataError) {
+      throw dataError;
+    }
+
+    if (data) {
+      return res.status(200).json({ maxDistance: data.maxDistance });
+    } else {
+      return res.status(404).json({ error: "User data not found." });
+    }
+  } catch (error) {
+    console.error("Error fetching max distance:", error.message);
     return res.status(500).json({ error: error.message });
   }
 });
