@@ -4,7 +4,7 @@ import LoginPage from "./LoginPage.jsx";
 import Test from "./test.jsx";
 import SignUp from "./SignUpPage.jsx";
 
-// import "./general.css";
+import "./general.css";
 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 

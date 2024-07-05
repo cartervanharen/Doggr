@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import PropTypes from "prop-types";
 
 function TraitModal() {
+  const navigate = useNavigate();
+
   const [isOpen, setIsOpen] = useState(false);
   const [likeability, setLikeability] = useState(5);
   const [energy, setEnergy] = useState(5);
@@ -8,6 +13,38 @@ function TraitModal() {
   const [aggression, setAggression] = useState(5);
   const [size, setSize] = useState(5);
   const [trainingLevel, setTrainingLevel] = useState(5);
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        console.error("No token found in local storage.");
+        navigate("/login");
+        return;
+      }
+
+      try {
+        const response = await axios.post("http://localhost:3000/userdata", {
+          accessToken: token,
+        });
+        const userData = response.data.user;
+        setLikeability(userData.likeability);
+        setEnergy(userData.energy);
+        setPlayfulness(userData.playfulness);
+        setAggression(userData.aggression);
+        setSize(userData.size);
+        setTrainingLevel(userData.training);
+      } catch (error) {
+        console.error(
+          "Error fetching user information:",
+          error.response ? error.response.data : error.message
+        );
+        navigate("/login");
+      }
+    };
+
+    fetchUserInfo();
+  }, [navigate]);
 
   function Modal({ isOpen, close, children }) {
     if (!isOpen) return null;
@@ -19,12 +56,12 @@ function TraitModal() {
           <button onClick={close} className="closeButton_SettingsPage">
             Save
           </button>
-
-          <button onClick={handleCloseNoSave} className="closeButton_SettingsPage">
+          <button
+            onClick={handleCloseNoSave}
+            className="closeButton_SettingsPage"
+          >
             Exit
           </button>
-
-
         </div>
       </div>
     );
@@ -47,29 +84,51 @@ function TraitModal() {
       </div>
     );
   }
-  const handleClose = () => {
-    console.log("Closing modal...");
-    console.log(`Likeability: ${likeability}`);
-    console.log(`Energy: ${energy}`);
-    console.log(`Playfulness: ${playfulness}`);
-    console.log(`Aggression: ${aggression}`);
-    console.log(`Size: ${size}`);
-    console.log(`Training Level: ${trainingLevel}`);
+
+  const handleClose = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      console.error("No token found in local storage.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      await axios.post("http://localhost:3000/update-dog-traits", {
+        accessToken: token,
+        likeability,
+        energy,
+        playfulness,
+        aggression,
+        size,
+        training: trainingLevel,
+      });
+      console.log("Dog traits updated successfully.");
+    } catch (error) {
+      console.error(
+        "Error updating dog traits:",
+        error.response
+          ? JSON.stringify(error.response.data, null, 2)
+          : error.message
+      );
+    }
+
     setIsOpen(false);
   };
 
   const handleCloseNoSave = () => {
-
     setIsOpen(false);
   };
 
-
-  
   return (
     <div style={{ margin: "20px" }}>
-      <h1>Trait Evaluation</h1>
-      <button  className="InputField_SettingsPage" onClick={() => setIsOpen(true)}>Open Evaluation Form</button>
-
+      <h2>Trait Evaluation</h2>
+      <button
+        onClick={() => setIsOpen(true)}
+        className="InputField_SettingsPage"
+      >
+        Select Traits
+      </button>
       <Modal isOpen={isOpen} close={handleClose}>
         <TraitSelector
           label="Likeability"
@@ -123,3 +182,12 @@ function TraitModal() {
 }
 
 export default TraitModal;
+
+TraitModal.propTypes = {
+  isOpen: PropTypes,
+  close: PropTypes,
+  children: PropTypes,
+  label: PropTypes,
+  value: PropTypes,
+  setValue: PropTypes,
+};

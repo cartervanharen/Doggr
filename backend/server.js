@@ -1,13 +1,10 @@
 import express from "express";
 import { createClient } from "@supabase/supabase-js";
 import cors from "cors";
-
 const app = express();
 const PORT = process.env.PORT || 3000;
-
 const supabaseUrl = "https://oewelgbnnzgyamhpxyqs.supabase.co";
 const supabaseKey = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ld2VsZ2JubnpneWFtaHB4eXFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkzMzQ0MDIsImV4cCI6MjAzNDkxMDQwMn0.wrKCzM1wbzyTLwBN7xbYu2mzS2GzQ6zAWHNe9Wv1BBo`;
-import jwt from "jsonwebtoken";
 app.use(express.json());
 app.use(cors());
 
@@ -156,6 +153,37 @@ app.get("/allusr", async (req, res) => {
   res.json(data);
 });
 
+app.post("/userdata", async (req, res) => {
+  const token = req.body.accessToken;
+
+  if (!token) {
+    return res.status(403).json({ error: "Access token is required" });
+  }
+
+  try {
+    const { data: user, error } = await supabase.auth.api.getUser(token);
+
+    if (error) {
+      throw error;
+    }
+
+    const { data: userData, fetchError } = await supabase
+      .from("userdata")
+      .select("*")
+      .eq("uuid", user.id)
+      .single();
+
+    if (fetchError) {
+      throw fetchError;
+    }
+
+    return res.status(200).json({ user: userData });
+  } catch (error) {
+    console.error("Error fetching user data:", error.message);
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+});
+
 app.post("/user-info", async (req, res) => {
   const token = req.body.accessToken;
 
@@ -188,6 +216,89 @@ app.post("/user-info", async (req, res) => {
 });
 
 app.post("/update-user-info", async (req, res) => {
+  const { accessToken, firstName, lastName, dogName, address, email } =
+    req.body;
+
+  if (!accessToken) {
+    return res.status(401).json({ error: "Access token is required" });
+  }
+
+  try {
+    const { data: user, error } = await supabase.auth.api.getUser(accessToken);
+
+    if (error) {
+      throw error;
+    }
+
+    const { error: updateError } = await supabase
+      .from("users")
+      .update({
+        human_first_name: firstName,
+        human_last_name: lastName,
+        dog_name: dogName,
+        address: address,
+        email: email,
+      })
+      .eq("uuid", user.id);
+
+    if (updateError) {
+      console.error("Update Error:", updateError.message);
+      return res.status(500).json({ error: updateError.message });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "User information updated successfully" });
+  } catch (error) {
+    console.error("Error updating user information:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/update-dog-traits", async (req, res) => {
+  const {
+    accessToken,
+    likeability,
+    energy,
+    playfulness,
+    aggression,
+    size,
+    training,
+  } = req.body;
+
+  if (!accessToken) {
+    return res.status(401).json({ error: "Access token is required" });
+  }
+
+  try {
+    const { data: user, error } = await supabase.auth.api.getUser(accessToken);
+    if (error) throw error;
+
+    const { error: updateError } = await supabase
+      .from("userdata")
+      .update({
+        likeability,
+        energy,
+        playfulness,
+        aggression,
+        size,
+        training,
+      })
+      .eq("uuid", user.id);
+
+    if (updateError) {
+      console.error("Update Error:", updateError.message);
+      return res.status(500).json({ error: updateError.message });
+    }
+
+    return res.status(200).json({ message: "Dog traits updated successfully" });
+  } catch (error) {
+    console.error("Error updating dog traits:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/update-dog-traits", async (req, res) => {
   const { accessToken, firstName, lastName, dogName, address, email } =
     req.body;
 

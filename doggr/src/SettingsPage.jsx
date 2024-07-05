@@ -4,11 +4,12 @@ import { useNavigate } from "react-router-dom";
 
 import "./global.css";
 import { AiFillHome } from "react-icons/ai";
-import { IoSettings } from "react-icons/io5";
 import TraitModal from "./TraitModal.jsx";
+import EmojiSelector from "./EmojiSelector.jsx";
+import { MdMessage } from "react-icons/md";
 
 const SettingsPage = () => {
-  const emojis = "🎾🐾🐕‍🦺🥳🤗🤪".split(" ");
+  const emojis = ["😀", "😂", "👍", "💖", "🎉", "🚀"];
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [dogName, setDogName] = useState("");
@@ -20,7 +21,6 @@ const SettingsPage = () => {
   const verifyTokenAndGetUserID = async () => {
     const token = localStorage.getItem("accessToken");
     const wholeToken = "Bearer " + token;
-    console.log(wholeToken);
     if (!token) {
       console.error("No token found in local storage.");
       navigate("/login");
@@ -28,14 +28,11 @@ const SettingsPage = () => {
     }
 
     try {
-      console.log("line28");
-
       const response = await axios.post("http://localhost:3000/verify-token", {
         authorization: wholeToken,
       });
-
       const userId = response.data.user.id;
-      console.log("User ID retrieved:", userId);
+      console.log(userId);
     } catch (error) {
       console.error(
         "Error verifying token:",
@@ -60,6 +57,7 @@ const SettingsPage = () => {
         const response = await axios.post("http://localhost:3000/user-info", {
           accessToken: token,
         });
+
         const userData = response.data.user;
         setFirstName(userData.human_first_name);
         setLastName(userData.human_last_name);
@@ -108,12 +106,25 @@ const SettingsPage = () => {
     }
   };
 
+  const goHome = () => {
+    navigate("/dogs");
+  };
+
+  const goMessages = () => {
+    navigate("/messages");
+  };
+
   return (
     <div className="RootofRoot_MainPage">
-      <button className="LeftMenuBar_MainPage">
-        <IoSettings size={35} className="HomeIcon_MainPage" />
-        <div>PASS</div>
-      </button>
+      <div className="Varient2LeftMenuBar_MainPage">
+        <button onClick={goMessages} className="TopInnerPage_MainPage">
+          <MdMessage size={25} className="TopHomeIcon_MainPage" />
+        </button>
+
+        <button onClick={goHome} className="BottomInnerPage_MainPage">
+          <AiFillHome size={25} className="BottomHomeIcon_MainPage" />
+        </button>
+      </div>
 
       <div className="Whole_MainPage">
         <div className="generalInfo_SettingsPage BorderRadius10px_MainPage">
@@ -174,13 +185,9 @@ const SettingsPage = () => {
           </div>
         </div>
 
-
-
         <div className="traits_SettingsPage BorderRadius10px_MainPage">
           <TraitModal></TraitModal>
         </div>
-
-
 
         <div className="DogImageCard_MainPage BorderRadius10px_MainPage">
           <h1>Location</h1>
@@ -188,11 +195,9 @@ const SettingsPage = () => {
         </div>
 
         <div className="DogImageCard_MainPage BorderRadius10px_MainPage">
-          <h1>Filters</h1>
-          <p>{Array(18).fill("Dog ").join("")}</p>
+          <h1>Select an Emoji</h1>
+          <EmojiSelector emojis={emojis} />
         </div>
-
-
 
         <div className="EmojiCard_MainPage BorderRadius10px_MainPage">
           {emojis.map((emoji, index) => (
@@ -202,10 +207,6 @@ const SettingsPage = () => {
           ))}
         </div>
       </div>
-      <button className="RightMenuBar_MainPage">
-        <AiFillHome size={35} className="HomeButton_MainPage" />
-        <div>LIKE</div>
-      </button>
     </div>
   );
 };

@@ -99,7 +99,158 @@
   background-color: white;
 }
 
+.Varient2LeftMenuBar_MainPage {
+  background-color: black;
+  top: 150px;
+  height: 600px;
+  left:2px;
+  width: 35px;
+  justify-content: center;
+  color: white;
+  padding: 0px;
+  border-radius: 20px;
+  text-align: center;
+  transition: background-color 1s ease;
+  position: fixed;
+
+
+}
+
+
+.Varient2RightMenuBar_MainPage {
+  background-color: black;
+  top: 150px;
+  height: 600px;
+  right:2px;
+  width: 35px;
+  justify-content: center;
+  color: white;
+  padding: 0px;
+  border-radius: 20px;
+  text-align: center;
+  transition: background-color 1s ease;
+  position: fixed;
+
+
+}
+
+
+
+.innerPage_MainPage{
+
+  background-color: yellow;
+  width: 35px;
+  justify-content: center;
+
+  height: 300px;
+  transition: background-color 1s ease;
+
+}
+
+.TopInnerPage_MainPage {
+  /* background-color: yellow; */
+  width: 35px;
+  justify-content: center;
+  border-radius: 20px;
+  height: 100px;
+  transition: background-color 1s ease;
+}
+
+.TopInnerPage_MainPage:hover {
+  animation: strobe 1s infinite;
+}
+
+@keyframes strobe {
+  0% {
+    background-color: white;
+  }
+  50% {
+    background-color: lightblue;
+  }
+}
+
+.BottomInnerPage_MainPage{
+  /* background-color: yellow; */
+  width: 35px;
+  justify-content: center;
+  border-radius: 20px;
+  height: 500px;
+  transition: background-color 1s ease;
+}
+
+
+
+.BottomInnerPage_MainPage:hover {
+  animation: strobe 1s infinite;
+}
+
+@keyframes strobe {
+  0% {
+    background-color: white;
+  }
+  50% {
+    background-color: lightblue;
+  }
+}
+
+
+.TopHomeIcon_MainPage{
+  padding: 0;
+  left: 7px;
+  top:185px;
+  position: fixed;
+
+}
+
+.RightTopHomeIcon_MainPage{
+  padding: 0;
+  right: 7px;
+  top:185px;
+  position: fixed;
+
+}
+
+
+
+
+
+.RightBottomHomeIcon_MainPage{
+  border-radius: 20px;
+
+  padding: 0;
+  right: 8px;
+  top:480px;
+  position: fixed;
+
+}
+
+
+
+
+.BottomHomeIcon_MainPage{
+  border-radius: 20px;
+
+  padding: 0;
+  left: 8px;
+  top:480px;
+  position: fixed;
+
+}
+
+
+.xMarkBottomHomeIcon_MainPage{
+  border-radius: 20px;
+
+  padding: 0;
+  left: 2px;
+  top:480px;
+  position: fixed;
+
+}
+
+
 .LeftMenuBar_MainPage {
+  
   background-color: black;
   top: 150px;
   height: 600px;
@@ -285,8 +436,9 @@
   max-width: 300px;
   text-align: center;
   background-color: lightgray;
-  height: 130px;
+  height:120px;
   min-width: 300px;
+
   margin: 10px;
   width: 40%;
   transition: background-color 1s ease;
@@ -297,3 +449,54 @@
 
   width:300px
 }
+
+.EmojiCard_MainPage {
+  display: flex;
+
+  flex-wrap: wrap;
+  padding: 10px;
+}
+
+.BorderRadius10px_MainPage {
+  border-radius: 10px;
+}
+
+.Emojis_MainPage {
+  padding: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.Emojis_MainPage.selected {
+  background-color: #007BFF; /* Highlight color */
+  color: white;
+}
+
+
+
+/* 
+
+<button className="RightMenuBar_MainPage">
+<AiFillHome size={35} className="HomeButton_MainPage" />
+<div>LIKE</div>
+</button>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/

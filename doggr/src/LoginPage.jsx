@@ -43,32 +43,29 @@ function LoginPage() {
 
   return (
     <div className="Whole_LoginPage">
-    <div className="Inner_LoginPage">
-
-      <div className="UserInput_LoginPage">
-        <h1>Sign in to Doggr</h1>
-        {error && <p className="Error_Message">{error}</p>}
-        <input
-          className="InputField_LoginPage"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder=" Email"
-        />
-        <input
-          className="InputField_LoginPage"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder=" Password"
-        />
-        <button className="InputField_LoginPage" onClick={handleSignIn}>
-          Sign In
-        </button>
+      <div className="Inner_LoginPage">
+        <div className="UserInput_LoginPage">
+          <h1>Sign in to Doggr</h1>
+          {error && <p className="Error_Message">{error}</p>}
+          <input
+            className="InputField_LoginPage"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder=" Email"
+          />
+          <input
+            className="InputField_LoginPage"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder=" Password"
+          />
+          <button className="InputField_LoginPage" onClick={handleSignIn}>
+            Sign In
+          </button>
+        </div>
       </div>
-
-      </div>
-
     </div>
   );
 }
