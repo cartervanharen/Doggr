@@ -233,8 +233,6 @@ const SettingsPage = () => {
         </div>
 
         <div className="UserFilters_SettingsPage BorderRadius10px_MainPage">
-          <h1>Filters</h1>
-
           <FilterModal></FilterModal>
         </div>
 
