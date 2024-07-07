@@ -445,6 +445,77 @@ app.post("/max-distance", async (req, res) => {
   }
 });
 
+app.post("/current-dog-pictures", async (req, res) => {
+  const { accessToken } = req.body;
+
+  if (!accessToken) {
+    return res.status(401).json({ error: "Access token is required" });
+  }
+
+  try {
+    const { data: user, error: userError } = await supabase.auth.api.getUser(
+      accessToken
+    );
+    if (userError) throw userError;
+
+    const { data: userData, error: dataError } = await supabase
+      .from("images")
+      .select("picture1, picture2, picture3, picture4, picture5")
+      .eq("uuid", user.id)
+      .single();
+
+    if (dataError) {
+      throw dataError;
+    }
+
+    return res.status(200).json({ userFilters: userData });
+  } catch (error) {
+    console.error("Error fetching dog images:", error.message);
+    return res
+      .status(500)
+      .json({ error: "Failed to fetch dog images: " + error.message });
+  }
+});
+
+app.post("/update-dog-pictures", async (req, res) => {
+  const { accessToken, picture1, picture2, picture3, picture4, picture5 } =
+    req.body;
+
+  console.log(req.body);
+
+  if (!accessToken) {
+    return res.status(401).json({ error: "Access token is required" });
+  }
+
+  try {
+    const { data: user, error } = await supabase.auth.api.getUser(accessToken);
+    if (error) throw error;
+
+    const { error: updateError } = await supabase
+      .from("images")
+      .update({
+        picture1,
+        picture2,
+        picture3,
+        picture4,
+        picture5,
+      })
+      .eq("uuid", user.id);
+
+    if (updateError) {
+      console.error("Update Error:", updateError.message);
+      return res.status(500).json({ error: updateError.message });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Dog pictures updated successfully." });
+  } catch (error) {
+    console.error("Error updating dog pictures:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

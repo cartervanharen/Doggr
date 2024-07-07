@@ -6,6 +6,7 @@ import "./global.css";
 import { AiFillHome } from "react-icons/ai";
 import TraitModal from "./TraitModal.jsx";
 import FilterModal from "./filters.jsx";
+import ImageUpload from "./ImageUpload.jsx";
 
 import { MdMessage } from "react-icons/md";
 
@@ -264,6 +265,16 @@ const SettingsPage = () => {
               Save
             </button>
           </div>
+        </div>
+
+        <div className="traits_SettingsPage BorderRadius10px_MainPage">
+          <h2>Profile Pictures</h2>
+
+          <ImageUpload></ImageUpload>
+        </div>
+
+        <div className="traits_SettingsPage BorderRadius10px_MainPage">
+          DOGGR LOGO
         </div>
       </div>
     </div>

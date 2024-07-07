@@ -14,7 +14,7 @@
 
 .DogImageCard_MainPage {
   max-width: 300px;
-
+  justify-content: center;
   background-color: lightgray;
   height: auto;
   min-width: 300px;
@@ -56,9 +56,9 @@
 }
 
 .SmallDogImageGrid_MainPage {
-  width: 91.4%;
+  width: 100%;
   padding-left: 0px;
-
+  justify-content: center;
   display: flex;
 }
 
@@ -341,7 +341,7 @@
 .InputField_SettingsPage {
   border-radius: 10px;
   border-style: none;
-
+  height: 30px;
   margin: 3px;
   padding: 4px;
   justify-content: center;
