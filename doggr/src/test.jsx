@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-
+//this is a imgbb.com demo
 const ImageUpload = () => {
   const [file, setFile] = useState(null);
   const [imageUrl, setImageUrl] = useState("");
