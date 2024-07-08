@@ -2,8 +2,12 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./global.css";
-import { AiFillHome } from "react-icons/ai";
 import { IoSettings } from "react-icons/io5";
+import { MdMessage } from "react-icons/md";
+import { FaHeart } from "react-icons/fa";
+import { FaXmark } from "react-icons/fa6";
+
+
 
 const MainPage = () => {
   const navigate = useNavigate();
@@ -53,17 +57,21 @@ const MainPage = () => {
   const dogPicture5 =
     "https://www.statnews.com/wp-content/uploads/2024/03/AP110520117877-645x645.jpg";
 
+  const goSettings = () => {
+    navigate("/settings");
+  };
+
   return (
     <div className="RootofRoot_MainPage">
-      <button className="LeftMenuBar_MainPage">
-        <IoSettings size={35} className="HomeIcon_MainPage" />
-        ___
-        <br></br>
-        <p>P</p>
-        <p>A</p>
-        <p>S</p>
-        <p>S</p>
-      </button>
+      <div className="Varient2LeftMenuBar_MainPage">
+        <button onClick={goSettings} className="TopInnerPage_MainPage">
+          <IoSettings size={25} className="TopHomeIcon_MainPage" />
+        </button>
+
+        <button className="BottomInnerPage_MainPage">
+          <FaXmark size={35} className="xMarkBottomHomeIcon_MainPage" />
+        </button>
+      </div>
 
       <div className="Whole_MainPage">
         <div className="DogImageCard_MainPage BorderRadius10px_MainPage">
@@ -103,15 +111,15 @@ const MainPage = () => {
         </div>
       </div>
 
-      <button className="RightMenuBar_MainPage">
-        <AiFillHome size={35} className="HomeButton_MainPage" />
-        ___
-        <br></br>
-        <p>L</p>
-        <p>I</p>
-        <p>K</p>
-        <p>E</p>
-      </button>
+      <div className="Varient2RightMenuBar_MainPage">
+        <button className="TopInnerPage_MainPage">
+          <MdMessage size={25} className="RightTopHomeIcon_MainPage" />
+        </button>
+
+        <button className="BottomInnerPage_MainPage">
+          <FaHeart size={25} className="RightBottomHomeIcon_MainPage" />
+        </button>
+      </div>
     </div>
   );
 };

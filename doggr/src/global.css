@@ -1,6 +1,6 @@
 .Whole_MainPage {
   display: flex;
-  overflow: wrap;
+  overflow: flex-wrap;
   width: 80%;
   max-width: 800px;
 
@@ -14,12 +14,26 @@
 
 .DogImageCard_MainPage {
   max-width: 300px;
-
+  justify-content: center;
   background-color: lightgray;
   height: auto;
   min-width: 300px;
   margin: 10px;
+  width: 40%;
+  transition: background-color 1s ease;
+  max-height: 380px !important;
+}
 
+.UserFilters_SettingsPage {
+  padding: 20px;
+
+  max-width: 300px;
+  justify-content: center;
+  text-align: center;
+  background-color: lightgray;
+  height: auto;
+  min-width: 300px;
+  margin: 10px;
   width: 40%;
   transition: background-color 1s ease;
   max-height: 380px !important;
@@ -30,21 +44,35 @@
 }
 
 #MainDogImage_MainPage {
-  height: auto;
-  width: 100%;
+  height: 300px;
+  width: 300px;
 }
 
 .SmallDogImage_MainPage {
   border-radius: 10px;
-  height: 25%;
-  width: 25%;
+  height: 75px;
+  width: 75px;
   padding: 3px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.SmallDogImage_MainPage:hover {
+  transform: scale(2.5);
+  z-index: 10;
+}
+
+.SmallDogImage_MainPage.edge-left:hover {
+  transform-origin: left center;
+}
+
+.SmallDogImage_MainPage.edge-right:hover {
+  transform-origin: right center;
 }
 
 .SmallDogImageGrid_MainPage {
   width: 100%;
-  padding: 3px;
-
+  padding-left: 0px;
+  justify-content: center;
   display: flex;
 }
 
@@ -100,11 +128,11 @@
   background-color: white;
 }
 
-.LeftMenuBar_MainPage {
+.Varient2LeftMenuBar_MainPage {
   background-color: black;
   top: 150px;
   height: 600px;
-
+  left: 2px;
   width: 35px;
   justify-content: center;
   color: white;
@@ -112,20 +140,143 @@
   border-radius: 20px;
   text-align: center;
   transition: background-color 1s ease;
-
-  position: relative;
+  position: fixed;
 }
-.RightMenuBar_MainPage {
+
+.Varient2RightMenuBar_MainPage {
   background-color: black;
   top: 150px;
   height: 600px;
-
+  right: 2px;
   width: 35px;
   justify-content: center;
   color: white;
   padding: 0px;
   border-radius: 20px;
-  position: relative;
+  text-align: center;
+  transition: background-color 1s ease;
+  position: fixed;
+}
+
+.innerPage_MainPage {
+  background-color: yellow;
+  width: 35px;
+  justify-content: center;
+
+  height: 300px;
+  transition: background-color 1s ease;
+}
+
+.TopInnerPage_MainPage {
+  /* background-color: yellow; */
+  width: 35px;
+  justify-content: center;
+  border-radius: 20px;
+  height: 100px;
+  transition: background-color 1s ease;
+}
+
+.TopInnerPage_MainPage:hover {
+  animation: strobe 1s infinite;
+}
+
+@keyframes strobe {
+  0% {
+    background-color: white;
+  }
+  50% {
+    background-color: lightblue;
+  }
+}
+
+.BottomInnerPage_MainPage {
+  /* background-color: yellow; */
+  width: 35px;
+  justify-content: center;
+  border-radius: 20px;
+  height: 500px;
+  transition: background-color 1s ease;
+}
+
+.BottomInnerPage_MainPage:hover {
+  animation: strobe 1s infinite;
+}
+
+@keyframes strobe {
+  0% {
+    background-color: white;
+  }
+  50% {
+    background-color: lightblue;
+  }
+}
+
+.TopHomeIcon_MainPage {
+  padding: 0;
+  left: 7px;
+  top: 185px;
+  position: fixed;
+}
+
+.RightTopHomeIcon_MainPage {
+  padding: 0;
+  right: 7px;
+  top: 185px;
+  position: fixed;
+}
+
+.RightBottomHomeIcon_MainPage {
+  border-radius: 20px;
+
+  padding: 0;
+  right: 8px;
+  top: 480px;
+  position: fixed;
+}
+
+.BottomHomeIcon_MainPage {
+  border-radius: 20px;
+
+  padding: 0;
+  left: 8px;
+  top: 480px;
+  position: fixed;
+}
+
+.xMarkBottomHomeIcon_MainPage {
+  border-radius: 20px;
+
+  padding: 0;
+  left: 2px;
+  top: 480px;
+  position: fixed;
+}
+
+.LeftMenuBar_MainPage {
+  background-color: black;
+  top: 150px;
+  height: 600px;
+  left: 2px;
+  width: 35px;
+  justify-content: center;
+  color: white;
+  padding: 0px;
+  border-radius: 20px;
+  text-align: center;
+  transition: background-color 1s ease;
+  position: fixed;
+}
+.RightMenuBar_MainPage {
+  background-color: black;
+  top: 150px;
+  height: 600px;
+  right: 3px;
+  width: 35px;
+  justify-content: center;
+  color: white;
+  padding: 0px;
+  border-radius: 20px;
+  position: fixed;
   text-align: center;
   transition: background-color 1s ease;
 }
@@ -146,21 +297,42 @@
 }
 
 .Whole_LoginPage {
-  width: 100%;
-  height: 100%;
-  background-color: white;
-  padding: 20px;
-  justify-content: center;
   display: flex;
+  overflow: wrap;
+  width: 100vw;
+  background-color: white;
+
+  height: 100vh;
+
+  margin: 0;
+  justify-content: center;
+  align-content: flex-start;
+  flex-wrap: wrap;
 }
 
 .UserInput_LoginPage {
-  text-align: center;
+  margin-top: 220px;
 
+  padding: 5px;
+  text-align: center;
   justify-content: center;
   padding: 30px;
-  width: 500px;
-  height: 520px;
+  width: 300px;
+  height: 260;
+  display: inline-block;
+
+  background-color: lightgray;
+  border-radius: 30px;
+}
+
+.UserInput_SignUpPage {
+  margin-top: 220px;
+  padding: 5px;
+  text-align: center;
+  justify-content: center;
+  padding: 30px;
+  width: 300px;
+  height: 600px;
   display: inline-block;
 
   background-color: lightgray;
@@ -178,4 +350,265 @@
 
 .BottomText_LoginPage {
   font-size: 30px;
+}
+
+.InputField_SettingsPage {
+  border-radius: 10px;
+  border-style: none;
+  height: 30px;
+  margin: 3px;
+  padding: 4px;
+  justify-content: center;
+
+  width: 90%;
+}
+
+.UserInfo_SettingsPage {
+  justify-content: center;
+  display: flex;
+
+  text-align: center;
+}
+
+.UserInput_SettingsPage {
+  padding: 5px;
+  margin: 10px;
+
+  justify-content: center;
+}
+
+.EditButtons_SettingsPage {
+  display: flex;
+  width: 93;
+  margin: 10px;
+  padding: auto;
+}
+
+.modalBackdrop_SettingsPage {
+  position: fixed;
+  z-index: 10000;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+
+  align-items: center;
+  overflow-y: scroll;
+}
+
+.modalContent_SettingsPage {
+  padding: 20px;
+  z-index: 10000;
+  overflow-y: scroll;
+  height: 500 !important;
+  margin: 10px;
+  border-radius: px;
+  background: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.closeButton_SettingsPage {
+  z-index: 10000;
+  border-radius: 10px;
+  border-style: none;
+  width: 100px;
+  font-size: 20pt;
+  padding: 4px;
+  margin: 4px;
+}
+.generalInfo_SettingsPage {
+  max-width: 300px;
+
+  background-color: lightgray;
+  height: 260px;
+  min-width: 300px;
+  margin: 10px;
+  width: 40%;
+  transition: background-color 1s ease;
+  max-height: 380px !important;
+}
+
+.traits_SettingsPage {
+  max-width: 300px;
+  padding: 20px;
+
+  text-align: center;
+  background-color: lightgray;
+  height: 240px;
+  min-width: 300px;
+
+  margin: 10px;
+  width: 40%;
+  transition: background-color 1s ease;
+  max-height: 380px !important;
+}
+
+.EmojiCard_MainPage {
+  display: flex;
+
+  flex-wrap: wrap;
+  padding: 10px;
+}
+
+.BorderRadius10px_MainPage {
+  border-radius: 10px;
+}
+
+.Emojis_MainPage {
+  padding: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.Emojis_MainPage.selected {
+  background-color: #007bff; /* Highlight color */
+  color: white;
+}
+
+.RangeSlider_SettingsPage {
+  justify-content: center;
+  width: 300;
+}
+
+.Distance_SettingsPage {
+  padding: 20px;
+  max-width: 300px;
+  justify-content: center;
+  text-align: center;
+  background-color: lightgray;
+  height: 240px;
+  min-width: 300px;
+  margin: 10px;
+  width: 0%;
+  transition: background-color 1s ease;
+  max-height: 380px !important;
+}
+
+.InnerFlexDistance_SettingsPage {
+  justify-content: center;
+  padding: 20 px;
+  display: flex;
+}
+
+.SliderInnerFlexDistance_SettingsPage {
+  margin-right: 30px;
+}
+
+.traitSelector_filterPage {
+  margin-bottom: 20px;
+}
+
+.label_filterPage {
+  display: block;
+  margin-bottom: 2px;
+  font-weight: bold;
+}
+
+.sliderContainer_filterPage {
+  display: flex;
+  gap: -30;
+}
+
+.sliderMin_filterPage,
+.sliderMax_filterPage {
+  width: calc(50% - 1px);
+  cursor: pointer;
+  height: 8px;
+  border-radius: 5px;
+  background: #007bff;
+  outline: none;
+}
+
+.sliderMin_filterPage::-webkit-slider-thumb,
+.sliderMax_filterPage::-webkit-slider-thumb {
+  width: 10px;
+  height: 16px;
+  background: white;
+  border: 2px solid #007bff;
+  border-radius: 50%;
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+
+.sliderMin_filterPage {
+  direction: rtl;
+}
+
+.modalBackdrop_filterPage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent_filterPage {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 600px;
+}
+
+.closeButton_filterPage {
+  padding: 10px 20px;
+  margin-top: 10px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.closeButton_filterPage:hover {
+  background-color: #0056b3;
+}
+
+.InputField_filterPage {
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #28a745;
+  border: none;
+  color: white;
+}
+
+.ImageUploadButton_ImageUpload {
+  width: 240px;
+  overflow-x: hidden;
+}
+
+.DogImages_GetDogImages {
+  display: inline-block;
+
+  width: 300px;
+
+  height: 300px;
+  background-color: pink;
+}
+
+.InnerImage_GetDogImages {
+  width: 100px;
+  height: 100px;
+}
+
+
+.button_ImageUploadPage {
+  padding: 3px;
+  margin-top: 3px;
+  background-color: lightgray;
+  border: none;
+
+  border-radius: 5px;
+  cursor: pointer;
 }

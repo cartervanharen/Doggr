@@ -16,7 +16,7 @@ function LoginPage() {
     try {
       const response = await signUserIn(userData);
       console.log("User sign in successfully:", response);
-      navigate("/dogs");
+      navigate("/settings");
     } catch (error) {
       console.error("Error signing in user:", error);
       setError("Failed to sign in. Check your email and password.");
@@ -43,26 +43,35 @@ function LoginPage() {
 
   return (
     <div className="Whole_LoginPage">
-      <div className="UserInput_LoginPage">
-        <h1>Sign in to Doggr</h1>
-        {error && <p className="Error_Message">{error}</p>}
-        <input
-          className="InputField_LoginPage"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder=" Email"
-        />
-        <input
-          className="InputField_LoginPage"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder=" Password"
-        />
-        <button className="InputField_LoginPage" onClick={handleSignIn}>
-          Sign In
-        </button>
+      <div className="Inner_LoginPage">
+        <div className="UserInput_LoginPage">
+          <h1>Sign in to Doggr</h1>
+          {error && <p className="Error_Message">{error}</p>}
+          <input
+            className="InputField_LoginPage"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder=" Email"
+          />
+          <input
+            className="InputField_LoginPage"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder=" Password"
+          />
+          <button className="InputField_LoginPage" onClick={handleSignIn}>
+            Sign In
+          </button>
+
+          <button
+            className="InputField_LoginPage"
+            onClick={() => navigate("/signup")}
+          >
+            No Account? Sign Up
+          </button>
+        </div>
       </div>
     </div>
   );

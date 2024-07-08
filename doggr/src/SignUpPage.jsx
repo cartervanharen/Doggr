@@ -1,8 +1,12 @@
 import { useState } from "react";
 import "./global.css";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+
 
 function SignUp() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [address, setAddress] = useState("");
@@ -23,6 +27,8 @@ function SignUp() {
     try {
       const response = await createUser(userData);
       console.log("User created successfully:", response);
+      navigate("/login");
+
     } catch (error) {
       console.error("Error creating user:", error);
     }
@@ -46,7 +52,7 @@ function SignUp() {
 
   return (
     <div className="Whole_LoginPage">
-      <div className="UserInput_LoginPage">
+      <div className="UserInput_SignUpPage">
         <h1>Sign Up for Doggr</h1>
 
         <input
@@ -106,10 +112,20 @@ function SignUp() {
 
         <button
           className="InputField_LoginPage"
-          onClick={() => console.log("need to add redirect!!!!!***")}
+          onClick={() =>       navigate("/login")      }
         >
           Sign In
         </button>
+
+
+
+
+
+
+
+
+
+        
       </div>
     </div>
   );

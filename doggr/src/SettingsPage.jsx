@@ -1,234 +1,293 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 import "./global.css";
 import { AiFillHome } from "react-icons/ai";
-import { IoSettings } from "react-icons/io5";
-import { useState } from "react";
+import TraitModal from "./TraitModal.jsx";
+import FilterModal from "./filters.jsx";
+import ImageUpload from "./ImageUpload.jsx";
+import GetDogImages from "./GetDogImages.jsx";
+
+import { MdMessage } from "react-icons/md";
 
 const SettingsPage = () => {
-  const emojis = "🎾🐾🐕‍🦺🥳🤗🤪".split(" ");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [dogName, setDogName] = useState("");
+  const [address, setAddress] = useState("");
+  const [editMode, setEditMode] = useState(false);
+  const [maxDistance, setMaxDistance] = useState(5);
 
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const handleSubmit = (event) => {
-      event.preventDefault();
-      // Handle form submission here
+  const navigate = useNavigate();
+
+  const verifyTokenAndGetUserID = async () => {
+    const token = localStorage.getItem("accessToken");
+    const wholeToken = "Bearer " + token;
+    if (!token) {
+      console.error("No token found in local storage.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:3000/verify-token", {
+        authorization: wholeToken,
+      });
+      const userId = response.data.user.id;
+      console.log(userId);
+    } catch (error) {
+      console.error(
+        "Error verifying token:",
+        error.response ? error.response.data : error.message
+      );
+      navigate("/login");
+    }
+  };
+
+  useEffect(() => {
+    verifyTokenAndGetUserID();
+  });
+
+  const saveMaxDistance = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      console.error("No token found in local storage.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      await axios.post("http://localhost:3000/update-max-distance", {
+        accessToken: token,
+        maxDistance,
+      });
+      console.log("Max distance updated successfully.");
+    } catch (error) {
+      console.error(
+        "Error updating max distance:",
+        error.response
+          ? JSON.stringify(error.response.data, null, 2)
+          : error.message
+      );
+    }
+  };
+
+  useEffect(() => {
+    const fetchMaxDistance = async () => {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        console.error("No token found in local storage.");
+        return;
+      }
+
+      try {
+        const response = await axios.post(
+          "http://localhost:3000/max-distance",
+          {
+            accessToken: token,
+          }
+        );
+
+        setMaxDistance(response.data.maxDistance);
+      } catch (error) {
+        console.error("Error fetching max distance:", error.message);
+      }
     };
-  
+
+    const fetchUserInfo = async () => {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        console.error("No token found in local storage.");
+        return;
+      }
+
+      try {
+        const response = await axios.post("http://localhost:3000/user-info", {
+          accessToken: token,
+        });
+
+        const userData = response.data.user;
+        setFirstName(userData.human_first_name);
+        setLastName(userData.human_last_name);
+        setDogName(userData.dog_name);
+        setAddress(userData.address);
+      } catch (error) {
+        console.error("Error fetching user information:", error.message);
+      }
+    };
+    fetchMaxDistance();
+    fetchUserInfo();
+  }, []);
+
+  const handleEdit = () => {
+    setEditMode(true);
+  };
+
+  const handleSave = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        console.error("No token found in local storage.");
+        return;
+      }
+
+      const updatedUserInfo = {
+        accessToken: token,
+        firstName,
+        lastName,
+        dogName,
+        address,
+      };
+
+      const response = await axios.post(
+        "http://localhost:3000/update-user-info",
+        updatedUserInfo
+      );
+
+      console.log(
+        "User information updated successfully:",
+        response.data.message
+      );
+      setEditMode(false);
+    } catch (error) {
+      console.error("Error updating user information:", error.message);
+    }
+  };
+
+  const goHome = () => {
+    navigate("/dogs");
+  };
+
+  const goMessages = () => {
+    navigate("/messages");
+  };
+
   return (
     <div className="RootofRoot_MainPage">
-      <button className="LeftMenuBar_MainPage">
-        <IoSettings size={35} className="HomeIcon_MainPage" />
-        ___
-        <br></br>
-        <p>P</p>
-        <p>A</p>
-        <p>S</p>
-        <p>S</p>
-      </button>
+      <div className="Varient2LeftMenuBar_MainPage">
+        <button onClick={goMessages} className="TopInnerPage_MainPage">
+          <MdMessage size={25} className="TopHomeIcon_MainPage" />
+        </button>
+
+        <button onClick={goHome} className="BottomInnerPage_MainPage">
+          <AiFillHome size={25} className="BottomHomeIcon_MainPage" />
+        </button>
+      </div>
 
       <div className="Whole_MainPage">
-        <div className="DogImageCard_MainPage BorderRadius10px_MainPage">
-          <h1>Profile</h1>
-
-          <form onSubmit={handleSubmit}>
-            <label>
-              Name:
+        <div className="generalInfo_SettingsPage BorderRadius10px_MainPage">
+          <div className="UserInfo_SettingsPage">
+            <div className="UserInput_SettingsPage">
+              <h1>General Info</h1>
               <input
+                className="InputField_SettingsPage"
                 type="text"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="First Name"
+                disabled={!editMode}
               />
-            </label>
-            <br />
-            <label>
-              Email:
               <input
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                className="InputField_SettingsPage"
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Last Name"
+                disabled={!editMode}
               />
-            </label>
-            <br />
-            <label>
-              Password:
               <input
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
+                className="InputField_SettingsPage"
+                type="text"
+                value={dogName}
+                onChange={(e) => setDogName(e.target.value)}
+                placeholder="Dog's Name"
+                disabled={!editMode}
               />
-            </label>
-            <br />
-            <button type="submit">Submit</button>
-          </form>
-        </div>
-
-        <div className="DogImageCard_MainPage BorderRadius10px_MainPage">
-          <h1>Location</h1>
-          <p>
-            Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog
-            Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog{" "}
-          </p>
-        </div>
-
-        <div className="DogImageCard_MainPage BorderRadius10px_MainPage">
-          <h1>Filters</h1>
-          <p>
-            Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog
-            Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog{" "}
-          </p>
-        </div>
-
-        <div className="EmojiCard_MainPage BorderRadius10px_MainPage">
-          <div className="InnerEmojiCard_MainPage BorderRadius10px_MainPage">
-            {emojis.map((emoji, index) => (
-              <span key={index} className="Emojis_MainPage">
-                {emoji}
-              </span>
-            ))}
+              <input
+                className="InputField_SettingsPage"
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Full Home Address"
+                disabled={!editMode}
+              />
+              <div className="EditButtons__SettingsPage">
+                {!editMode && (
+                  <button
+                    className="InputField_SettingsPage"
+                    onClick={handleEdit}
+                  >
+                    Edit
+                  </button>
+                )}
+                {editMode && (
+                  <button
+                    className="InputField_SettingsPage"
+                    onClick={handleSave}
+                  >
+                    Save
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="EmojiCard_MainPage BorderRadius10px_MainPage">
-          <p>Age: 5 | 9 mi | 30 lbs</p>
+        <div className="UserFilters_SettingsPage BorderRadius10px_MainPage">
+          <FilterModal></FilterModal>
         </div>
 
-        {/* <div className="footer">testtesttesttesttesttesttest</div> */}
-      </div>
+        <div className="traits_SettingsPage BorderRadius10px_MainPage">
+          <TraitModal></TraitModal>
+        </div>
 
-      <button className="RightMenuBar_MainPage">
-        <AiFillHome size={35} className="HomeButton_MainPage" />
-        ___
-        <br></br>
-        <p>L</p>
-        <p>I</p>
-        <p>K</p>
-        <p>E</p>
-      </button>
+        <div className="Distance_SettingsPage BorderRadius10px_MainPage">
+          <h1>Range</h1>
+          <p>Select the max distance of users.</p>
+
+          <div className="RangeSlider_SettingsPage">
+            <div className="InnerFlexDistance_SettingsPage">
+              <input
+                className="SliderInnerFlexDistance_SettingsPage"
+                type="range"
+                min="1"
+                max="100"
+                value={maxDistance}
+                onChange={(e) => setMaxDistance(e.target.value)}
+              />
+
+              <h2> {maxDistance} Miles</h2>
+            </div>
+            <button
+              className="InputField_SettingsPage"
+              onClick={saveMaxDistance}
+            >
+              Save
+            </button>
+          </div>
+        </div>
+
+        <div className="traits_SettingsPage BorderRadius10px_MainPage">
+          <h3>Profile Pictures</h3>
+
+          <ImageUpload></ImageUpload>
+        </div>
+
+        {/* <div className="traits_SettingsPage BorderRadius10px_MainPage">
+         <GetDogImages></GetDogImages>
+        </div> */}
+
+
+
+        <GetDogImages></GetDogImages>
+
+      </div>
     </div>
   );
 };
 
+
+
 export default SettingsPage;
 
-
-
-// import { useState } from "react";
-// import "./global.css";
-// import axios from 'axios';
-
-// function SignUp() {
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [address, setAddress] = useState("");
-//   const [firstName, setFirstName] = useState("");
-//   const [lastName, setLastName] = useState("");
-//   const [dogName, setDogName] = useState("");
-
-//   const handleSignUp = async () => {
-//     const userData = {
-//       first_name: firstName,
-//       last_name: lastName,
-//       email: email,
-//       address: address,
-//       dog_name: dogName,
-//       password: password 
-//     };
-
-//     try {
-//       const response = await createUser(userData);
-//       console.log("User created successfully:", response);
-//     } catch (error) {
-//       console.error("Error creating user:", error);
-//       // Optionally, display an error message to the user
-//     }
-//   };
-
-//   const createUser = async (userData) => {
-//     try {
-//       const response = await axios.post(
-//         "http://localhost:3000/create-user",
-//         userData
-//       );
-//       return response.data;
-//     } catch (error) {
-//       console.error(
-//         "Error creating user:",
-//         error.response ? error.response.data : error.message
-//       );
-//       throw error;
-//     }
-//   };
-
-//   return (
-//     <div className="Whole_LoginPage">
-//       <div className="UserInput_LoginPage">
-//         <h1>Sign Up for Doggr</h1>
-
-//         <input
-//           className="InputField_LoginPage"
-//           type="text"
-//           value={firstName}
-//           onChange={(e) => setFirstName(e.target.value)}
-//           placeholder="First Name"
-//         />
-
-//         <input
-//           className="InputField_LoginPage"
-//           type="text"
-//           value={lastName}
-//           onChange={(e) => setLastName(e.target.value)}
-//           placeholder="Last Name"
-//         />
-
-//         <input
-//           className="InputField_LoginPage"
-//           type="text"
-//           value={dogName}
-//           onChange={(e) => setDogName(e.target.value)}
-//           placeholder="Dog's Name"
-//         />
-
-//         <input
-//           className="InputField_LoginPage"
-//           type="text"
-//           value={address}
-//           onChange={(e) => setAddress(e.target.value)}
-//           placeholder="Address"
-//         />
-
-//         <input
-//           className="InputField_LoginPage"
-//           type="email"
-//           value={email}
-//           onChange={(e) => setEmail(e.target.value)}
-//           placeholder="Email"
-//         />
-
-//         <input
-//           className="InputField_LoginPage"
-//           type="password"
-//           value={password}
-//           onChange={(e) => setPassword(e.target.value)}
-//           placeholder="Password"
-//         />
-
-//         <button className="InputField_LoginPage" onClick={handleSignUp}>
-//           Create Account
-//         </button>
-//         <p>Your email will be your username.</p>
-
-//         <h1>Already Have an Account?</h1>
-
-//         <button
-//           className="InputField_LoginPage"
-//           onClick={() => console.log("Sign In functionality not implemented yet")}
-//         >
-//           Sign In
-//         </button>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default SignUp;
