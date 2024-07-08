@@ -14,7 +14,6 @@ function ImageUpload() {
     }
 
     window.location.reload();
-
   };
 
   const handleUpload = async (file, index) => {
@@ -74,35 +73,65 @@ function ImageUpload() {
   };
 
   return (
-
     <div>
-
-
-<div className="EditButtons__SettingsPage">
-  <div key="1">
-    <label htmlFor="fileUpload1" className="button_ImageUploadPage">Upload Main Image</label>
-    <input id="fileUpload1" type="file" onChange={(e) => handleFileChange(e, 1)} style={{display: 'none'}} />
-  </div>
-  <div key="2">
-    <label htmlFor="fileUpload2" className="button_ImageUploadPage">Upload Secondary Image</label>
-    <input id="fileUpload2" type="file" onChange={(e) => handleFileChange(e, 2)} style={{display: 'none'}} />
-  </div>
-  <div key="3">
-    <label htmlFor="fileUpload3" className="button_ImageUploadPage">Upload Third Image</label>
-    <input id="fileUpload3" type="file" onChange={(e) => handleFileChange(e, 3)} style={{display: 'none'}} />
-  </div>
-  <div key="4">
-    <label htmlFor="fileUpload4" className="button_ImageUploadPage">Upload Fourth Image</label>
-    <input id="fileUpload4" type="file" onChange={(e) => handleFileChange(e, 4)} style={{display: 'none'}} />
-  </div>
-  <div key="5">
-    <label htmlFor="fileUpload5" className="button_ImageUploadPage">Upload Fifth Image</label>
-    <input id="fileUpload5" type="file" onChange={(e) => handleFileChange(e, 5)} style={{display: 'none'}} />
-  </div>
-</div>
-
-</div>
-
+      <div className="EditButtons__SettingsPage">
+        <div key="1">
+          <label htmlFor="fileUpload1" className="button_ImageUploadPage">
+            Upload Main Image
+          </label>
+          <input
+            id="fileUpload1"
+            type="file"
+            onChange={(e) => handleFileChange(e, 1)}
+            style={{ display: "none" }}
+          />
+        </div>
+        <div key="2">
+          <label htmlFor="fileUpload2" className="button_ImageUploadPage">
+            Upload Secondary Image
+          </label>
+          <input
+            id="fileUpload2"
+            type="file"
+            onChange={(e) => handleFileChange(e, 2)}
+            style={{ display: "none" }}
+          />
+        </div>
+        <div key="3">
+          <label htmlFor="fileUpload3" className="button_ImageUploadPage">
+            Upload Third Image
+          </label>
+          <input
+            id="fileUpload3"
+            type="file"
+            onChange={(e) => handleFileChange(e, 3)}
+            style={{ display: "none" }}
+          />
+        </div>
+        <div key="4">
+          <label htmlFor="fileUpload4" className="button_ImageUploadPage">
+            Upload Fourth Image
+          </label>
+          <input
+            id="fileUpload4"
+            type="file"
+            onChange={(e) => handleFileChange(e, 4)}
+            style={{ display: "none" }}
+          />
+        </div>
+        <div key="5">
+          <label htmlFor="fileUpload5" className="button_ImageUploadPage">
+            Upload Fifth Image
+          </label>
+          <input
+            id="fileUpload5"
+            type="file"
+            onChange={(e) => handleFileChange(e, 5)}
+            style={{ display: "none" }}
+          />
+        </div>
+      </div>
+    </div>
   );
 }
 

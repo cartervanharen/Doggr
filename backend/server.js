@@ -659,37 +659,9 @@ app.post("/new-signup-base-data", async (req, res) => {
   }
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 app.post("/next-user-data", async (req, res) => {
-  let nextUserUuid = "null";
-
+  let nextUserUuid = null;
+  let userInfo = null;
   const { accessToken } = req.body;
 
   if (!accessToken) {
@@ -704,30 +676,21 @@ app.post("/next-user-data", async (req, res) => {
       console.error("Authentication error:", userError.message);
       throw new Error("Authentication failed");
     }
-
     if (!user) {
       console.error("No user found with provided access token");
       return res.status(404).json({ error: "User not found" });
     }
-
+    console.log(user.id);
     const { data: userData, error: dataError } = await supabase
       .from("nextusers")
       .select("*")
       .eq("uuid", user.id)
       .single();
-
-    if (dataError) {
-      console.error("Database query error:", dataError.message);
-      throw new Error("Error fetching user data");
-    }
-
     if (userData) {
       const nextUserField = `user${userData.nextuser}`;
       const nextUserId = userData[nextUserField];
       console.log(`Next user ID for user${userData.nextuser}: ${nextUserId}`);
-
       nextUserUuid = nextUserId;
-      return res.status(200).json({ userUUID: nextUserUuid, test: "test" });
     } else {
       return res.status(404).json({ error: "No user data found" });
     }
@@ -737,44 +700,30 @@ app.post("/next-user-data", async (req, res) => {
       .status(500)
       .json({ error: "Failed to process request: " + error.message });
   }
+  const { data: userDataTable, fetchError } = await supabase
+    .from("userdata")
+    .select("*")
+    .eq("uuid", nextUserUuid)
+    .single();
+  const { data: pictureLinks, error: dataError } = await supabase
+    .from("images")
+    .select("picture1, picture2, picture3, picture4, picture5")
+    .eq("uuid", nextUserUuid)
+    .single();
+  const { data: basicInfo } = await supabase
+    .from("users")
+    .select("*")
+    .eq("uuid", nextUserUuid)
+    .single();
+  return res
+    .status(200)
+    .json({
+      userUUID: nextUserUuid,
+      userdata: userDataTable,
+      pictures: pictureLinks,
+      basic: basicInfo,
+    });
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

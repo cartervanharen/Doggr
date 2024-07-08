@@ -10,37 +10,7 @@ import { FaXmark } from "react-icons/fa6";
 function ShowProfilebyUUID(){
   const navigate = useNavigate();
 
-  const verifyTokenAndGetUserID = async () => {
-    const token = localStorage.getItem("accessToken");
-    const wholeToken = "Bearer " + token;
-    console.log(wholeToken);
-    if (!token) {
-      console.error("No token found in local storage.");
-      navigate("/login");
-      return;
-    }
 
-    try {
-      console.log("line28");
-
-      const response = await axios.post("http://localhost:3000/verify-token", {
-        authorization: wholeToken,
-      });
-
-      const userId = response.data.user.id;
-      console.log("User ID retrieved:", userId);
-    } catch (error) {
-      console.error(
-        "Error verifying token:",
-        error.response ? error.response.data : error.message
-      );
-      navigate("/login");
-    }
-  };
-
-  useEffect(() => {
-    verifyTokenAndGetUserID();
-  });
 
   const emojis = "🎾🐾🐕‍🦺🥳🤗🤪".split(" ");
   const dogPicture1 =
