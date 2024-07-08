@@ -18,6 +18,7 @@ function App() {
         <Route path="/test" element={<Test />} />
         <Route path="/*" element={<MainPage />} />
         <Route path="login" element={<LoginPage />} />
+
       </Routes>
     </Router>
   );

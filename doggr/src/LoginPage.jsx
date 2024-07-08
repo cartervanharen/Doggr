@@ -16,7 +16,7 @@ function LoginPage() {
     try {
       const response = await signUserIn(userData);
       console.log("User sign in successfully:", response);
-      navigate("/dogs");
+      navigate("/settings");
     } catch (error) {
       console.error("Error signing in user:", error);
       setError("Failed to sign in. Check your email and password.");
@@ -63,6 +63,13 @@ function LoginPage() {
           />
           <button className="InputField_LoginPage" onClick={handleSignIn}>
             Sign In
+          </button>
+
+          <button
+            className="InputField_LoginPage"
+            onClick={() => navigate("/signup")}
+          >
+            No Account? Sign Up
           </button>
         </div>
       </div>

@@ -7,9 +7,7 @@ import { MdMessage } from "react-icons/md";
 import { FaHeart } from "react-icons/fa";
 import { FaXmark } from "react-icons/fa6";
 
-
-
-const MainPage = () => {
+function ShowProfilebyUUID(){
   const navigate = useNavigate();
 
   const verifyTokenAndGetUserID = async () => {
@@ -122,6 +120,6 @@ const MainPage = () => {
       </div>
     </div>
   );
-};
+}
 
-export default MainPage;
+export default ShowProfilebyUUID;

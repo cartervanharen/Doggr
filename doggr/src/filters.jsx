@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import PropTypes from "prop-types";
 
 function FilterModal() {
   const navigate = useNavigate();
@@ -196,3 +197,15 @@ function FilterModal() {
 }
 
 export default FilterModal;
+
+FilterModal.propTypes = {
+  label: PropTypes.string,
+  value: PropTypes.shape({
+    min: PropTypes.number,
+    max: PropTypes.number,
+  }).isRequired,
+  setValue: PropTypes.func,
+  isOpen: PropTypes.bool,
+  close: PropTypes.func,
+  children: PropTypes.node,
+};

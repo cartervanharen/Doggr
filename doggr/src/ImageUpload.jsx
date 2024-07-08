@@ -1,25 +1,23 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import axios from "axios";
 import "./global.css";
 
 function ImageUpload() {
-  const navigate = useNavigate();
-  const [file, setFile] = useState(null);
-  const [imageUrl, setImageUrl] = useState("");
-  const [picture1, setPicture1] = useState("");
-  const [picture2, setPicture2] = useState("");
-  const [picture3, setPicture3] = useState("");
-  const [picture4, setPicture4] = useState("");
-  const [picture5, setPicture5] = useState("");
+  const [file, setFile] = useState({});
+  const [imagesUrl, setImagesUrl] = useState({});
 
-  const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
+  const handleFileChange = async (event, index) => {
+    const selectedFile = event.target.files[0];
+    if (selectedFile) {
+      setFile({ ...file, [index]: selectedFile });
+      await handleUpload(selectedFile, index);
+    }
+
+    window.location.reload();
+
   };
 
-  const handleUpload = async () => {
-    if (!file) return;
-
+  const handleUpload = async (file, index) => {
     const formData = new FormData();
     formData.append("image", file);
 
@@ -37,18 +35,18 @@ function ImageUpload() {
       });
 
       if (response.status === 200) {
-        setImageUrl(response.data.data.url);
-        setPicture1(response.data.data.url);
+        const imageUrl = response.data.data.url;
+        setImagesUrl({ ...imagesUrl, [index]: imageUrl });
+        handleSave(index, imageUrl);
       } else {
         console.error("Failed to upload image");
       }
     } catch (error) {
       console.error("Error uploading image:", error);
     }
-    handleSave();
   };
 
-  const handleSave = async () => {
+  const handleSave = async (index, imageUrl) => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
       console.error("No token found in local storage.");
@@ -57,11 +55,7 @@ function ImageUpload() {
 
     const updatedUserInfo = {
       accessToken: token,
-      picture1,
-      picture2,
-      picture3,
-      picture4,
-      picture5,
+      [`picture${index}`]: imageUrl,
     };
 
     try {
@@ -70,23 +64,45 @@ function ImageUpload() {
         updatedUserInfo
       );
 
-      console.log("dog pic updated successfully:", response.data.message);
+      console.log(
+        `Picture ${index} updated successfully:`,
+        response.data.message
+      );
     } catch (error) {
-      console.error("Error updating dog information:", error.message);
+      console.error(`Error updating picture ${index}:`, error.message);
     }
   };
 
   return (
+
     <div>
-      <h2>Upload Image</h2>
-      <input type="file" onChange={handleFileChange} />
-      <button onClick={handleUpload}>Upload Image</button>
-      {imageUrl && (
-        <div>
-          <p>Image Uploaded</p>
-        </div>
-      )}
-    </div>
+
+
+<div className="EditButtons__SettingsPage">
+  <div key="1">
+    <label htmlFor="fileUpload1" className="button_ImageUploadPage">Upload Main Image</label>
+    <input id="fileUpload1" type="file" onChange={(e) => handleFileChange(e, 1)} style={{display: 'none'}} />
+  </div>
+  <div key="2">
+    <label htmlFor="fileUpload2" className="button_ImageUploadPage">Upload Secondary Image</label>
+    <input id="fileUpload2" type="file" onChange={(e) => handleFileChange(e, 2)} style={{display: 'none'}} />
+  </div>
+  <div key="3">
+    <label htmlFor="fileUpload3" className="button_ImageUploadPage">Upload Third Image</label>
+    <input id="fileUpload3" type="file" onChange={(e) => handleFileChange(e, 3)} style={{display: 'none'}} />
+  </div>
+  <div key="4">
+    <label htmlFor="fileUpload4" className="button_ImageUploadPage">Upload Fourth Image</label>
+    <input id="fileUpload4" type="file" onChange={(e) => handleFileChange(e, 4)} style={{display: 'none'}} />
+  </div>
+  <div key="5">
+    <label htmlFor="fileUpload5" className="button_ImageUploadPage">Upload Fifth Image</label>
+    <input id="fileUpload5" type="file" onChange={(e) => handleFileChange(e, 5)} style={{display: 'none'}} />
+  </div>
+</div>
+
+</div>
+
   );
 }
 
