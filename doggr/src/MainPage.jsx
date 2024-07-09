@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./global.css";
 import ShowProfileByUUID from "./ShowProfileByUUID.jsx";
+import LeftSidebar from "./LeftSidebar.jsx";
+import RightSidebar from "./RightSidebar.jsx";
 
 const MainPage = () => {
   const navigate = useNavigate();
@@ -37,7 +39,16 @@ const MainPage = () => {
     verifyTokenAndGetUserID();
   });
 
-  return <ShowProfileByUUID></ShowProfileByUUID>;
+  return (
+    <>
+      <div className="flexbox_MainPage">
+        <ShowProfileByUUID></ShowProfileByUUID>
+
+        <LeftSidebar></LeftSidebar>
+        <RightSidebar></RightSidebar>
+      </div>
+    </>
+  );
 };
 
 export default MainPage;

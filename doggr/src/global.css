@@ -636,7 +636,7 @@ Future Action(s):
   width: 800px;
   max-width: 800px;
   background-color: white;
-  height: 80vh;
+  height: 800px;
   padding: 20px;
   margin-top: 5%;
   justify-content: center;
@@ -725,8 +725,55 @@ Future Action(s):
   width: 100%;
   padding: 8px;
   justify-content: left;
-  height: 300px;
+  height: 200px;
   margin: 10px;
 
   overflow: hidden;
+}
+.flexbox_mainpage{
+
+  display: flex;
+  padding: 30px;
+}
+
+.RightSideBar{
+  width:300px;
+  top:89px;
+  border-radius: 10px;
+
+  left:30px;
+  color:wheat;
+  position: absolute;
+  height:400px;
+  background-color: black;
+  box-shadow: 5px 5px 400px pink;
+
+}
+
+
+
+.LeftSideBar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background-color: #f0f0f0;
+  width: 200px;
+  height: 100vh;
+  padding: 20px;
+}
+
+.LeftSideBar li {
+  padding: 10px;
+  margin: 10px 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.LeftSideBar li:hover {
+  background-color: #ddd;
+}
+
+.LeftSideBar svg {
+  margin-right: 10px;
 }
