@@ -55,6 +55,7 @@ function ImageUpload() {
     const updatedUserInfo = {
       accessToken: token,
       [`picture${index}`]: imageUrl,
+      
     };
 
     try {

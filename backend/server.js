@@ -519,8 +519,7 @@ app.post("/current-dog-pictures", async (req, res) => {
 });
 
 app.post("/update-dog-pictures", async (req, res) => {
-  const { accessToken, picture1, picture2, picture3, picture4, picture5 } =
-    req.body;
+  const { accessToken, ...pictures } = req.body;
 
   console.log(req.body);
 
@@ -532,15 +531,21 @@ app.post("/update-dog-pictures", async (req, res) => {
     const { data: user, error } = await supabase.auth.api.getUser(accessToken);
     if (error) throw error;
 
+    //Only Update the pictures that are sent over.
+    const updates = Object.keys(pictures).reduce((acc, key) => {
+      if (key.startsWith("picture") && pictures[key]) {
+        acc[key] = pictures[key];
+      }
+      return acc;
+    }, {});
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: "No pictures provided for update" });
+    }
+
     const { error: updateError } = await supabase
       .from("images")
-      .update({
-        picture1,
-        picture2,
-        picture3,
-        picture4,
-        picture5,
-      })
+      .update(updates)
       .eq("uuid", user.id);
 
     if (updateError) {
@@ -558,7 +563,7 @@ app.post("/update-dog-pictures", async (req, res) => {
 });
 
 app.post("/new-signup-base-data", async (req, res) => {
-  console.log("Signup route hit");
+  console.log("new-signup-base-data hit");
 
   const { accessToken } = req.body;
 
@@ -667,6 +672,7 @@ app.post("/next-user-data", async (req, res) => {
     .select("picture1, picture2, picture3, picture4, picture5")
     .eq("uuid", nextUserUuid)
     .single();
+    
   const { data: basicInfo } = await supabase
     .from("users")
     .select("*")

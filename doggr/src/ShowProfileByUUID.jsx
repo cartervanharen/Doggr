@@ -76,7 +76,7 @@ function ShowProfilebyUUID() {
   };
 
   if (!userData) {
-    return <div>Loading...</div>;
+    return <div className="loadingPage">Loading...</div>;
   }
 
   const {
@@ -93,80 +93,62 @@ function ShowProfilebyUUID() {
     pictures: { picture1, picture2, picture3, picture4, picture5 },
   } = userData;
 
+  const renderLevelBar = (label, value) => {
+    const width = `${(value / 10) * 100}%`;
+    return (
+      <div className="level-bar">
+        <div className="label">
+          {label}: {value}
+        </div>
+        <div className="level" style={{ width }}></div>
+      </div>
+    );
+  };
+
   return (
     <div className="RootofRoot_MainPage">
-      <div className="Varient2LeftMenuBar_MainPage">
-        <button onClick={goSettings} className="TopInnerPage_MainPage">
-          <IoSettings size={25} className="TopHomeIcon_MainPage" />
-        </button>
-        <button className="BottomInnerPage_MainPage">
-          <FaXmark size={35} className="xMarkBottomHomeIcon_MainPage" />
-        </button>
-      </div>
-
-      <div className="Whole_MainPage">
-        <div className="DogImageCard_MainPage BorderRadius10px_MainPage">
-          <img
-            src={picture1}
-            id="MainDogImage_MainPage"
-            className="BorderRadius10px_MainPage"
-            alt="Dog 1"
-          />
-          <div className="SmallDogImageGrid_MainPage BorderRadius10px_MainPage">
+      <div className="Whole_ShowProfile">
+        <div className="DogImageCard_ShowProfile ">
+          <img src={picture1} id="MainDogImage_ShowProfile" alt="Dog 1" />
+          <div className="SmallDogImageGrid_MainPage">
             <img
               src={picture2}
-              className="SmallDogImage_MainPage"
+              className="SmallDogImage_ShowProfile"
               alt="Dog 2"
             />
             <img
               src={picture3}
-              className="SmallDogImage_MainPage"
+              className="SmallDogImage_ShowProfile"
               alt="Dog 3"
             />
             <img
               src={picture4}
-              className="SmallDogImage_MainPage"
+              className="SmallDogImage_ShowProfile"
               alt="Dog 4"
             />
             <img
               src={picture5}
-              className="SmallDogImage_MainPage"
+              className="SmallDogImage_ShowProfile"
               alt="Dog 5"
             />
           </div>
         </div>
 
-        <div className="DogImageCard_MainPage BorderRadius10px_MainPage">
-          <h1>{dog_name}</h1>
-          <p>{bio}</p>
+        <div className="BioCard_ShowProfile">
+          <h1 className="Header_ShowProfile">{dog_name}</h1>
+          <p className="Paragraph_ShowProfile">{bio}</p>
         </div>
 
-        <div className="EmojiCard_MainPage BorderRadius10px_MainPage">
-          <div className="InnerEmojiCard_MainPage BorderRadius10px_MainPage">
-            {emojis.map((emoji, index) => (
-              <span key={index} className="Emojis_MainPage">
-                {emoji}
-              </span>
-            ))}
+        <div className="Levels_ShowProfile">
+          <div className="profile-container">
+            {renderLevelBar("Likeability", likeability)}
+            {renderLevelBar("Energy", energy)}
+            {renderLevelBar("Playfulness", playfulness)}
+            {renderLevelBar("Aggression", aggression)}
+            {renderLevelBar("Size", size)}
+            {renderLevelBar("Training", training)}
           </div>
         </div>
-
-        <div className="EmojiCard_MainPage BorderRadius10px_MainPage">
-          <p>
-            Likeability: {likeability} | Energy: {energy} | Playfulness:{" "}
-            {playfulness} | Aggression: {aggression} | Size: {size} | Training:{" "}
-            {training}
-          </p>
-        </div>
-      </div>
-
-      <div className="Varient2RightMenuBar_MainPage">
-        <button className="TopInnerPage_MainPage">
-          <MdMessage size={25} className="RightTopHomeIcon_MainPage" />
-        </button>
-        <button className="BottomInnerPage_MainPage">
-          <FaHeart size={25} className="RightBottomHomeIcon_MainPage" />
-        </button>
       </div>
     </div>
   );
