@@ -3,8 +3,6 @@ import "./global.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-
-
 function SignUp() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -28,7 +26,6 @@ function SignUp() {
       const response = await createUser(userData);
       console.log("User created successfully:", response);
       navigate("/login");
-
     } catch (error) {
       console.error("Error creating user:", error);
     }
@@ -112,20 +109,10 @@ function SignUp() {
 
         <button
           className="InputField_LoginPage"
-          onClick={() =>       navigate("/login")      }
+          onClick={() => navigate("/login")}
         >
           Sign In
         </button>
-
-
-
-
-
-
-
-
-
-        
       </div>
     </div>
   );

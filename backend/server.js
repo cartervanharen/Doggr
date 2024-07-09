@@ -519,8 +519,7 @@ app.post("/current-dog-pictures", async (req, res) => {
 });
 
 app.post("/update-dog-pictures", async (req, res) => {
-  const { accessToken, picture1, picture2, picture3, picture4, picture5 } =
-    req.body;
+  const { accessToken, ...pictures } = req.body;
 
   console.log(req.body);
 
@@ -532,54 +531,21 @@ app.post("/update-dog-pictures", async (req, res) => {
     const { data: user, error } = await supabase.auth.api.getUser(accessToken);
     if (error) throw error;
 
-    const { error: updateError } = await supabase
-      .from("images")
-      .update({
-        picture1,
-        picture2,
-        picture3,
-        picture4,
-        picture5,
-      })
-      .eq("uuid", user.id);
+    //Only Update the pictures that are sent over.
+    const updates = Object.keys(pictures).reduce((acc, key) => {
+      if (key.startsWith("picture") && pictures[key]) {
+        acc[key] = pictures[key];
+      }
+      return acc;
+    }, {});
 
-    if (updateError) {
-      console.error("Update Error:", updateError.message);
-      return res.status(500).json({ error: updateError.message });
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: "No pictures provided for update" });
     }
 
-    return res
-      .status(200)
-      .json({ message: "Dog pictures updated successfully." });
-  } catch (error) {
-    console.error("Error updating dog pictures:", error.message);
-    return res.status(500).json({ error: error.message });
-  }
-});
-
-app.post("/update-dog-pictures", async (req, res) => {
-  const { accessToken, picture1, picture2, picture3, picture4, picture5 } =
-    req.body;
-
-  console.log(req.body);
-
-  if (!accessToken) {
-    return res.status(401).json({ error: "Access token is required" });
-  }
-
-  try {
-    const { data: user, error } = await supabase.auth.api.getUser(accessToken);
-    if (error) throw error;
-
     const { error: updateError } = await supabase
       .from("images")
-      .update({
-        picture1,
-        picture2,
-        picture3,
-        picture4,
-        picture5,
-      })
+      .update(updates)
       .eq("uuid", user.id);
 
     if (updateError) {
@@ -597,7 +563,7 @@ app.post("/update-dog-pictures", async (req, res) => {
 });
 
 app.post("/new-signup-base-data", async (req, res) => {
-  console.log("Signup route hit");
+  console.log("new-signup-base-data hit");
 
   const { accessToken } = req.body;
 
@@ -659,36 +625,8 @@ app.post("/new-signup-base-data", async (req, res) => {
   }
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 app.post("/next-user-data", async (req, res) => {
-  let nextUserUuid = "null";
+  let nextUserUuid = null;
 
   const { accessToken } = req.body;
 
@@ -700,26 +638,14 @@ app.post("/next-user-data", async (req, res) => {
     const { data: user, error: userError } = await supabase.auth.api.getUser(
       accessToken
     );
-    if (userError) {
-      console.error("Authentication error:", userError.message);
-      throw new Error("Authentication failed");
-    }
+    if (userError) throw userError;
 
-    if (!user) {
-      console.error("No user found with provided access token");
-      return res.status(404).json({ error: "User not found" });
-    }
-
+    console.log(user.id);
     const { data: userData, error: dataError } = await supabase
       .from("nextusers")
       .select("*")
       .eq("uuid", user.id)
       .single();
-
-    if (dataError) {
-      console.error("Database query error:", dataError.message);
-      throw new Error("Error fetching user data");
-    }
 
     if (userData) {
       const nextUserField = `user${userData.nextuser}`;
@@ -727,7 +653,6 @@ app.post("/next-user-data", async (req, res) => {
       console.log(`Next user ID for user${userData.nextuser}: ${nextUserId}`);
 
       nextUserUuid = nextUserId;
-      return res.status(200).json({ userUUID: nextUserUuid, test: "test" });
     } else {
       return res.status(404).json({ error: "No user data found" });
     }
@@ -737,44 +662,29 @@ app.post("/next-user-data", async (req, res) => {
       .status(500)
       .json({ error: "Failed to process request: " + error.message });
   }
+  const { data: userDataTable, fetchError } = await supabase
+    .from("userdata")
+    .select("*")
+    .eq("uuid", nextUserUuid)
+    .single();
+  const { data: pictureLinks, error: dataError } = await supabase
+    .from("images")
+    .select("picture1, picture2, picture3, picture4, picture5")
+    .eq("uuid", nextUserUuid)
+    .single();
+    
+  const { data: basicInfo } = await supabase
+    .from("users")
+    .select("*")
+    .eq("uuid", nextUserUuid)
+    .single();
+  return res.status(200).json({
+    userUUID: nextUserUuid,
+    userdata: userDataTable,
+    pictures: pictureLinks,
+    basic: basicInfo,
+  });
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

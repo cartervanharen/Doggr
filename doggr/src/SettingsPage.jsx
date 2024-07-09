@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
 import "./global.css";
 import { AiFillHome } from "react-icons/ai";
 import TraitModal from "./TraitModal.jsx";
@@ -10,7 +9,6 @@ import ImageUpload from "./ImageUpload.jsx";
 import GetDogImages from "./GetDogImages.jsx";
 
 import { MdMessage } from "react-icons/md";
-
 const SettingsPage = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -274,20 +272,10 @@ const SettingsPage = () => {
           <ImageUpload></ImageUpload>
         </div>
 
-        {/* <div className="traits_SettingsPage BorderRadius10px_MainPage">
-         <GetDogImages></GetDogImages>
-        </div> */}
-
-
-
         <GetDogImages></GetDogImages>
-
       </div>
     </div>
   );
 };
 
-
-
 export default SettingsPage;
-
