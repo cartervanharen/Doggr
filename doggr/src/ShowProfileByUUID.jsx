@@ -1,19 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { IoSettings } from "react-icons/io5";
-import { MdMessage } from "react-icons/md";
-import { FaHeart } from "react-icons/fa";
-import { FaXmark } from "react-icons/fa6";
 
 function ShowProfilebyUUID() {
   const navigate = useNavigate();
-  const emojis = "🎾🐾🐕‍🦺🥳🤗🤪".split(" ");
   const [userData, setUserData] = useState(null);
-
-  const goSettings = () => {
-    navigate("/settings");
-  };
 
   useEffect(() => {
     const fetchData = async () => {
