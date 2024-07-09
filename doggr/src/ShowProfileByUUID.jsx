@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { IoSettings } from "react-icons/io5";
@@ -36,7 +36,7 @@ function ShowProfilebyUUID() {
     if (!token) {
       console.error("No token found in local storage.");
       navigate("/login");
-      return; 
+      return;
     }
 
     try {
@@ -81,7 +81,15 @@ function ShowProfilebyUUID() {
 
   const {
     basic: { human_first_name, human_last_name, dog_name, address },
-    userdata: { bio, likeability, energy, playfulness, aggression, size, training },
+    userdata: {
+      bio,
+      likeability,
+      energy,
+      playfulness,
+      aggression,
+      size,
+      training,
+    },
     pictures: { picture1, picture2, picture3, picture4, picture5 },
   } = userData;
 
@@ -145,7 +153,9 @@ function ShowProfilebyUUID() {
 
         <div className="EmojiCard_MainPage BorderRadius10px_MainPage">
           <p>
-            Likeability: {likeability} | Energy: {energy} | Playfulness: {playfulness} | Aggression: {aggression} | Size: {size} | Training: {training}
+            Likeability: {likeability} | Energy: {energy} | Playfulness:{" "}
+            {playfulness} | Aggression: {aggression} | Size: {size} | Training:{" "}
+            {training}
           </p>
         </div>
       </div>
