@@ -557,45 +557,6 @@ app.post("/update-dog-pictures", async (req, res) => {
   }
 });
 
-app.post("/update-dog-pictures", async (req, res) => {
-  const { accessToken, picture1, picture2, picture3, picture4, picture5 } =
-    req.body;
-
-  console.log(req.body);
-
-  if (!accessToken) {
-    return res.status(401).json({ error: "Access token is required" });
-  }
-
-  try {
-    const { data: user, error } = await supabase.auth.api.getUser(accessToken);
-    if (error) throw error;
-
-    const { error: updateError } = await supabase
-      .from("images")
-      .update({
-        picture1,
-        picture2,
-        picture3,
-        picture4,
-        picture5,
-      })
-      .eq("uuid", user.id);
-
-    if (updateError) {
-      console.error("Update Error:", updateError.message);
-      return res.status(500).json({ error: updateError.message });
-    }
-
-    return res
-      .status(200)
-      .json({ message: "Dog pictures updated successfully." });
-  } catch (error) {
-    console.error("Error updating dog pictures:", error.message);
-    return res.status(500).json({ error: error.message });
-  }
-});
-
 app.post("/new-signup-base-data", async (req, res) => {
   console.log("Signup route hit");
 
@@ -661,7 +622,7 @@ app.post("/new-signup-base-data", async (req, res) => {
 
 app.post("/next-user-data", async (req, res) => {
   let nextUserUuid = null;
-  let userInfo = null;
+
   const { accessToken } = req.body;
 
   if (!accessToken) {
@@ -672,24 +633,20 @@ app.post("/next-user-data", async (req, res) => {
     const { data: user, error: userError } = await supabase.auth.api.getUser(
       accessToken
     );
-    if (userError) {
-      console.error("Authentication error:", userError.message);
-      throw new Error("Authentication failed");
-    }
-    if (!user) {
-      console.error("No user found with provided access token");
-      return res.status(404).json({ error: "User not found" });
-    }
+    if (userError) throw userError;
+
     console.log(user.id);
     const { data: userData, error: dataError } = await supabase
       .from("nextusers")
       .select("*")
       .eq("uuid", user.id)
       .single();
+
     if (userData) {
       const nextUserField = `user${userData.nextuser}`;
       const nextUserId = userData[nextUserField];
       console.log(`Next user ID for user${userData.nextuser}: ${nextUserId}`);
+
       nextUserUuid = nextUserId;
     } else {
       return res.status(404).json({ error: "No user data found" });
@@ -715,14 +672,12 @@ app.post("/next-user-data", async (req, res) => {
     .select("*")
     .eq("uuid", nextUserUuid)
     .single();
-  return res
-    .status(200)
-    .json({
-      userUUID: nextUserUuid,
-      userdata: userDataTable,
-      pictures: pictureLinks,
-      basic: basicInfo,
-    });
+  return res.status(200).json({
+    userUUID: nextUserUuid,
+    userdata: userDataTable,
+    pictures: pictureLinks,
+    basic: basicInfo,
+  });
 });
 
 app.listen(PORT, () => {

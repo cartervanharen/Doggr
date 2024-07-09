@@ -1,33 +1,89 @@
-import { useEffect } from "react";
+import  { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./global.css";
 import { IoSettings } from "react-icons/io5";
 import { MdMessage } from "react-icons/md";
 import { FaHeart } from "react-icons/fa";
 import { FaXmark } from "react-icons/fa6";
 
-function ShowProfilebyUUID(){
+function ShowProfilebyUUID() {
   const navigate = useNavigate();
-
-
-
   const emojis = "🎾🐾🐕‍🦺🥳🤗🤪".split(" ");
-  const dogPicture1 =
-    "https://cdn.outsideonline.com/wp-content/uploads/2023/03/Funny_Dog_S.jpg";
-
-  const dogPicture2 =
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQcJkEHHWM9n4Xptqcsp661O0Cgl-kvCSPxA&s";
-  const dogPicture3 =
-    "https://static01.nyt.com/images/2022/05/10/science/28DOGS-BEHAVIOR1/28DOGS-BEHAVIOR1-mediumSquareAt3X-v2.jpg";
-  const dogPicture4 =
-    "https://supertails.com/cdn/shop/articles/1-2-1703948078392.jpg?v=1713875436";
-  const dogPicture5 =
-    "https://www.statnews.com/wp-content/uploads/2024/03/AP110520117877-645x645.jpg";
+  const [userData, setUserData] = useState(null);
 
   const goSettings = () => {
     navigate("/settings");
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await verifyTokenAndGetUserID();
+        const data = await getNextUser();
+        setUserData(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        navigate("/login");
+      }
+    };
+
+    fetchData();
+  }, [navigate]);
+
+  const verifyTokenAndGetUserID = async () => {
+    const token = localStorage.getItem("accessToken");
+    const wholeToken = "Bearer " + token;
+    if (!token) {
+      console.error("No token found in local storage.");
+      navigate("/login");
+      return; 
+    }
+
+    try {
+      const response = await axios.post("http://localhost:3000/verify-token", {
+        authorization: wholeToken,
+      });
+      const userId = response.data.user.id;
+      console.log("User ID:", userId);
+    } catch (error) {
+      console.error(
+        "Error verifying token:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
+  };
+
+  const getNextUser = async () => {
+    const token = localStorage.getItem("accessToken");
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/next-user-data",
+        {
+          accessToken: token,
+        }
+      );
+
+      console.log("Next user data:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error fetching next user data:",
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
+  };
+
+  if (!userData) {
+    return <div>Loading...</div>;
+  }
+
+  const {
+    basic: { human_first_name, human_last_name, dog_name, address },
+    userdata: { bio, likeability, energy, playfulness, aggression, size, training },
+    pictures: { picture1, picture2, picture3, picture4, picture5 },
+  } = userData;
 
   return (
     <div className="RootofRoot_MainPage">
@@ -35,7 +91,6 @@ function ShowProfilebyUUID(){
         <button onClick={goSettings} className="TopInnerPage_MainPage">
           <IoSettings size={25} className="TopHomeIcon_MainPage" />
         </button>
-
         <button className="BottomInnerPage_MainPage">
           <FaXmark size={35} className="xMarkBottomHomeIcon_MainPage" />
         </button>
@@ -44,24 +99,38 @@ function ShowProfilebyUUID(){
       <div className="Whole_MainPage">
         <div className="DogImageCard_MainPage BorderRadius10px_MainPage">
           <img
-            src={dogPicture1}
+            src={picture1}
             id="MainDogImage_MainPage"
             className="BorderRadius10px_MainPage"
+            alt="Dog 1"
           />
           <div className="SmallDogImageGrid_MainPage BorderRadius10px_MainPage">
-            <img src={dogPicture2} className="SmallDogImage_MainPage" />
-            <img src={dogPicture3} className="SmallDogImage_MainPage" />
-            <img src={dogPicture4} className="SmallDogImage_MainPage" />
-            <img src={dogPicture5} className="SmallDogImage_MainPage" />
+            <img
+              src={picture2}
+              className="SmallDogImage_MainPage"
+              alt="Dog 2"
+            />
+            <img
+              src={picture3}
+              className="SmallDogImage_MainPage"
+              alt="Dog 3"
+            />
+            <img
+              src={picture4}
+              className="SmallDogImage_MainPage"
+              alt="Dog 4"
+            />
+            <img
+              src={picture5}
+              className="SmallDogImage_MainPage"
+              alt="Dog 5"
+            />
           </div>
         </div>
 
         <div className="DogImageCard_MainPage BorderRadius10px_MainPage">
-          <h1>Julio</h1>
-          <p>
-            Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog Dog
-            Dog Dog Dog Dog Dog Dog Dog Dog Dog{" "}
-          </p>
+          <h1>{dog_name}</h1>
+          <p>{bio}</p>
         </div>
 
         <div className="EmojiCard_MainPage BorderRadius10px_MainPage">
@@ -75,7 +144,9 @@ function ShowProfilebyUUID(){
         </div>
 
         <div className="EmojiCard_MainPage BorderRadius10px_MainPage">
-          <p>Age: 5 | 9 mi | 30 lbs</p>
+          <p>
+            Likeability: {likeability} | Energy: {energy} | Playfulness: {playfulness} | Aggression: {aggression} | Size: {size} | Training: {training}
+          </p>
         </div>
       </div>
 
@@ -83,7 +154,6 @@ function ShowProfilebyUUID(){
         <button className="TopInnerPage_MainPage">
           <MdMessage size={25} className="RightTopHomeIcon_MainPage" />
         </button>
-
         <button className="BottomInnerPage_MainPage">
           <FaHeart size={25} className="RightBottomHomeIcon_MainPage" />
         </button>
