@@ -730,27 +730,23 @@ Future Action(s):
 
   overflow: hidden;
 }
-.flexbox_mainpage{
-
+.flexbox_mainpage {
   display: flex;
   padding: 30px;
 }
 
-.RightSideBar{
-  width:300px;
-  top:89px;
+.RightSideBar {
+  width: 300px;
+  top: 89px;
   border-radius: 10px;
 
-  left:30px;
-  color:wheat;
+  left: 30px;
+  color: wheat;
   position: absolute;
-  height:400px;
+  height: 400px;
   background-color: black;
   box-shadow: 5px 5px 400px pink;
-
 }
-
-
 
 .LeftSideBar ul {
   list-style: none;
