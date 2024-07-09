@@ -7,6 +7,7 @@ import TraitModal from "./TraitModal.jsx";
 import FilterModal from "./filters.jsx";
 import ImageUpload from "./ImageUpload.jsx";
 import GetDogImages from "./GetDogImages.jsx";
+import LeftSidebar from "./LeftSidebar.jsx";
 
 import { MdMessage } from "react-icons/md";
 const SettingsPage = () => {
@@ -16,7 +17,8 @@ const SettingsPage = () => {
   const [address, setAddress] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [maxDistance, setMaxDistance] = useState(5);
-
+  const [bio, setBio] = useState("");
+  const [bioEditMode, setBioEditMode] = useState(false);
   const navigate = useNavigate();
 
   const verifyTokenAndGetUserID = async () => {
@@ -42,10 +44,10 @@ const SettingsPage = () => {
       navigate("/login");
     }
   };
-
   useEffect(() => {
     verifyTokenAndGetUserID();
-  });
+    fetchBio();
+  }, []);
 
   const saveMaxDistance = async () => {
     const token = localStorage.getItem("accessToken");
@@ -160,18 +162,41 @@ const SettingsPage = () => {
   const goMessages = () => {
     navigate("/messages");
   };
-
+  const fetchBio = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      console.error("No token found in local storage.");
+      return;
+    }
+    try {
+      const response = await axios.post("http://localhost:3000/get-bio", {
+        accessToken: token,
+      });
+      setBio(response.data.bio);
+    } catch (error) {
+      console.error("Error fetching bio:", error.message);
+    }
+  };
+  const updateBio = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      console.error("No token found in local storage.");
+      return;
+    }
+    try {
+      await axios.post("http://localhost:3000/update-bio", {
+        accessToken: token,
+        bio,
+      });
+      console.log("Bio updated successfully.");
+      setBioEditMode(false);
+    } catch (error) {
+      console.error("Error updating bio:", error.message);
+    }
+  };
   return (
     <div className="RootofRoot_MainPage">
-      <div className="Varient2LeftMenuBar_MainPage">
-        <button onClick={goMessages} className="TopInnerPage_MainPage">
-          <MdMessage size={25} className="TopHomeIcon_MainPage" />
-        </button>
-
-        <button onClick={goHome} className="BottomInnerPage_MainPage">
-          <AiFillHome size={25} className="BottomHomeIcon_MainPage" />
-        </button>
-      </div>
+      <LeftSidebar></LeftSidebar>
 
       <div className="Whole_MainPage">
         <div className="generalInfo_SettingsPage BorderRadius10px_MainPage">
@@ -273,6 +298,30 @@ const SettingsPage = () => {
         </div>
 
         <GetDogImages></GetDogImages>
+
+        <div className="Distance_SettingsPage BorderRadius10px_MainPage">
+          <h1>Bio</h1>
+          <textarea
+            className="InputField_SettingsPage"
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            disabled={!bioEditMode}
+          />
+          <div className="EditButtons__SettingsPage">
+            {!bioEditMode ? (
+              <button
+                className="InputField_SettingsPage"
+                onClick={() => setBioEditMode(true)}
+              >
+                Edit
+              </button>
+            ) : (
+              <button className="InputField_SettingsPage" onClick={updateBio}>
+                Save
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

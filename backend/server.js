@@ -591,7 +591,7 @@ app.post("/new-signup-base-data", async (req, res) => {
           likeabilityFilter: { min: 1, max: 10 },
           energyFilter: { min: 1, max: 10 },
           playfulnessFilter: { min: 1, max: 10 },
-          aggressionFilter: { min: 1, max: 10 },
+          aggressionFilter: { min: 1, max: 10 }, 
           sizeFilter: { min: 1, max: 10 },
           trainingFilter: { min: 1, max: 10 },
         },
@@ -685,6 +685,73 @@ app.post("/next-user-data", async (req, res) => {
     basic: basicInfo,
   });
 });
+
+
+app.post("/update-bio", async (req, res) => {
+  const { accessToken, bio } = req.body;
+
+  if (!accessToken) {
+    return res.status(401).json({ error: "Access token is required" });
+  }
+
+  if (bio === undefined) {
+    return res.status(400).json({ error: "Bio content is required" });
+  }
+
+  try {
+    const { data: user, error: userError } = await supabase.auth.api.getUser(accessToken);
+    if (userError) throw userError;
+
+    const { error: updateError } = await supabase
+      .from("userdata")
+      .update({ bio: bio })
+      .eq("uuid", user.id);
+
+    if (updateError) {
+      console.error("Update Error:", updateError.message);
+      return res.status(500).json({ error: updateError.message });
+    }
+
+    return res.status(200).json({ message: "Bio updated successfully" });
+  } catch (error) {
+    console.error("Error updating bio:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+
+app.post("/get-bio", async (req, res) => {
+  const { accessToken } = req.body;
+
+  if (!accessToken) {
+    return res.status(401).json({ error: "Access token is required" });
+  }
+
+  try {
+    const { data: user, error: userError } = await supabase.auth.api.getUser(accessToken);
+    if (userError) throw userError;
+
+    const { data: userData, error: dataError } = await supabase
+      .from("userdata")
+      .select("bio")
+      .eq("uuid", user.id)
+      .single();
+
+    if (dataError) {
+      throw dataError;
+    }
+
+    if (userData) {
+      return res.status(200).json({ bio: userData.bio });
+    } else {
+      return res.status(404).json({ error: "User bio not found." });
+    }
+  } catch (error) {
+    console.error("Error fetching bio:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
