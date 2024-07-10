@@ -150,9 +150,8 @@ function FilterModal() {
 
   return (
     <div style={{ margin: "20px" }}>
-
       <Button
-       variant="outlined"
+        variant="outlined"
         onClick={() => setIsOpen(true)}
         className="InputField_SettingsPage"
       >

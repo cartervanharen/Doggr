@@ -191,7 +191,6 @@
 }
 
 .TopInnerPage_MainPage {
-  /* background-color: yellow; */
   width: 35px;
   justify-content: center;
   border-radius: 20px;
@@ -213,7 +212,6 @@
 }
 
 .BottomInnerPage_MainPage {
-  /* background-color: yellow; */
   width: 35px;
   justify-content: center;
   border-radius: 20px;
@@ -443,31 +441,14 @@
   padding: 4px;
   margin: 4px;
 }
-/* @keyframes colorCycle {
-  0% {
-    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.6); 
-  }
-  25% {
-    box-shadow: 0 4px 12px rgba(0, 0, 255, 0.6); 
-  }
-  50% {
-    box-shadow: 0 4px 12px rgba(0, 255, 0, 0.6); 
-  }
-  75% {
-    box-shadow: 0 4px 12px rgba(255, 20, 147, 0.6); 
-  }
-  100% {
-    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.6); 
-  }
-} */
 
 @keyframes colorCycle {
   0%,
   100% {
-    box-shadow: 0 4px 12px rgba(200, 200, 200, 0.6); /* White */
+    box-shadow: 0 4px 12px rgba(200, 200, 200, 0.6);
   }
   50% {
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6); /* Light Gray */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
   }
 }
 
@@ -544,7 +525,7 @@
 }
 
 .Emojis_MainPage.selected {
-  background-color: #007bff; /* Highlight color */
+  background-color: #007bff;
   color: white;
 }
 
@@ -571,7 +552,6 @@
   max-height: 380px !important;
 }
 
-
 .bio_SettingsPage {
   padding: 20px;
   max-width: 300px;
@@ -590,9 +570,6 @@
   transition: background-color 1s ease;
   max-height: 380px !important;
 }
-
-
-
 
 .InnerFlexDistance_SettingsPage {
   justify-content: center;

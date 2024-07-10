@@ -37,7 +37,7 @@ function ImageUpload() {
         const imageUrl = response.data.data.url;
         setImagesUrl({ ...imagesUrl, [index]: imageUrl });
         handleSave(index, imageUrl);
-        setSnackbarOpen(true); // Open snackbar on successful upload
+        setSnackbarOpen(true); 
       } else {
         console.error("Failed to upload image");
       }

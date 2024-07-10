@@ -218,8 +218,6 @@ const SettingsPage = () => {
       {/* <ShowProfileByUUID></ShowProfileByUUID> */}
 
       <div className="Whole_SettingsPage">
-
-        
         <div className="generalInfo_SettingsPage BorderRadius10px_MainPage">
           <div className="UserInfo_SettingsPage">
             <div className="UserInput_SettingsPage">
@@ -300,64 +298,57 @@ const SettingsPage = () => {
 
         <div className="bio_SettingsPage BorderRadius10px_MainPage">
           <h2>About My Dog</h2>
-      <Box
-        sx={{
-          backgroundColor: 'white',
-          zIndex: 3000000,
-          margin: '10px',
-          padding: '10px',
-          borderRadius: '10px'
-        }}
-      >
-        <TextField
-          multiline
-          rows={3}
-          fullWidth
-
-          variant="outlined"
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
-          disabled={!bioEditMode}
-          maxLength={180}
-          inputProps={{
-
-            style: { height: '48px', overflow: 'auto' },
-            maxLength: 180 
-          }}
-          
-        />
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-
-            marginTop: '10px',
-          }}
-        >
-          {!bioEditMode ? (
-            <Button
+          <Box
+            sx={{
+              backgroundColor: "white",
+              zIndex: 3000000,
+              margin: "10px",
+              padding: "10px",
+              borderRadius: "10px",
+            }}
+          >
+            <TextField
+              multiline
+              rows={3}
+              fullWidth
               variant="outlined"
-              onClick={() => setBioEditMode(true)}
-              size="small"
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              disabled={!bioEditMode}
+              maxLength={180}
+              inputProps={{
+                style: { height: "48px", overflow: "auto" },
+                maxLength: 180,
+              }}
+            />
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+
+                marginTop: "10px",
+              }}
             >
-              Edit
-            </Button>
-          ) : (
-            <Button
-              variant="contained"
-              onClick={updateBio}
-              color="primary"
-              size="small"
-            >
-              Save
-            </Button>
-          )}
-        </Box>
-
-    </Box>
-
-
-          
+              {!bioEditMode ? (
+                <Button
+                  variant="outlined"
+                  onClick={() => setBioEditMode(true)}
+                  size="small"
+                >
+                  Edit
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  onClick={updateBio}
+                  color="primary"
+                  size="small"
+                >
+                  Save
+                </Button>
+              )}
+            </Box>
+          </Box>
         </div>
 
         <div className="Distance_SettingsPage BorderRadius10px_MainPage">
