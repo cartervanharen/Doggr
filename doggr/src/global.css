@@ -30,7 +30,11 @@
   max-width: 300px;
   justify-content: center;
   text-align: center;
-  background-color: lightgray;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 1s ease;
+
+  animation: colorCycle 10s infinite;
+
   height: auto;
   min-width: 300px;
   margin: 10px;
@@ -421,24 +425,60 @@
   padding: 4px;
   margin: 4px;
 }
+/* @keyframes colorCycle {
+  0% {
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.6); 
+  }
+  25% {
+    box-shadow: 0 4px 12px rgba(0, 0, 255, 0.6); 
+  }
+  50% {
+    box-shadow: 0 4px 12px rgba(0, 255, 0, 0.6); 
+  }
+  75% {
+    box-shadow: 0 4px 12px rgba(255, 20, 147, 0.6); 
+  }
+  100% {
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.6); 
+  }
+} */
+
+@keyframes colorCycle {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(200, 200, 200, 0.6); /* White */
+  }
+  50% {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6); /* Light Gray */
+  }
+}
+
 .generalInfo_SettingsPage {
   max-width: 300px;
-
-  background-color: lightgray;
   height: 260px;
   min-width: 300px;
   margin: 10px;
   width: 40%;
-  transition: background-color 1s ease;
   max-height: 380px !important;
+
+  transition: background-color 1s ease;
+
+  animation: colorCycle 10s infinite;
 }
+
 
 .traits_SettingsPage {
   max-width: 300px;
   padding: 20px;
 
   text-align: center;
-  background-color: lightgray;
+
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  transition: background-color 1s ease;
+
+  animation: colorCycle 10s infinite;
+
+
   height: 240px;
   min-width: 300px;
 
@@ -480,7 +520,11 @@
   max-width: 300px;
   justify-content: center;
   text-align: center;
-  background-color: lightgray;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 1s ease;
+
+  animation: colorCycle 10s infinite;
+
   height: 240px;
   min-width: 300px;
   margin: 10px;
@@ -644,6 +688,9 @@ Future Action(s):
   flex-wrap: wrap;
   border-radius: 15px;
   box-shadow: 5px 5px 400px pink;
+  transition: background-color 1s ease;
+
+  animation: colorCycle 10s infinite;
 }
 
 .DogImageCard_ShowProfile {
@@ -772,4 +819,28 @@ Future Action(s):
 
 .LeftSideBar svg {
   margin-right: 10px;
+}
+.Whole_SettingsPage {
+  display: flex;
+  overflow: flex-wrap;
+  width: 80%;
+  max-width: 800px;
+  position: absolute;
+
+  height: 100vh;
+  padding-top: 70px;
+  margin: 0;
+  justify-content: center;
+  align-content: flex-start;
+  flex-wrap: wrap;
+}
+.BioField_SettingsPage {
+  border-radius: 10px;
+  border-style: none;
+  height: 100px;
+  margin: 3px;
+  padding: 4px;
+  justify-content: center;
+
+  width: 90%;
 }

@@ -2,14 +2,14 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./global.css";
-import { AiFillHome } from "react-icons/ai";
 import TraitModal from "./TraitModal.jsx";
 import FilterModal from "./filters.jsx";
 import ImageUpload from "./ImageUpload.jsx";
-import GetDogImages from "./GetDogImages.jsx";
 import LeftSidebar from "./LeftSidebar.jsx";
+import RightSidebar from "./RightSidebar.jsx";
+import { Button, TextField, Slider, Box, Typography, TextareaAutosize } from '@mui/material';
+import ShowProfileByUUID from "./ShowProfileByUUID.jsx";
 
-import { MdMessage } from "react-icons/md";
 const SettingsPage = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -20,7 +20,6 @@ const SettingsPage = () => {
   const [bio, setBio] = useState("");
   const [bioEditMode, setBioEditMode] = useState(false);
   const navigate = useNavigate();
-
   const verifyTokenAndGetUserID = async () => {
     const token = localStorage.getItem("accessToken");
     const wholeToken = "Bearer " + token;
@@ -29,7 +28,6 @@ const SettingsPage = () => {
       navigate("/login");
       return;
     }
-
     try {
       const response = await axios.post("http://localhost:3000/verify-token", {
         authorization: wholeToken,
@@ -44,10 +42,35 @@ const SettingsPage = () => {
       navigate("/login");
     }
   };
-  useEffect(() => {
-    verifyTokenAndGetUserID();
-    fetchBio();
-  }, []);
+
+
+
+
+
+  const fetchLocation = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      console.error("No token found in local storage.");
+      navigate("/login");
+      return;
+    }
+    
+    try {
+      const response = await axios.post("http://localhost:3000/get-location", {
+        accessToken: token
+      });
+      const { latitude, longitude } = response.data;
+      console.log(`Location fetched: Latitude ${latitude}, Longitude ${longitude}`);
+      // Update state or perform further actions with the location data
+    } catch (error) {
+      console.error(
+        "Error fetching location:",
+        error.response ? JSON.stringify(error.response.data, null, 2) : error.message
+      );
+    }
+  };
+  
+
 
   const saveMaxDistance = async () => {
     const token = localStorage.getItem("accessToken");
@@ -56,7 +79,6 @@ const SettingsPage = () => {
       navigate("/login");
       return;
     }
-
     try {
       await axios.post("http://localhost:3000/update-max-distance", {
         accessToken: token,
@@ -72,7 +94,11 @@ const SettingsPage = () => {
       );
     }
   };
-
+  useEffect(() => {
+    verifyTokenAndGetUserID();
+    fetchBio();
+    fetchLocation();
+  }, []); //[] are needed to it doesn't run on every keystroke
   useEffect(() => {
     const fetchMaxDistance = async () => {
       const token = localStorage.getItem("accessToken");
@@ -80,7 +106,6 @@ const SettingsPage = () => {
         console.error("No token found in local storage.");
         return;
       }
-
       try {
         const response = await axios.post(
           "http://localhost:3000/max-distance",
@@ -88,25 +113,21 @@ const SettingsPage = () => {
             accessToken: token,
           }
         );
-
         setMaxDistance(response.data.maxDistance);
       } catch (error) {
         console.error("Error fetching max distance:", error.message);
       }
     };
-
     const fetchUserInfo = async () => {
       const token = localStorage.getItem("accessToken");
       if (!token) {
         console.error("No token found in local storage.");
         return;
       }
-
       try {
         const response = await axios.post("http://localhost:3000/user-info", {
           accessToken: token,
         });
-
         const userData = response.data.user;
         setFirstName(userData.human_first_name);
         setLastName(userData.human_last_name);
@@ -123,7 +144,6 @@ const SettingsPage = () => {
   const handleEdit = () => {
     setEditMode(true);
   };
-
   const handleSave = async () => {
     try {
       const token = localStorage.getItem("accessToken");
@@ -131,7 +151,6 @@ const SettingsPage = () => {
         console.error("No token found in local storage.");
         return;
       }
-
       const updatedUserInfo = {
         accessToken: token,
         firstName,
@@ -139,12 +158,10 @@ const SettingsPage = () => {
         dogName,
         address,
       };
-
       const response = await axios.post(
         "http://localhost:3000/update-user-info",
         updatedUserInfo
       );
-
       console.log(
         "User information updated successfully:",
         response.data.message
@@ -153,14 +170,6 @@ const SettingsPage = () => {
     } catch (error) {
       console.error("Error updating user information:", error.message);
     }
-  };
-
-  const goHome = () => {
-    navigate("/dogs");
-  };
-
-  const goMessages = () => {
-    navigate("/messages");
   };
   const fetchBio = async () => {
     const token = localStorage.getItem("accessToken");
@@ -194,11 +203,13 @@ const SettingsPage = () => {
       console.error("Error updating bio:", error.message);
     }
   };
+
   return (
     <div className="RootofRoot_MainPage">
       <LeftSidebar></LeftSidebar>
+      {/* <ShowProfileByUUID></ShowProfileByUUID> */}
 
-      <div className="Whole_MainPage">
+      <div className="Whole_SettingsPage">
         <div className="generalInfo_SettingsPage BorderRadius10px_MainPage">
           <div className="UserInfo_SettingsPage">
             <div className="UserInput_SettingsPage">
@@ -256,19 +267,15 @@ const SettingsPage = () => {
             </div>
           </div>
         </div>
-
         <div className="UserFilters_SettingsPage BorderRadius10px_MainPage">
           <FilterModal></FilterModal>
         </div>
-
         <div className="traits_SettingsPage BorderRadius10px_MainPage">
           <TraitModal></TraitModal>
         </div>
-
         <div className="Distance_SettingsPage BorderRadius10px_MainPage">
           <h1>Range</h1>
           <p>Select the max distance of users.</p>
-
           <div className="RangeSlider_SettingsPage">
             <div className="InnerFlexDistance_SettingsPage">
               <input
@@ -279,7 +286,6 @@ const SettingsPage = () => {
                 value={maxDistance}
                 onChange={(e) => setMaxDistance(e.target.value)}
               />
-
               <h2> {maxDistance} Miles</h2>
             </div>
             <button
@@ -290,19 +296,14 @@ const SettingsPage = () => {
             </button>
           </div>
         </div>
-
         <div className="traits_SettingsPage BorderRadius10px_MainPage">
           <h3>Profile Pictures</h3>
-
           <ImageUpload></ImageUpload>
         </div>
-
-        <GetDogImages></GetDogImages>
-
         <div className="Distance_SettingsPage BorderRadius10px_MainPage">
           <h1>Bio</h1>
-          <textarea
-            className="InputField_SettingsPage"
+          <textarea 
+            className="BioField_SettingsPage"
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             disabled={!bioEditMode}
@@ -323,8 +324,8 @@ const SettingsPage = () => {
           </div>
         </div>
       </div>
+      <RightSidebar></RightSidebar>
     </div>
   );
 };
-
 export default SettingsPage;

@@ -76,7 +76,7 @@ function ImageUpload() {
   return (
     <div>
       <div className="EditButtons__SettingsPage">
-        <div key="1">
+        <div className="" key="1">
           <label htmlFor="fileUpload1" className="button_ImageUploadPage">
             Upload Main Image
           </label>
