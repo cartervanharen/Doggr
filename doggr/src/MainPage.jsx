@@ -5,6 +5,8 @@ import "./global.css";
 import ShowProfileByUUID from "./ShowProfileByUUID.jsx";
 import LeftSidebar from "./LeftSidebar.jsx";
 import RightSidebar from "./RightSidebar.jsx";
+import like from "./assets/like.svg";
+import dislike from "./assets/dislike.svg";
 
 const MainPage = () => {
   const navigate = useNavigate();
@@ -41,9 +43,13 @@ const MainPage = () => {
 
   return (
     <>
+      <img className="likebutton" src={like}></img>
+
+      <img className="dislikebutton" src={dislike}></img>
+
+
       <div className="flexbox_MainPage">
         <ShowProfileByUUID></ShowProfileByUUID>
-
         <LeftSidebar></LeftSidebar>
         <RightSidebar></RightSidebar>
       </div>
