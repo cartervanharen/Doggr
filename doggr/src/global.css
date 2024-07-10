@@ -895,7 +895,6 @@ Future Action(s):
   position: absolute;
   bottom: 5%;
   right: 43%;
-  
 }
 
 .dislikebutton:hover {
@@ -905,12 +904,12 @@ Future Action(s):
 .likebutton:hover {
   box-shadow: 5px 5px 400px pink;
   filter: drop-shadow(0px 0px 2px blue);
-
 }
 
-
-.loadingPage{
+.loadingPage {
   background-color: white;
   width: 100vw;
   height: 100vh;
+  z-index: 987654789876547897654578987667982346798234679986234;
+  position: absolute;
 }

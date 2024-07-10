@@ -47,7 +47,6 @@ const MainPage = () => {
 
       <img className="dislikebutton" src={dislike}></img>
 
-
       <div className="flexbox_MainPage">
         <ShowProfileByUUID></ShowProfileByUUID>
         <LeftSidebar></LeftSidebar>

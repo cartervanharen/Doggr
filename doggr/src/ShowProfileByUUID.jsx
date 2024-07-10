@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import CircularProgress from '@mui/material/CircularProgress';
-import Box from '@mui/material/Box';
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box";
 
 function ShowProfilebyUUID() {
   const navigate = useNavigate();
@@ -70,7 +70,13 @@ function ShowProfilebyUUID() {
 
   if (!userData) {
     return (
-      <Box className="loadingPage" display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+      <Box
+        className="loadingPage"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+      >
         <CircularProgress />
       </Box>
     );
