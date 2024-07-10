@@ -1,10 +1,12 @@
 import { useState } from "react";
 import axios from "axios";
 import "./global.css";
+import { Box, Button, Snackbar } from "@mui/material";
 
 function ImageUpload() {
   const [file, setFile] = useState({});
   const [imagesUrl, setImagesUrl] = useState({});
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const handleFileChange = async (event, index) => {
     const selectedFile = event.target.files[0];
@@ -12,8 +14,6 @@ function ImageUpload() {
       setFile({ ...file, [index]: selectedFile });
       await handleUpload(selectedFile, index);
     }
-
-    window.location.reload();
   };
 
   const handleUpload = async (file, index) => {
@@ -37,6 +37,7 @@ function ImageUpload() {
         const imageUrl = response.data.data.url;
         setImagesUrl({ ...imagesUrl, [index]: imageUrl });
         handleSave(index, imageUrl);
+        setSnackbarOpen(true); 
       } else {
         console.error("Failed to upload image");
       }
@@ -55,7 +56,6 @@ function ImageUpload() {
     const updatedUserInfo = {
       accessToken: token,
       [`picture${index}`]: imageUrl,
-      
     };
 
     try {
@@ -73,66 +73,86 @@ function ImageUpload() {
     }
   };
 
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  };
+
   return (
-    <div>
-      <div className="EditButtons__SettingsPage">
-        <div key="1">
-          <label htmlFor="fileUpload1" className="button_ImageUploadPage">
-            Upload Main Image
-          </label>
-          <input
-            id="fileUpload1"
-            type="file"
-            onChange={(e) => handleFileChange(e, 1)}
-            style={{ display: "none" }}
-          />
-        </div>
-        <div key="2">
-          <label htmlFor="fileUpload2" className="button_ImageUploadPage">
-            Upload Secondary Image
-          </label>
-          <input
-            id="fileUpload2"
-            type="file"
-            onChange={(e) => handleFileChange(e, 2)}
-            style={{ display: "none" }}
-          />
-        </div>
-        <div key="3">
-          <label htmlFor="fileUpload3" className="button_ImageUploadPage">
-            Upload Third Image
-          </label>
-          <input
-            id="fileUpload3"
-            type="file"
-            onChange={(e) => handleFileChange(e, 3)}
-            style={{ display: "none" }}
-          />
-        </div>
-        <div key="4">
-          <label htmlFor="fileUpload4" className="button_ImageUploadPage">
-            Upload Fourth Image
-          </label>
-          <input
-            id="fileUpload4"
-            type="file"
-            onChange={(e) => handleFileChange(e, 4)}
-            style={{ display: "none" }}
-          />
-        </div>
-        <div key="5">
-          <label htmlFor="fileUpload5" className="button_ImageUploadPage">
-            Upload Fifth Image
-          </label>
-          <input
-            id="fileUpload5"
-            type="file"
-            onChange={(e) => handleFileChange(e, 5)}
-            style={{ display: "none" }}
-          />
-        </div>
-      </div>
-    </div>
+    <Box sx={{ height: 100, padding: 2, maxWidth: 300, margin: "auto" }}>
+      <Button
+        component="label"
+        variant="outlined"
+        fullWidth
+        sx={{ mb: 0.3 }}
+      >
+        Upload Main Image
+        <input
+          type="file"
+          hidden
+          onChange={(e) => handleFileChange(e, 1)}
+        />
+      </Button>
+      <Button
+        component="label"
+        variant="outlined"
+        fullWidth
+        sx={{ mb: 0.3 }}
+      >
+        Upload Mini Image 1
+        <input
+          type="file"
+          hidden
+          onChange={(e) => handleFileChange(e, 2)}
+        />
+      </Button>
+      <Button
+        component="label"
+        variant="outlined"
+        fullWidth
+        sx={{ mb: 0.3 }}
+      >
+        Upload Mini Image 2
+        <input
+          type="file"
+          hidden
+          onChange={(e) => handleFileChange(e, 3)}
+        />
+      </Button>
+      <Button
+        component="label"
+        variant="outlined"
+        fullWidth
+        sx={{ mb: 0.3 }}
+      >
+        Upload Mini Image 3
+        <input
+          type="file"
+          hidden
+          onChange={(e) => handleFileChange(e, 4)}
+        />
+      </Button>
+      <Button
+        component="label"
+        variant="outlined"
+        fullWidth
+        sx={{ mb: 0.3 }}
+      >
+        Upload Mini Image 4
+        <input
+          type="file"
+          hidden
+          onChange={(e) => handleFileChange(e, 5)}
+        />
+      </Button>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        message={"Picture uploaded"}
+        sx={{ zIndex: 1000000 }}
+      />
+    </Box>
   );
 }
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Slider, Typography, Button, Modal, Box } from "@mui/material";
 
 function TraitModal() {
   const navigate = useNavigate();
@@ -45,46 +46,7 @@ function TraitModal() {
     fetchUserInfo();
   }, [navigate]);
 
-  // eslint-disable-next-line react/prop-types
-  function Modal({ isOpen, close, children }) {
-    if (!isOpen) return null;
-
-    return (
-      <div className="modalBackdrop_SettingsPage">
-        <div className="modalContent_SettingsPage">
-          {children}
-          <button onClick={close} className="closeButton_SettingsPage">
-            Save
-          </button>
-          <button
-            onClick={handleCloseNoSave}
-            className="closeButton_SettingsPage"
-          >
-            Exit
-          </button>
-        </div>
-      </div>
-    );
-  }
-  // eslint-disable-next-line react/prop-types
-  function TraitSelector({ label, value, setValue }) {
-    return (
-      <div>
-        <label>
-          {label}: {value}
-        </label>
-        <input
-          className="slider_SettingsPage"
-          type="range"
-          min="1"
-          max="10"
-          value={value}
-          onChange={(e) => setValue(Number(e.target.value))}
-        />
-      </div>
-    );
-  }
-
+  const handleOpen = () => setIsOpen(true);
   const handleClose = async () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -120,66 +82,77 @@ function TraitModal() {
     setIsOpen(false);
   };
 
+  function TraitSelector({ label, value, setValue }) {
+    return (
+      <Box sx={{ width: 300, margin: "20px" }}>
+        <Typography gutterBottom>
+          {label}: {value}
+        </Typography>
+        <Slider
+          value={value}
+          onChange={(e, newValue) => setValue(newValue)}
+          aria-labelledby="input-slider"
+          min={1}
+          max={10}
+        />
+      </Box>
+    );
+  }
+
   return (
     <div style={{ margin: "20px" }}>
-      <h1>Trait Evaluation</h1>
-      <button
-        onClick={() => setIsOpen(true)}
-        className="InputField_SettingsPage"
-      >
+      <Button variant="outlined" onClick={handleOpen}>
         Select Traits
-      </button>
-      <Modal isOpen={isOpen} close={handleClose}>
-        <TraitSelector
-          label="Likeability"
-          value={likeability}
-          setValue={setLikeability}
-        />
-        <p>
-          (1 being very reserved or anxious with strangers, 10 being extremely
-          outgoing and sociable)
-        </p>
-        <TraitSelector label="Energy" value={energy} setValue={setEnergy} />
-        <p>
-          (1 being minimal exercise needed, satisfied with short walks, 10 being
-          needs extensive, vigorous exercise)
-        </p>
-        <TraitSelector
-          label="Playfulness"
-          value={playfulness}
-          setValue={setPlayfulness}
-        />
-        <p>
-          (1 being seldom initiates play, generally inactive, 10 being
-          constantly seeking play and interaction)
-        </p>
-        <TraitSelector
-          label="Aggression"
-          value={aggression}
-          setValue={setAggression}
-        />
-        <p>
-          (1 being highly aggressive or defensive, 10 being completely welcoming
-          and unbothered)
-        </p>
-        <TraitSelector label="Size" value={size} setValue={setSize} />
-        <p>
-          (1 being significantly smaller than the breed average, 10 being
-          significantly larger than the breed average)
-        </p>
-        <TraitSelector
-          label="Training Level"
-          value={trainingLevel}
-          setValue={setTrainingLevel}
-        />
-        <p>
-          (1 being easily distracted and rarely follows commands, 10 being
-          highly focused and consistently obeys commands)
-        </p>
+      </Button>
+      <Modal
+        open={isOpen}
+        onClose={handleCloseNoSave}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <TraitSelector
+            label="Likeability"
+            value={likeability}
+            setValue={setLikeability}
+          />
+          <TraitSelector label="Energy" value={energy} setValue={setEnergy} />
+          <TraitSelector
+            label="Playfulness"
+            value={playfulness}
+            setValue={setPlayfulness}
+          />
+          <TraitSelector
+            label="Aggression"
+            value={aggression}
+            setValue={setAggression}
+          />
+          <TraitSelector label="Size" value={size} setValue={setSize} />
+          <TraitSelector
+            label="Training Level"
+            value={trainingLevel}
+            setValue={setTrainingLevel}
+          />
+          <Button onClick={handleClose} color="primary">
+            Save
+          </Button>
+          <Button onClick={handleCloseNoSave} color="secondary">
+            Exit
+          </Button>
+        </Box>
       </Modal>
     </div>
   );
 }
 
 export default TraitModal;
-

@@ -2,13 +2,13 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./global.css";
-import { AiFillHome } from "react-icons/ai";
 import TraitModal from "./TraitModal.jsx";
 import FilterModal from "./filters.jsx";
 import ImageUpload from "./ImageUpload.jsx";
-import GetDogImages from "./GetDogImages.jsx";
+import LeftSidebar from "./LeftSidebar.jsx";
+import RightSidebar from "./RightSidebar.jsx";
+import { Button, Box, Typography, Slider, TextField } from "@mui/material";
 
-import { MdMessage } from "react-icons/md";
 const SettingsPage = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -16,9 +16,9 @@ const SettingsPage = () => {
   const [address, setAddress] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [maxDistance, setMaxDistance] = useState(5);
-
+  const [bio, setBio] = useState("");
+  const [bioEditMode, setBioEditMode] = useState(false);
   const navigate = useNavigate();
-
   const verifyTokenAndGetUserID = async () => {
     const token = localStorage.getItem("accessToken");
     const wholeToken = "Bearer " + token;
@@ -27,7 +27,6 @@ const SettingsPage = () => {
       navigate("/login");
       return;
     }
-
     try {
       const response = await axios.post("http://localhost:3000/verify-token", {
         authorization: wholeToken,
@@ -43,9 +42,31 @@ const SettingsPage = () => {
     }
   };
 
-  useEffect(() => {
-    verifyTokenAndGetUserID();
-  });
+  const fetchLocation = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      console.error("No token found in local storage.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:3000/get-location", {
+        accessToken: token,
+      });
+      const { latitude, longitude } = response.data;
+      console.log(
+        `Location fetched: Latitude ${latitude}, Longitude ${longitude}`
+      );
+    } catch (error) {
+      console.error(
+        "Error fetching location:",
+        error.response
+          ? JSON.stringify(error.response.data, null, 2)
+          : error.message
+      );
+    }
+  };
 
   const saveMaxDistance = async () => {
     const token = localStorage.getItem("accessToken");
@@ -54,7 +75,6 @@ const SettingsPage = () => {
       navigate("/login");
       return;
     }
-
     try {
       await axios.post("http://localhost:3000/update-max-distance", {
         accessToken: token,
@@ -70,7 +90,10 @@ const SettingsPage = () => {
       );
     }
   };
-
+  useEffect(() => {
+    verifyTokenAndGetUserID();
+    fetchBio();
+  }, []); //[] are needed to it doesn't run on every keystroke
   useEffect(() => {
     const fetchMaxDistance = async () => {
       const token = localStorage.getItem("accessToken");
@@ -78,7 +101,6 @@ const SettingsPage = () => {
         console.error("No token found in local storage.");
         return;
       }
-
       try {
         const response = await axios.post(
           "http://localhost:3000/max-distance",
@@ -86,25 +108,21 @@ const SettingsPage = () => {
             accessToken: token,
           }
         );
-
         setMaxDistance(response.data.maxDistance);
       } catch (error) {
         console.error("Error fetching max distance:", error.message);
       }
     };
-
     const fetchUserInfo = async () => {
       const token = localStorage.getItem("accessToken");
       if (!token) {
         console.error("No token found in local storage.");
         return;
       }
-
       try {
         const response = await axios.post("http://localhost:3000/user-info", {
           accessToken: token,
         });
-
         const userData = response.data.user;
         setFirstName(userData.human_first_name);
         setLastName(userData.human_last_name);
@@ -121,7 +139,6 @@ const SettingsPage = () => {
   const handleEdit = () => {
     setEditMode(true);
   };
-
   const handleSave = async () => {
     try {
       const token = localStorage.getItem("accessToken");
@@ -129,7 +146,6 @@ const SettingsPage = () => {
         console.error("No token found in local storage.");
         return;
       }
-
       const updatedUserInfo = {
         accessToken: token,
         firstName,
@@ -137,12 +153,10 @@ const SettingsPage = () => {
         dogName,
         address,
       };
-
       const response = await axios.post(
         "http://localhost:3000/update-user-info",
         updatedUserInfo
       );
-
       console.log(
         "User information updated successfully:",
         response.data.message
@@ -151,131 +165,223 @@ const SettingsPage = () => {
     } catch (error) {
       console.error("Error updating user information:", error.message);
     }
-  };
 
-  const goHome = () => {
-    navigate("/dogs");
+    fetchLocation();
   };
-
-  const goMessages = () => {
-    navigate("/messages");
+  const fetchBio = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      console.error("No token found in local storage.");
+      return;
+    }
+    try {
+      const response = await axios.post("http://localhost:3000/get-bio", {
+        accessToken: token,
+      });
+      setBio(response.data.bio);
+    } catch (error) {
+      console.error("Error fetching bio:", error.message);
+    }
+  };
+  const updateBio = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      console.error("No token found in local storage.");
+      return;
+    }
+    try {
+      await axios.post("http://localhost:3000/update-bio", {
+        accessToken: token,
+        bio,
+      });
+      console.log("Bio updated successfully.");
+      setBioEditMode(false);
+    } catch (error) {
+      console.error("Error updating bio:", error.message);
+    }
+  };
+  const handleSliderChange = (event, newValue) => {
+    setMaxDistance(newValue);
   };
 
   return (
     <div className="RootofRoot_MainPage">
-      <div className="Varient2LeftMenuBar_MainPage">
-        <button onClick={goMessages} className="TopInnerPage_MainPage">
-          <MdMessage size={25} className="TopHomeIcon_MainPage" />
-        </button>
+      <LeftSidebar></LeftSidebar>
 
-        <button onClick={goHome} className="BottomInnerPage_MainPage">
-          <AiFillHome size={25} className="BottomHomeIcon_MainPage" />
-        </button>
-      </div>
-
-      <div className="Whole_MainPage">
+      <div className="Whole_SettingsPage">
         <div className="generalInfo_SettingsPage BorderRadius10px_MainPage">
           <div className="UserInfo_SettingsPage">
             <div className="UserInput_SettingsPage">
-              <h1>General Info</h1>
-              <input
-                className="InputField_SettingsPage"
-                type="text"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                placeholder="First Name"
-                disabled={!editMode}
-              />
-              <input
-                className="InputField_SettingsPage"
-                type="text"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                placeholder="Last Name"
-                disabled={!editMode}
-              />
-              <input
-                className="InputField_SettingsPage"
-                type="text"
-                value={dogName}
-                onChange={(e) => setDogName(e.target.value)}
-                placeholder="Dog's Name"
-                disabled={!editMode}
-              />
-              <input
-                className="InputField_SettingsPage"
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="Full Home Address"
-                disabled={!editMode}
-              />
-              <div className="EditButtons__SettingsPage">
-                {!editMode && (
-                  <button
-                    className="InputField_SettingsPage"
-                    onClick={handleEdit}
-                  >
-                    Edit
-                  </button>
-                )}
-                {editMode && (
-                  <button
-                    className="InputField_SettingsPage"
-                    onClick={handleSave}
-                  >
-                    Save
-                  </button>
-                )}
-              </div>
+              <h2>General Info</h2>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1,
+                  margin: "20px",
+                }}
+              >
+                <TextField
+                  label="First Name"
+                  variant="outlined"
+                  size="small"
+                  fullWidth
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="First Name"
+                  disabled={!editMode}
+                />
+                <TextField
+                  label="Last Name"
+                  variant="outlined"
+                  size="small"
+                  fullWidth
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Last Name"
+                  disabled={!editMode}
+                />
+                <TextField
+                  label="Dog's Name"
+                  variant="outlined"
+                  size="small"
+                  fullWidth
+                  value={dogName}
+                  onChange={(e) => setDogName(e.target.value)}
+                  placeholder="Dog's Name"
+                  disabled={!editMode}
+                />
+                <TextField
+                  label="Full Home Address"
+                  variant="outlined"
+                  size="small"
+                  fullWidth
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Full Home Address"
+                  disabled={!editMode}
+                />
+                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                  {!editMode ? (
+                    <Button
+                      variant="outlined"
+                      onClick={handleEdit}
+                      size="small"
+                    >
+                      Edit
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      onClick={handleSave}
+                      size="small"
+                      color="primary"
+                    >
+                      Save
+                    </Button>
+                  )}
+                </Box>
+              </Box>
             </div>
           </div>
         </div>
 
-        <div className="UserFilters_SettingsPage BorderRadius10px_MainPage">
-          <FilterModal></FilterModal>
-        </div>
+        <div className="bio_SettingsPage BorderRadius10px_MainPage">
+          <h2>About My Dog</h2>
+          <Box
+            sx={{
+              backgroundColor: "white",
+              zIndex: 3000000,
+              margin: "10px",
+              padding: "10px",
+              borderRadius: "10px",
+            }}
+          >
+            <TextField
+              multiline
+              rows={3}
+              fullWidth
+              variant="outlined"
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              disabled={!bioEditMode}
+              maxLength={180}
+              inputProps={{
+                style: { height: "48px", overflow: "auto" },
+                maxLength: 180,
+              }}
+            />
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
 
-        <div className="traits_SettingsPage BorderRadius10px_MainPage">
-          <TraitModal></TraitModal>
+                marginTop: "10px",
+              }}
+            >
+              {!bioEditMode ? (
+                <Button
+                  variant="outlined"
+                  onClick={() => setBioEditMode(true)}
+                  size="small"
+                >
+                  Edit
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  onClick={updateBio}
+                  color="primary"
+                  size="small"
+                >
+                  Save
+                </Button>
+              )}
+            </Box>
+          </Box>
         </div>
 
         <div className="Distance_SettingsPage BorderRadius10px_MainPage">
-          <h1>Range</h1>
-          <p>Select the max distance of users.</p>
-
-          <div className="RangeSlider_SettingsPage">
-            <div className="InnerFlexDistance_SettingsPage">
-              <input
-                className="SliderInnerFlexDistance_SettingsPage"
-                type="range"
-                min="1"
-                max="100"
-                value={maxDistance}
-                onChange={(e) => setMaxDistance(e.target.value)}
+          <h2>Dog Radius</h2>
+          <Box sx={{ width: "80%", margin: "10px auto" }}>
+            <Typography gutterBottom>
+              Select the max distance of dog you want to see.
+            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Slider
+                sx={{ flexGrow: 1 }}
+                value={typeof maxDistance === "number" ? maxDistance : 0}
+                onChange={handleSliderChange}
+                aria-labelledby="input-slider"
+                min={1}
+                max={100}
               />
-
-              <h2> {maxDistance} Miles</h2>
-            </div>
-            <button
-              className="InputField_SettingsPage"
-              onClick={saveMaxDistance}
-            >
+              <Typography variant="h6">{maxDistance} Miles</Typography>
+            </Box>
+            <Button variant="outlined" onClick={saveMaxDistance}>
               Save
-            </button>
-          </div>
+            </Button>
+          </Box>
         </div>
 
-        <div className="traits_SettingsPage BorderRadius10px_MainPage">
-          <h3>Profile Pictures</h3>
-
+        <div className="picture_SettingsPage BorderRadius10px_MainPage">
           <ImageUpload></ImageUpload>
         </div>
 
-        <GetDogImages></GetDogImages>
+        <div className="shortBox_SettingsPage BorderRadius10px_MainPage">
+          <h2>User Filtering</h2>
+
+          <FilterModal />
+        </div>
+        <div className="shortBox_SettingsPage BorderRadius10px_MainPage">
+          <h2>Trait Evaluation</h2>
+
+          <TraitModal></TraitModal>
+        </div>
       </div>
+      <RightSidebar></RightSidebar>
     </div>
   );
 };
-
 export default SettingsPage;

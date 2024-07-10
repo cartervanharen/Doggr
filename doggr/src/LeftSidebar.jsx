@@ -35,7 +35,7 @@ function LeftSidebar() {
         flexShrink: 0,
         "& .MuiDrawer-paper": { width: 300, boxSizing: "border-box" },
         "& .MuiListItemIcon-root": { minWidth: 40 },
-        "& .MuiTypography-root": { fontSize: "1.7rem" },
+        "& .MuiTypography-root": { fontSize: "1.2rem" },
       }}
     >
       <List>

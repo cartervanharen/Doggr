@@ -7,6 +7,7 @@ const supabaseUrl = "https://oewelgbnnzgyamhpxyqs.supabase.co";
 const supabaseKey = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ld2VsZ2JubnpneWFtaHB4eXFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkzMzQ0MDIsImV4cCI6MjAzNDkxMDQwMn0.wrKCzM1wbzyTLwBN7xbYu2mzS2GzQ6zAWHNe9Wv1BBo`;
 app.use(express.json());
 app.use(cors());
+import axios from "axios";
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -38,7 +39,6 @@ app.post("/login", async (req, res) => {
     if (error) throw error;
     const access_token = session.access_token;
     return res.status(200).json({ access_token });
-    // return res.status(200).json({ message: 'Login successful', user, session });
   } catch (error) {
     return res.status(401).json({ error: error.message });
   }
@@ -672,7 +672,7 @@ app.post("/next-user-data", async (req, res) => {
     .select("picture1, picture2, picture3, picture4, picture5")
     .eq("uuid", nextUserUuid)
     .single();
-    
+
   const { data: basicInfo } = await supabase
     .from("users")
     .select("*")
@@ -684,6 +684,138 @@ app.post("/next-user-data", async (req, res) => {
     pictures: pictureLinks,
     basic: basicInfo,
   });
+});
+
+app.post("/update-bio", async (req, res) => {
+  const { accessToken, bio } = req.body;
+
+  if (!accessToken) {
+    return res.status(401).json({ error: "Access token is required" });
+  }
+
+  if (bio === undefined) {
+    return res.status(400).json({ error: "Bio content is required" });
+  }
+
+  try {
+    const { data: user, error: userError } = await supabase.auth.api.getUser(
+      accessToken
+    );
+    if (userError) throw userError;
+
+    const { error: updateError } = await supabase
+      .from("userdata")
+      .update({ bio: bio })
+      .eq("uuid", user.id);
+
+    if (updateError) {
+      console.error("Update Error:", updateError.message);
+      return res.status(500).json({ error: updateError.message });
+    }
+
+    return res.status(200).json({ message: "Bio updated successfully" });
+  } catch (error) {
+    console.error("Error updating bio:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/get-bio", async (req, res) => {
+  const { accessToken } = req.body;
+
+  if (!accessToken) {
+    return res.status(401).json({ error: "Access token is required" });
+  }
+
+  try {
+    const { data: user, error: userError } = await supabase.auth.api.getUser(
+      accessToken
+    );
+    if (userError) throw userError;
+
+    const { data: userData, error: dataError } = await supabase
+      .from("userdata")
+      .select("bio")
+      .eq("uuid", user.id)
+      .single();
+
+    if (dataError) {
+      throw dataError;
+    }
+
+    if (userData) {
+      return res.status(200).json({ bio: userData.bio });
+    } else {
+      return res.status(404).json({ error: "User bio not found." });
+    }
+  } catch (error) {
+    console.error("Error fetching bio:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/get-location", async (req, res) => {
+  const { accessToken } = req.body;
+
+  if (!accessToken) {
+    return res.status(401).json({ error: "Access token is required" });
+  }
+
+  try {
+    const { data: user, error: userError } = await supabase.auth.api.getUser(
+      accessToken
+    );
+    if (userError) throw userError;
+
+    const { data: basicInfo, error: basicInfoError } = await supabase
+      .from("users")
+      .select("address")
+      .eq("uuid", user.id)
+      .single();
+
+    if (basicInfoError) {
+      throw basicInfoError;
+    }
+
+    if (!basicInfo.address) {
+      return res.status(404).json({ error: "No address found for this user." });
+    }
+
+    const positionStackApiKey = "be2efb6b90f3a1015d928b4186ca5ec4";
+    const formattedAddress = encodeURIComponent(basicInfo.address);
+    const positionStackUrl = `http://api.positionstack.com/v1/forward?access_key=${positionStackApiKey}&query=${formattedAddress}`;
+
+    const response = await axios.get(positionStackUrl);
+
+    if (!response.data.data || response.data.data.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No location data found for this address." });
+    }
+
+    const locationData = response.data.data[0];
+
+    const { error: updateError } = await supabase
+      .from("userdata")
+      .update({
+        longitude: locationData.longitude,
+        latitude: locationData.latitude,
+      })
+      .eq("uuid", user.id);
+
+    if (updateError) {
+      throw updateError;
+    }
+
+    return res.status(200).json({
+      message: "Location updated successfully",
+      longitude: locationData.longitude,
+      latitude: locationData.latitude,
+    });
+  } catch (error) {
+    console.error("Error fetching or updating location data:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
 });
 
 app.listen(PORT, () => {
