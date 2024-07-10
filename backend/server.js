@@ -39,7 +39,6 @@ app.post("/login", async (req, res) => {
     if (error) throw error;
     const access_token = session.access_token;
     return res.status(200).json({ access_token });
-    // return res.status(200).json({ message: 'Login successful', user, session });
   } catch (error) {
     return res.status(401).json({ error: error.message });
   }
@@ -754,7 +753,6 @@ app.post("/get-bio", async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
-
 
 app.post("/get-location", async (req, res) => {
   const { accessToken } = req.body;

@@ -43,6 +43,24 @@
   max-height: 380px !important;
 }
 
+.shortBox_SettingsPage {
+  padding: 20px;
+
+  max-width: 300px;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 1s ease;
+
+  animation: colorCycle 10s infinite;
+
+  height: 140px;
+  min-width: 300px;
+  margin: 10px;
+  width: 40%;
+  transition: background-color 1s ease;
+  max-height: 380px !important;
+}
 .DogImageCard_MainPage:hover {
   background-color: lightblue;
 }
@@ -444,7 +462,8 @@
 } */
 
 @keyframes colorCycle {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 4px 12px rgba(200, 200, 200, 0.6); /* White */
   }
   50% {
@@ -454,7 +473,7 @@
 
 .generalInfo_SettingsPage {
   max-width: 300px;
-  height: 260px;
+  height: 310px;
   min-width: 300px;
   margin: 10px;
   width: 40%;
@@ -464,7 +483,6 @@
 
   animation: colorCycle 10s infinite;
 }
-
 
 .traits_SettingsPage {
   max-width: 300px;
@@ -478,6 +496,26 @@
 
   animation: colorCycle 10s infinite;
 
+  height: 240px;
+  min-width: 300px;
+
+  margin: 10px;
+  width: 40%;
+  transition: background-color 1s ease;
+  max-height: 380px !important;
+}
+
+.picture_SettingsPage {
+  max-width: 300px;
+  padding: 10px;
+
+  text-align: center;
+
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  transition: background-color 1s ease;
+
+  animation: colorCycle 10s infinite;
 
   height: 240px;
   min-width: 300px;
@@ -532,6 +570,29 @@
   transition: background-color 1s ease;
   max-height: 380px !important;
 }
+
+
+.bio_SettingsPage {
+  padding: 20px;
+  max-width: 300px;
+
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 1s ease;
+
+  animation: colorCycle 10s infinite;
+
+  height: 310px;
+  min-width: 300px;
+  margin: 10px;
+  width: 0%;
+  transition: background-color 1s ease;
+  max-height: 380px !important;
+}
+
+
+
 
 .InnerFlexDistance_SettingsPage {
   justify-content: center;

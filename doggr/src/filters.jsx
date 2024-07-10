@@ -2,17 +2,20 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import PropTypes from "prop-types";
+import { Slider, Box, Typography, Button, Snackbar } from "@mui/material";
 
 function FilterModal() {
   const navigate = useNavigate();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [likeability, setLikeability] = useState({ min: 1, max: 10 });
-  const [energy, setEnergy] = useState({ min: 1, max: 10 });
-  const [playfulness, setPlayfulness] = useState({ min: 1, max: 10 });
-  const [aggression, setAggression] = useState({ min: 1, max: 10 });
-  const [size, setSize] = useState({ min: 1, max: 10 });
-  const [trainingLevel, setTrainingLevel] = useState({ min: 1, max: 10 });
+  const [likeability, setLikeability] = useState([1, 10]);
+  const [energy, setEnergy] = useState([1, 10]);
+  const [playfulness, setPlayfulness] = useState([1, 10]);
+  const [aggression, setAggression] = useState([1, 10]);
+  const [size, setSize] = useState([1, 10]);
+  const [trainingLevel, setTrainingLevel] = useState([1, 10]);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -38,12 +41,12 @@ function FilterModal() {
           sizeFilter,
           trainingFilter,
         } = response.data.userFilters;
-        setLikeability(likeabilityFilter);
-        setEnergy(energyFilter);
-        setPlayfulness(playfulnessFilter);
-        setAggression(aggressionFilter);
-        setSize(sizeFilter);
-        setTrainingLevel(trainingFilter);
+        setLikeability([likeabilityFilter.min, likeabilityFilter.max]);
+        setEnergy([energyFilter.min, energyFilter.max]);
+        setPlayfulness([playfulnessFilter.min, playfulnessFilter.max]);
+        setAggression([aggressionFilter.min, aggressionFilter.max]);
+        setSize([sizeFilter.min, sizeFilter.max]);
+        setTrainingLevel([trainingFilter.min, trainingFilter.max]);
       } catch (error) {
         console.error(
           "Error fetching user information:",
@@ -60,68 +63,50 @@ function FilterModal() {
     if (!isOpen) return null;
 
     return (
-      <div className="modalBackdrop_SettingsPage">
-        <div className="modalContent_SettingsPage">
+      <Box className="modalBackdrop_SettingsPage">
+        <Box className="modalContent_SettingsPage">
           {children}
-          <button onClick={close} className="closeButton_SettingsPage">
+          <Button onClick={close} className="closeButton_SettingsPage">
             Save
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleCloseNoSave}
             className="closeButton_SettingsPage"
           >
             Exit
-          </button>
-        </div>
-      </div>
+          </Button>
+        </Box>
+      </Box>
     );
   }
 
   function TraitSelector({ label, value, setValue }) {
-    const handleMinChange = (e) => {
-      const newMin = 11 - Number(e.target.value);
-      if (newMin > value.max) {
-        alert("Minimum value cannot be greater than maximum value.");
+    const handleChange = (event, newValue) => {
+      if (newValue[0] >= newValue[1]) {
+        setSnackbarMessage("Minimum value must be less than maximum value.");
+        setSnackbarOpen(true);
         return;
-      } else {
-        setValue({ ...value, min: newMin });
       }
-    };
-
-    const handleMaxChange = (e) => {
-      const newMax = Number(e.target.value);
-      if (newMax < value.min) {
-        alert("Maximum value cannot be less than minimum value.");
-        return;
-      } else {
-        setValue({ ...value, max: newMax });
-      }
+      setValue(newValue);
     };
 
     return (
-      <div className="traitSelector_filterPage">
-        <label className="label_filterPage">
-          {label} ({value.min} - {value.max})
-        </label>
-        <div className="sliderContainer_filterPage">
-          <input
-            className="sliderMin_filterPage"
-            type="range"
-            min="1"
-            max="10"
-            value={11 - value.min}
-            onChange={handleMinChange}
-          />
-          <input
-            className="sliderMax_filterPage"
-            type="range"
-            min="1"
-            max="10"
-            value={value.max}
-            onChange={handleMaxChange}
-          />
-        </div>
-      </div>
+      <Box sx={{ width: 300, margin: "20px" }}>
+        <Typography gutterBottom>
+          {label} ({value[0]} - {value[1]})
+        </Typography>
+        <Slider
+          value={value}
+          onChange={handleChange}
+          valueLabelDisplay="auto"
+          min={1}
+          max={10}
+          marks
+          step={1}
+          sx={{ marginBottom: 2 }}
+          color="secondary"
+        />
+      </Box>
     );
   }
 
@@ -136,12 +121,12 @@ function FilterModal() {
     try {
       await axios.post("http://localhost:3000/update-dog-filter", {
         accessToken: token,
-        likeabilityFilter: likeability,
-        energyFilter: energy,
-        playfulnessFilter: playfulness,
-        aggressionFilter: aggression,
-        sizeFilter: size,
-        trainingFilter: trainingLevel,
+        likeabilityFilter: { min: likeability[0], max: likeability[1] },
+        energyFilter: { min: energy[0], max: energy[1] },
+        playfulnessFilter: { min: playfulness[0], max: playfulness[1] },
+        aggressionFilter: { min: aggression[0], max: aggression[1] },
+        sizeFilter: { min: size[0], max: size[1] },
+        trainingFilter: { min: trainingLevel[0], max: trainingLevel[1] },
       });
       console.log("User filters updated successfully.");
       setIsOpen(false);
@@ -159,15 +144,20 @@ function FilterModal() {
     setIsOpen(false);
   };
 
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  };
+
   return (
     <div style={{ margin: "20px" }}>
-      <h1>User Filtering</h1>
-      <button
+
+      <Button
+       variant="outlined"
         onClick={() => setIsOpen(true)}
         className="InputField_SettingsPage"
       >
         Set Filters
-      </button>
+      </Button>
       <Modal isOpen={isOpen} close={handleClose}>
         <TraitSelector
           label="Likeability"
@@ -192,6 +182,13 @@ function FilterModal() {
           setValue={setTrainingLevel}
         />
       </Modal>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        message={snackbarMessage}
+        sx={{ zIndex: 1000000 }}
+      />
     </div>
   );
 }
@@ -200,10 +197,7 @@ export default FilterModal;
 
 FilterModal.propTypes = {
   label: PropTypes.string,
-  value: PropTypes.shape({
-    min: PropTypes.number,
-    max: PropTypes.number,
-  }).isRequired,
+  value: PropTypes.arrayOf(PropTypes.number).isRequired,
   setValue: PropTypes.func,
   isOpen: PropTypes.bool,
   close: PropTypes.func,
