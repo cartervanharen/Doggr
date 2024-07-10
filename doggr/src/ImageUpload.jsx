@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import "./global.css";
-import { Slider, Box, Typography, Button, Snackbar } from "@mui/material";
+import { Box, Button, Snackbar } from "@mui/material";
 
 function ImageUpload() {
   const [file, setFile] = useState({});
@@ -79,22 +79,71 @@ function ImageUpload() {
 
   return (
     <Box sx={{ height: 100, padding: 2, maxWidth: 300, margin: "auto" }}>
-      {Array.from({ length: 5 }, (_, i) => i + 1).map((index) => (
-        <Button
-          key={index}
-          component="label"
-          variant="outlined"
-          fullWidth
-          sx={{ mb: 0.3 }}
-        >
-          Upload Image {index}
-          <input
-            type="file"
-            hidden
-            onChange={(e) => handleFileChange(e, index)}
-          />
-        </Button>
-      ))}
+      <Button
+        component="label"
+        variant="outlined"
+        fullWidth
+        sx={{ mb: 0.3 }}
+      >
+        Upload Main Image
+        <input
+          type="file"
+          hidden
+          onChange={(e) => handleFileChange(e, 1)}
+        />
+      </Button>
+      <Button
+        component="label"
+        variant="outlined"
+        fullWidth
+        sx={{ mb: 0.3 }}
+      >
+        Upload Mini Image 1
+        <input
+          type="file"
+          hidden
+          onChange={(e) => handleFileChange(e, 2)}
+        />
+      </Button>
+      <Button
+        component="label"
+        variant="outlined"
+        fullWidth
+        sx={{ mb: 0.3 }}
+      >
+        Upload Mini Image 2
+        <input
+          type="file"
+          hidden
+          onChange={(e) => handleFileChange(e, 3)}
+        />
+      </Button>
+      <Button
+        component="label"
+        variant="outlined"
+        fullWidth
+        sx={{ mb: 0.3 }}
+      >
+        Upload Mini Image 3
+        <input
+          type="file"
+          hidden
+          onChange={(e) => handleFileChange(e, 4)}
+        />
+      </Button>
+      <Button
+        component="label"
+        variant="outlined"
+        fullWidth
+        sx={{ mb: 0.3 }}
+      >
+        Upload Mini Image 4
+        <input
+          type="file"
+          hidden
+          onChange={(e) => handleFileChange(e, 5)}
+        />
+      </Button>
 
       <Snackbar
         open={snackbarOpen}

@@ -76,11 +76,13 @@
   width: 75px;
   padding: 3px;
   transition: transform 0.3s ease-in-out;
+  z-index: 1000000000;
+
 }
 
 .SmallDogImage_MainPage:hover {
   transform: scale(2.5);
-  z-index: 10;
+  z-index: 1000000000;
 }
 
 .SmallDogImage_MainPage.edge-left:hover {

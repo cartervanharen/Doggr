@@ -7,15 +7,7 @@ import FilterModal from "./filters.jsx";
 import ImageUpload from "./ImageUpload.jsx";
 import LeftSidebar from "./LeftSidebar.jsx";
 import RightSidebar from "./RightSidebar.jsx";
-import {
-  Button,
-  Box,
-  TextareaAutosize,
-  Typography,
-  Slider,
-  TextField,
-} from "@mui/material";
-import ShowProfileByUUID from "./ShowProfileByUUID.jsx";
+import { Button, Box, Typography, Slider, TextField } from "@mui/material";
 
 const SettingsPage = () => {
   const [firstName, setFirstName] = useState("");
@@ -215,7 +207,6 @@ const SettingsPage = () => {
   return (
     <div className="RootofRoot_MainPage">
       <LeftSidebar></LeftSidebar>
-      {/* <ShowProfileByUUID></ShowProfileByUUID> */}
 
       <div className="Whole_SettingsPage">
         <div className="generalInfo_SettingsPage BorderRadius10px_MainPage">
