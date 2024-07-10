@@ -918,7 +918,155 @@ app.post("/mark-user-seen", async (req, res) => {
   }
 });
 
+app.post("/signup-complete", async (req, res) => {
+  console.log("Signup complete route hit");
 
+  const {
+    email,
+    password,
+    human_first_name,
+    human_last_name,
+    address,
+    dog_name,
+    bio,
+    picture1,
+    picture2,
+    picture3,
+    picture4,
+    picture5,
+    likeability,
+    energy,
+    playfulness,
+    aggression,
+    size,
+    training,
+  } = req.body;
+
+  const currentTime = new Date().toISOString();
+
+  if (
+    !email ||
+    !password ||
+    !human_first_name ||
+    !human_last_name ||
+    !address ||
+    !dog_name ||
+    !picture1 ||
+    !picture2 ||
+    !picture3 ||
+    !picture4 ||
+    !picture5
+  ) {
+    return res
+      .status(400)
+      .json({ error: "All fields are required and must not be empty" });
+  }
+
+  try {
+    // Sign up the user
+    const {
+      user,
+      session,
+      error: signupError,
+    } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (signupError) {
+      throw signupError;
+    }
+
+    const { error: insertUserError } = await supabase.from("users").insert([
+      {
+        uuid: user.id,
+        human_first_name,
+        human_last_name,
+        address,
+        dog_name,
+        created_at: currentTime,
+        last_active: currentTime,
+        user_level: 1,
+      },
+    ]);
+
+    if (insertUserError) {
+      throw insertUserError;
+    }
+
+    const { error: insertUserDataError } = await supabase
+      .from("userdata")
+      .insert([
+        {
+          uuid: user.id,
+          likeability,
+          energy,
+          playfulness,
+          aggression,
+          size,
+          bio,
+          training,
+          maxDistance: 1,
+          likeabilityFilter: { min: 1, max: 10 },
+          energyFilter: { min: 1, max: 10 },
+          playfulnessFilter: { min: 1, max: 10 },
+          aggressionFilter: { min: 1, max: 10 },
+          sizeFilter: { min: 1, max: 10 },
+          trainingFilter: { min: 1, max: 10 },
+        },
+      ]);
+
+    if (insertUserDataError) {
+      throw insertUserDataError;
+    }
+
+    const { error: insertImagesError } = await supabase.from("images").insert([
+      {
+        uuid: user.id,
+        picture1,
+        picture2,
+        picture3,
+        picture4,
+        picture5,
+      },
+    ]);
+
+    if (insertImagesError) {
+      throw insertImagesError;
+    }
+
+    const positionStackApiKey = "be2efb6b90f3a1015d928b4186ca5ec4";
+    const formattedAddress = encodeURIComponent(address);
+    const positionStackUrl = `http://api.positionstack.com/v1/forward?access_key=${positionStackApiKey}&query=${formattedAddress}`;
+
+    const response = await axios.get(positionStackUrl);
+
+    if (!response.data.data || response.data.data.length === 0) {
+      throw new Error("No location data found for the provided address.");
+    }
+
+    const locationData = response.data.data[0];
+
+    const { error: updateLocationError } = await supabase
+      .from("userdata")
+      .update({
+        longitude: locationData.longitude,
+        latitude: locationData.latitude,
+      })
+      .eq("uuid", user.id);
+
+    if (updateLocationError) {
+      throw updateLocationError;
+    }
+
+    return res
+      .status(200)
+      .json({ message: "User account created successfully", user, session });
+  } catch (error) {
+    console.error("Error creating user:", error.message);
+    return res.status(401).json({ error: error.message });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
