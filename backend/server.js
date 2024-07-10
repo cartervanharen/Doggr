@@ -720,11 +720,6 @@ app.post("/update-bio", async (req, res) => {
   }
 });
 
-
-
-
-
-
 app.post("/get-bio", async (req, res) => {
   const { accessToken } = req.body;
 
@@ -823,24 +818,16 @@ app.post("/get-location", async (req, res) => {
   }
 });
 
-
-
 app.post("/mark-user-seen", async (req, res) => {
   const { accessToken, relation } = req.body;
 
-  // if (!accessToken) {
-  //   return res.status(401).json({ error: "Access token is required" });
-  // }
+  if (!accessToken) {
+    return res.status(401).json({ error: "Access token is required" });
+  }
 
-  // if (bio === undefined) {
-  //   return res.status(400).json({ error: "Bio content is required" });
-  // }
-
-
-  // if (relation === undefined) {
-  //   return res.status(400).json({ error: "relation content is required" });
-  // }
-
+  if (relation === undefined) {
+    return res.status(400).json({ error: "relation content is required" });
+  }
 
   try {
     const { data: user, error: userError } = await supabase.auth.api.getUser(
@@ -848,47 +835,238 @@ app.post("/mark-user-seen", async (req, res) => {
     );
     if (userError) throw userError;
 
-
-
-
     const { data: nextusers, error: basicInfoError } = await supabase
       .from("nextusers")
       .select("*")
       .eq("uuid", user.id)
       .single();
-    console.log(nextusers)
-    return res.status(200).json({ nextusers});
-    // const { error: updateError } = await supabase
-    //   .from("userdata")
-    //   .update({ bio: bio })
-    //   .eq("uuid", user.id);
+    console.log(nextusers);
+    console.log("line844");
 
-    // if (updateError) {
-    //   console.error("Update Error:", updateError.message);
-    //   return res.status(500).json({ error: updateError.message });
-    // }
+    const idofNextUser = nextusers.nextuser;
+    const nextUserField = `user${idofNextUser}`;
+    const currentUserID = nextusers[nextUserField]; //this is the current uuid of the profile that should be currently shown.
 
-    // return res.status(200).json({ message: "Bio updated successfully" });
+    if (relation == "like") {
+      console.log("like");
+      console.log(
+        `Current user id of show profile${idofNextUser}: ${currentUserID}`
+      );
+
+      const { data: insertData, error: insertUserDataError } = await supabase
+        .from("relation")
+        .insert([
+          {
+            user_from: user.id,
+            user_to: currentUserID,
+            type: 1, // type 1 is like, type 2 is pass, type 3 is block.
+          },
+        ]);
+
+      if (insertUserDataError) {
+        throw insertUserDataError;
+      }
+    } else if (relation == "dislike") {
+      console.log("dislike");
+      const { data: insertData, error: insertUserDataError } = await supabase
+        .from("relation")
+        .insert([
+          {
+            user_from: user.id,
+            user_to: currentUserID,
+            type: 2, // type 1 is like, type 2 is pass, type 3 is block.
+          },
+        ]);
+
+      if (insertUserDataError) {
+        throw insertUserDataError;
+      }
+    } else if (relation == "block") {
+      console.log("block");
+      const { data: insertData, error: insertUserDataError } = await supabase
+        .from("relation")
+        .insert([
+          {
+            user_from: user.id,
+            user_to: currentUserID,
+            type: 3, // type 1 is like, type 2 is pass, type 3 is block.
+          },
+        ]);
+
+      if (insertUserDataError) {
+        throw insertUserDataError;
+      }
+    } else {
+      console.log("Unknown relation type.");
+    }
+
+    const { error: updateError } = await supabase
+      .from("nextusers")
+      .update({
+        nextuser: nextusers.nextuser + 1,
+      })
+      .eq("uuid", user.id);
+
+    if (updateError) {
+      throw updateError;
+    }
+
+    return res.status(200).json({ idofNextUser });
   } catch (error) {
     console.error("Error updating bio:", error.message);
     return res.status(500).json({ error: error.message });
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
 });
 
+app.post("/signup-complete", async (req, res) => {
+  console.log("Signup complete route hit");
 
+  const {
+    email,
+    password,
+    human_first_name,
+    human_last_name,
+    address,
+    dog_name,
+    bio,
+    picture1,
+    picture2,
+    picture3,
+    picture4,
+    picture5,
+    likeability,
+    energy,
+    playfulness,
+    aggression,
+    size,
+    training,
+  } = req.body;
+
+  const currentTime = new Date().toISOString();
+
+  if (
+    !email ||
+    !password ||
+    !human_first_name ||
+    !human_last_name ||
+    !address ||
+    !dog_name ||
+    !picture1 ||
+    !picture2 ||
+    !picture3 ||
+    !picture4 ||
+    !picture5
+  ) {
+    return res
+      .status(400)
+      .json({ error: "All fields are required and must not be empty" });
+  }
+
+  try {
+    // Sign up the user
+    const {
+      user,
+      session,
+      error: signupError,
+    } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (signupError) {
+      throw signupError;
+    }
+
+    const { error: insertUserError } = await supabase.from("users").insert([
+      {
+        uuid: user.id,
+        human_first_name,
+        human_last_name,
+        address,
+        dog_name,
+        created_at: currentTime,
+        last_active: currentTime,
+        user_level: 1,
+      },
+    ]);
+
+    if (insertUserError) {
+      throw insertUserError;
+    }
+
+    const { error: insertUserDataError } = await supabase
+      .from("userdata")
+      .insert([
+        {
+          uuid: user.id,
+          likeability,
+          energy,
+          playfulness,
+          aggression,
+          size,
+          bio,
+          training,
+          maxDistance: 1,
+          likeabilityFilter: { min: 1, max: 10 },
+          energyFilter: { min: 1, max: 10 },
+          playfulnessFilter: { min: 1, max: 10 },
+          aggressionFilter: { min: 1, max: 10 },
+          sizeFilter: { min: 1, max: 10 },
+          trainingFilter: { min: 1, max: 10 },
+        },
+      ]);
+
+    if (insertUserDataError) {
+      throw insertUserDataError;
+    }
+
+    const { error: insertImagesError } = await supabase.from("images").insert([
+      {
+        uuid: user.id,
+        picture1,
+        picture2,
+        picture3,
+        picture4,
+        picture5,
+      },
+    ]);
+
+    if (insertImagesError) {
+      throw insertImagesError;
+    }
+
+    const positionStackApiKey = "be2efb6b90f3a1015d928b4186ca5ec4";
+    const formattedAddress = encodeURIComponent(address);
+    const positionStackUrl = `http://api.positionstack.com/v1/forward?access_key=${positionStackApiKey}&query=${formattedAddress}`;
+
+    const response = await axios.get(positionStackUrl);
+
+    if (!response.data.data || response.data.data.length === 0) {
+      throw new Error("No location data found for the provided address.");
+    }
+
+    const locationData = response.data.data[0];
+
+    const { error: updateLocationError } = await supabase
+      .from("userdata")
+      .update({
+        longitude: locationData.longitude,
+        latitude: locationData.latitude,
+      })
+      .eq("uuid", user.id);
+
+    if (updateLocationError) {
+      throw updateLocationError;
+    }
+
+    return res
+      .status(200)
+      .json({ message: "User account created successfully", user, session });
+  } catch (error) {
+    console.error("Error creating user:", error.message);
+    return res.status(401).json({ error: error.message });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
