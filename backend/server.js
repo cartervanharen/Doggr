@@ -720,6 +720,11 @@ app.post("/update-bio", async (req, res) => {
   }
 });
 
+
+
+
+
+
 app.post("/get-bio", async (req, res) => {
   const { accessToken } = req.body;
 
@@ -817,6 +822,73 @@ app.post("/get-location", async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
+
+
+
+app.post("/mark-user-seen", async (req, res) => {
+  const { accessToken, relation } = req.body;
+
+  // if (!accessToken) {
+  //   return res.status(401).json({ error: "Access token is required" });
+  // }
+
+  // if (bio === undefined) {
+  //   return res.status(400).json({ error: "Bio content is required" });
+  // }
+
+
+  // if (relation === undefined) {
+  //   return res.status(400).json({ error: "relation content is required" });
+  // }
+
+
+  try {
+    const { data: user, error: userError } = await supabase.auth.api.getUser(
+      accessToken
+    );
+    if (userError) throw userError;
+
+
+
+
+    const { data: nextusers, error: basicInfoError } = await supabase
+      .from("nextusers")
+      .select("*")
+      .eq("uuid", user.id)
+      .single();
+    console.log(nextusers)
+    return res.status(200).json({ nextusers});
+    // const { error: updateError } = await supabase
+    //   .from("userdata")
+    //   .update({ bio: bio })
+    //   .eq("uuid", user.id);
+
+    // if (updateError) {
+    //   console.error("Update Error:", updateError.message);
+    //   return res.status(500).json({ error: updateError.message });
+    // }
+
+    // return res.status(200).json({ message: "Bio updated successfully" });
+  } catch (error) {
+    console.error("Error updating bio:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
