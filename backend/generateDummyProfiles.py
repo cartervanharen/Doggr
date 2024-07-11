@@ -34,7 +34,7 @@ headers = {
     'Content-Type': 'application/json'
 }
 
-for _ in range(500):
+for _ in range(1000):
     data = generate_random_data()
     response = requests.post(url, data=json.dumps(data), headers=headers)
     print(f"Status Code: {response.status_code}, Response: {response.json()}")
