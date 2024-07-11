@@ -162,6 +162,30 @@ app.post("/signup", async (req, res) => {
     if (insertUserDataError) {
       throw insertUserDataError;
     }
+    
+
+
+
+
+
+
+    const { error: insertNextUserError } = await supabase
+    .from("nextusers")
+    .insert([
+      {
+        uuid: user.id,
+
+      },
+    ]);
+
+  if (insertNextUserError) {
+    throw insertNextUserError;
+  }
+
+
+
+
+
 
     const { error: insertImagesError } = await supabase.from("images").insert([
       {
@@ -217,6 +241,13 @@ app.post("/userdata", async (req, res) => {
     if (fetchError) {
       throw fetchError;
     }
+
+
+
+
+
+
+    
 
     return res.status(200).json({ user: userData });
   } catch (error) {
@@ -994,6 +1025,26 @@ app.post("/signup-complete", async (req, res) => {
       throw insertUserError;
     }
 
+
+
+
+    const { error: insertNextUserError } = await supabase
+    .from("nextusers")
+    .insert([
+      {
+        uuid: user.id,
+        nextuser: 1,
+        user1: user.id,
+
+      },
+    ]);
+
+  if (insertNextUserError) {
+    throw insertNextUserError;
+  }
+
+ 
+
     const { error: insertUserDataError } = await supabase
       .from("userdata")
       .insert([
@@ -1066,6 +1117,14 @@ app.post("/signup-complete", async (req, res) => {
     console.error("Error creating user:", error.message);
     return res.status(401).json({ error: error.message });
   }
+
+
+
+
+
+
+
+  
 });
 
 app.listen(PORT, () => {
