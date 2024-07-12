@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 import tensorflow as tf
 import os
 
-def generate_user_data(num_users=6000):
+def generate_user_data(num_users=80000):
     user_data = pd.DataFrame({
         'user_id': range(num_users),
         'likeability': np.random.randint(1, 10, num_users),
@@ -18,7 +18,7 @@ def generate_user_data(num_users=6000):
     user_data.to_csv('backend/user_data.csv', index=False) 
     return user_data
 
-def generate_interactions(user_data, num_interactions=8000):
+def generate_interactions(user_data, num_interactions=800000):
     interactions = []
     users = user_data['user_id'].tolist()
     for _ in range(num_interactions):
@@ -40,7 +40,7 @@ def prepare_interaction_data(user_data, interaction_data):
 def build_model(input_shape):
     model = tf.keras.Sequential([
         tf.keras.layers.Dense(64, activation='relu', input_shape=(input_shape,)),
-        tf.keras.layers.LeakyReLU(alpha=0.01),
+        tf.keras.layers.Dense(64, activation='relu'),
         tf.keras.layers.Dense(1, activation='sigmoid')
     ])
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
