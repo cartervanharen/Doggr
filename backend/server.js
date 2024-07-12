@@ -20,6 +20,15 @@ app.get("/get-all-users", async (req, res) => {
   }
   res.json(data);
 });
+app.get("/get-all-uuid", async (req, res) => {
+  const { data, error } = await supabase.from("users").select("uuid");
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.json(data);
+});
 
 app.get("/get-all-userdata", async (req, res) => {
   const { data, error } = await supabase.from("userdata").select("*");
@@ -28,7 +37,6 @@ app.get("/get-all-userdata", async (req, res) => {
   }
   res.json(data);
 });
-
 
 app.post("/login", async (req, res) => {
   console.log("Login route hit");
@@ -171,30 +179,18 @@ app.post("/signup", async (req, res) => {
     if (insertUserDataError) {
       throw insertUserDataError;
     }
-    
-
-
-
-
-
 
     const { error: insertNextUserError } = await supabase
-    .from("nextusers")
-    .insert([
-      {
-        uuid: user.id,
+      .from("nextusers")
+      .insert([
+        {
+          uuid: user.id,
+        },
+      ]);
 
-      },
-    ]);
-
-  if (insertNextUserError) {
-    throw insertNextUserError;
-  }
-
-
-
-
-
+    if (insertNextUserError) {
+      throw insertNextUserError;
+    }
 
     const { error: insertImagesError } = await supabase.from("images").insert([
       {
@@ -250,13 +246,6 @@ app.post("/userdata", async (req, res) => {
     if (fetchError) {
       throw fetchError;
     }
-
-
-
-
-
-
-    
 
     return res.status(200).json({ user: userData });
   } catch (error) {
@@ -1034,25 +1023,19 @@ app.post("/signup-complete", async (req, res) => {
       throw insertUserError;
     }
 
-
-
-
     const { error: insertNextUserError } = await supabase
-    .from("nextusers")
-    .insert([
-      {
-        uuid: user.id,
-        nextuser: 1,
-        user1: user.id,
+      .from("nextusers")
+      .insert([
+        {
+          uuid: user.id,
+          nextuser: 1,
+          user1: user.id,
+        },
+      ]);
 
-      },
-    ]);
-
-  if (insertNextUserError) {
-    throw insertNextUserError;
-  }
-
- 
+    if (insertNextUserError) {
+      throw insertNextUserError;
+    }
 
     const { error: insertUserDataError } = await supabase
       .from("userdata")
@@ -1126,14 +1109,30 @@ app.post("/signup-complete", async (req, res) => {
     console.error("Error creating user:", error.message);
     return res.status(401).json({ error: error.message });
   }
+});
 
+app.post("/manual-add-interaction", async (req, res) => {
+  try {
+    const { userFrom, userTo, relationNumber } = req.body;
+    const { data: insertData, error: insertUserDataError } = await supabase
+      .from("relation")
+      .insert([
+        {
+          user_from: userFrom,
+          user_to: userTo,
+          type: relationNumber, // type 1 is like, type 2 is pass, type 3 is block
+        },
+      ]);
 
+    if (insertUserDataError) {
+      throw insertUserDataError;
+    }
 
-
-
-
-
-  
+    return res.status(200).json({ message: "Interaction added successfully" });
+  } catch (error) {
+    console.error("Error adding interaction:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
 });
 
 app.listen(PORT, () => {
