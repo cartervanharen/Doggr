@@ -1,17 +1,38 @@
 import numpy as np
-from sklearn.neighbors import NearestNeighbors
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+import tensorflow as tf
 
-np.random.seed(42)  
-print("test")
-data = np.random.randint(1, 11, size=(100, 6))
-for i in range(100):
-    print(str(i) + "" + str(data[i]))
+def load_model():
+    return tf.keras.models.load_model('backend/trained_model.h5')
 
-knn = NearestNeighbors(n_neighbors=10, metric='euclidean')
-knn.fit(data)
+def recommend_users(model, user_data, user_id, num_recommendations=20):
+    potential_matches = user_data[user_data['user_id'] != user_id]
 
-distances, indices = knn.kneighbors(data)
+    user_features = user_data[user_data['user_id'] == user_id].drop('user_id', axis=1)
 
-for i in range(len(data)):
-    print(f"usr {i+1} nearest neighbors: {indices[i]+1}. distance: {distances[i]}")
-    print("\n")
+    if user_features.empty:
+        raise ValueError("User ID not found in the dataset.")
+
+    input_features = np.repeat(user_features.values, len(potential_matches), axis=0)
+
+    match_features = potential_matches.drop('user_id', axis=1).values
+    features_combined = np.concatenate((input_features, match_features), axis=1)
+
+    scaler = StandardScaler()
+    features_scaled = scaler.fit_transform(features_combined) 
+
+    probabilities = model.predict(features_scaled)
+    top_indices = np.argsort(-probabilities.flatten())[:num_recommendations]
+
+    return potential_matches.iloc[top_indices]['user_id'].values
+
+def main():
+    user_data = pd.read_csv('backend/user_data.csv')
+    model = load_model()
+    user_id = int(input("Enter user ID for recommendations: "))
+    recommended_user_ids = recommend_users(model, user_data, user_id)
+    print("Recommended User IDs:", recommended_user_ids)
+
+if __name__ == '__main__':
+    main()
