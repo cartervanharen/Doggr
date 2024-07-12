@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 import tensorflow as tf
 import os
 
-def generate_user_data(num_users=3000):
+def generate_user_data(num_users=6000):
     user_data = pd.DataFrame({
         'user_id': range(num_users),
         'likeability': np.random.randint(1, 10, num_users),
@@ -40,9 +40,8 @@ def prepare_interaction_data(user_data, interaction_data):
 def build_model(input_shape):
     model = tf.keras.Sequential([
         tf.keras.layers.Dense(64, activation='relu', input_shape=(input_shape,)),
-        tf.keras.layers.Dense(64, activation='relu'),
-        tf.keras.layers.Dense(64, activation='relu'),
-        tf.keras.layers.Dense(1, activation='sigmoid')  # Binary classification
+        tf.keras.layers.LeakyReLU(alpha=0.01),
+        tf.keras.layers.Dense(1, activation='sigmoid')
     ])
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
     return model
@@ -59,9 +58,9 @@ def main():
     X_scaled = scaler.fit_transform(X)
 
     X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-
     model = build_model(X_train.shape[1])
-    model.fit(X_train, y_train, epochs=300, validation_split=0.1)
+
+    model.fit(X_train, y_train, epochs=300, validation_split=0.2)
 
     model.save('backend/trained_model.h5')
 
