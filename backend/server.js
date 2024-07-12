@@ -13,13 +13,22 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 app.use(express.json());
 
-app.get("/allusr", async (req, res) => {
+app.get("/get-all-users", async (req, res) => {
   const { data, error } = await supabase.from("users").select("*");
   if (error) {
     return res.status(500).json({ error: error.message });
   }
   res.json(data);
 });
+
+app.get("/get-all-userdata", async (req, res) => {
+  const { data, error } = await supabase.from("userdata").select("*");
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+  res.json(data);
+});
+
 
 app.post("/login", async (req, res) => {
   console.log("Login route hit");

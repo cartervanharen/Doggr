@@ -29,6 +29,8 @@ print(grabDogImg())
 
 
 
+
+
 def generate_random_data():
     
     street_address = fake.street_address()
@@ -40,7 +42,9 @@ def generate_random_data():
 
 
     full_address = f"{street_address}, {city}, {state} {postal_code}"
-    name = fake.first_name()
+    
+    name = fake.first_name()+fake.first_name()
+    
     email = str(name) + "@test.com"
     print(email)
     return {
@@ -70,7 +74,7 @@ headers = {
     'Content-Type': 'application/json'
 }
 
-for _ in range(5):
+for _ in range(3000):
     data = generate_random_data()
     response = requests.post(url, data=json.dumps(data), headers=headers)
     print(f"Status Code: {response.status_code}, Response: {response.json()}")

@@ -12,6 +12,7 @@
   flex-wrap: wrap;
 }
 
+
 .DogImageCard_MainPage {
   max-width: 300px;
   justify-content: center;
@@ -183,7 +184,6 @@
 }
 
 .innerPage_MainPage {
-  background-color: yellow;
   width: 35px;
   justify-content: center;
 

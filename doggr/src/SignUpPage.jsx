@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState } from 'react';
+import { Button, TextField, Typography, Container, Box, Alert } from '@mui/material';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import "./global.css";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 function SignUp() {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ function SignUp() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [dogName, setDogName] = useState("");
+  const [error, setError] = useState("");
 
   const handleSignUp = async () => {
     const userData = {
@@ -25,95 +27,114 @@ function SignUp() {
     try {
       const response = await createUser(userData);
       console.log("User created successfully:", response);
-      navigate("/login");
+      navigate("/login");//NOT WORKING 
+      
     } catch (error) {
       console.error("Error creating user:", error);
+      setError(error.response ? error.response.data : error.message);
     }
   };
 
   const createUser = async (userData) => {
     try {
-      const response = await axios.post(
-        "http://localhost:3000/signup",
-        userData
-      );
+      const response = await axios.post("http://localhost:3000/signup", userData);
       return response.data;
     } catch (error) {
-      console.error(
-        "Error creating user:",
-        error.response ? error.response.data : error.message
-      );
+      console.error("Error creating user:", error.response ? error.response.data : error.message);
       throw error;
     }
   };
 
   return (
     <div className="Whole_LoginPage">
-      <div className="UserInput_SignUpPage">
-        <h1>Sign Up for Doggr</h1>
 
-        <input
-          className="InputField_LoginPage"
-          type="text"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-          placeholder=" First Name"
-        />
-
-        <input
-          className="InputField_LoginPage"
-          type="text"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-          placeholder=" Last Name"
-        />
-
-        <input
-          className="InputField_LoginPage"
-          type="text"
-          value={dogName}
-          onChange={(e) => setDogName(e.target.value)}
-          placeholder=" Dog's Name"
-        />
-
-        <input
-          className="InputField_LoginPage"
-          type="text"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          placeholder=" Full Home Address"
-        />
-
-        <input
-          className="InputField_LoginPage"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder=" Email"
-        />
-
-        <input
-          className="InputField_LoginPage"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder=" Password  (6+ characters long)"
-        />
-
-        <button className="InputField_LoginPage" onClick={handleSignUp}>
-          Create Account
-        </button>
-        <p>Your email will be your username.</p>
-
-        <h1 className="BottomText_LoginPage">Already Have an Account?</h1>
-
-        <button
-          className="InputField_LoginPage"
-          onClick={() => navigate("/login")}
-        >
-          Sign In
-        </button>
-      </div>
+    <Container component="main" maxWidth="sm">
+      <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Typography component="h1" variant="h5">
+          Sign Up for Doggr
+        </Typography>
+        {error && <Alert severity="error">{error}</Alert>}
+        <Box component="form" noValidate sx={{ mt: 1 }}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            label="First Name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            autoComplete="fname"
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            label="Last Name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            autoComplete="lname"
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            label="Dog's Name"
+            value={dogName}
+            onChange={(e) => setDogName(e.target.value)}
+            autoComplete="dog-name"
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            label="Full Home Address"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            autoComplete="address"
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
+            helperText="6+ characters long"
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+            onClick={handleSignUp}
+          >
+            Create Account
+          </Button>
+          <Typography variant="body2" color="textSecondary" align="center">
+            Your email will be your username.
+          </Typography>
+          <Button
+            fullWidth
+            variant="text"
+            sx={{ mt: 1 }}
+            onClick={() => navigate("/login")}
+          >
+            Already Have an Account? Sign In
+          </Button>
+        </Box>
+      </Box>
+    </Container>
     </div>
   );
 }
