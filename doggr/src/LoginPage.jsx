@@ -1,12 +1,22 @@
 import { useState } from "react";
-import "./global.css";
+import {
+  Button,
+  TextField,
+  Typography,
+  Container,
+  Box,
+  Alert,
+} from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import "./global.css";
+
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
   const handleSignIn = async () => {
     const userData = {
       email: email,
@@ -15,7 +25,7 @@ function LoginPage() {
 
     try {
       const response = await signUserIn(userData);
-      console.log("User sign in successfully:", response);
+      console.log("User signed in successfully:", response);
       navigate("/settings");
     } catch (error) {
       console.error("Error signing in user:", error);
@@ -43,36 +53,52 @@ function LoginPage() {
 
   return (
     <div className="Whole_LoginPage">
-      <div className="Inner_LoginPage">
-        <div className="UserInput_LoginPage">
-          <h1>Sign in to Doggr</h1>
-          {error && <p className="Error_Message">{error}</p>}
-          <input
-            className="InputField_LoginPage"
+      <Container maxWidth="sm">
+        <Box
+          sx={{
+            mt: 8,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <Typography component="h1" variant="h5">
+            Sign in to Doggr
+          </Typography>
+          {error && <Alert severity="error">{error}</Alert>}
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            label="Email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder=" Email"
+            autoComplete="email"
           />
-          <input
-            className="InputField_LoginPage"
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            label="Password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder=" Password"
+            autoComplete="current-password"
           />
-          <button className="InputField_LoginPage" onClick={handleSignIn}>
-            Sign In
-          </button>
-
-          <button
-            className="InputField_LoginPage"
-            onClick={() => navigate("/signup")}
+          <Button
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+            onClick={handleSignIn}
           >
+            Sign In
+          </Button>
+          <Button fullWidth variant="text" onClick={() => navigate("/signup")}>
             No Account? Sign Up
-          </button>
-        </div>
-      </div>
+          </Button>
+        </Box>
+      </Container>
     </div>
   );
 }

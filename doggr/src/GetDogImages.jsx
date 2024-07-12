@@ -60,3 +60,4 @@ function GetDogImages() {
 }
 
 export default GetDogImages;
+//     <div className="Whole_LoginPage">
