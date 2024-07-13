@@ -38,6 +38,14 @@ app.get("/get-all-userdata", async (req, res) => {
   res.json(data);
 });
 
+
+app.get("/get-all-relation", async (req, res) => {
+  const { data, error } = await supabase.from("relation").select("*");
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+  res.json(data);
+});
 app.post("/login", async (req, res) => {
   console.log("Login route hit");
 

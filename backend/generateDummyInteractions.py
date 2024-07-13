@@ -24,7 +24,10 @@ def post_interaction(user_from, user_to, relation_number):
 def main():
     try:
         uuids = fetch_uuids()
-        uuids.reverse()
+        mid_point = len(uuids) // 2 
+        uuids = uuids[mid_point:] 
+
+        # uuids.reverse()
         uuid_list = [item['uuid'] for item in uuids]
         existing_interactions = set()
 

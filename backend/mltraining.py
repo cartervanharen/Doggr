@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 import tensorflow as tf
 import os
 
-def generate_user_data(num_users=80000):
+def generate_user_data(num_users=2000):
     user_data = pd.DataFrame({
         'user_id': range(num_users),
         'likeability': np.random.randint(1, 10, num_users),
@@ -18,7 +18,7 @@ def generate_user_data(num_users=80000):
     user_data.to_csv('backend/user_data.csv', index=False) 
     return user_data
 
-def generate_interactions(user_data, num_interactions=800000):
+def generate_interactions(user_data, num_interactions=10000):
     interactions = []
     users = user_data['user_id'].tolist()
     for _ in range(num_interactions):
