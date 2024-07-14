@@ -12,6 +12,29 @@ import axios from "axios";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 app.use(express.json());
+app.post("/user-info-byuuid", async (req, res) => {
+  const uuid = req.body.uuid;
+
+
+  try {
+
+
+    const { data: userData, fetchError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("uuid", uuid)
+      .single();
+
+    if (fetchError) {
+      throw fetchError;
+    }
+
+    return res.status(200).json({ user: userData });
+  } catch (error) {
+    console.error("Error fetching user data:", error.message);
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+});
 
 app.get("/get-all-users", async (req, res) => {
   const { data, error } = await supabase.from("users").select("*");
