@@ -109,7 +109,7 @@ function ShowProfilebyUUID() {
   };
 
   return (
-    <div className="RootofRoot_MainPage">
+    // <div className="RootofRoot_MainPage">
       <div className="Whole_ShowProfile">
         <div className="DogImageCard_ShowProfile ">
           <img src={picture1} id="MainDogImage_ShowProfile" alt="Dog 1" />
@@ -153,7 +153,7 @@ function ShowProfilebyUUID() {
           </div>
         </div>
       </div>
-    </div>
+    // </div>
   );
 }
 
