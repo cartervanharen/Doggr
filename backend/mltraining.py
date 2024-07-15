@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 import tensorflow as tf
 import os
 
-def generate_user_data(num_users=80000):
+def generate_user_data(num_users=2000):
     user_data = pd.DataFrame({
         'user_id': range(num_users),
         'likeability': np.random.randint(1, 10, num_users),
@@ -18,7 +18,7 @@ def generate_user_data(num_users=80000):
     user_data.to_csv('backend/user_data.csv', index=False) 
     return user_data
 
-def generate_interactions(user_data, num_interactions=800000):
+def generate_interactions(user_data, num_interactions=10000):
     interactions = []
     users = user_data['user_id'].tolist()
     for _ in range(num_interactions):
@@ -50,19 +50,14 @@ def main():
     user_data = generate_user_data()
     interactions = generate_interactions(user_data)
     interaction_data = prepare_interaction_data(user_data, interactions)
-
     X = interaction_data.drop('interaction', axis=1)
     y = interaction_data['interaction']
-
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
-
     X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
     model = build_model(X_train.shape[1])
-
     model.fit(X_train, y_train, epochs=300, validation_split=0.2)
-
     model.save('backend/trained_model.h5')
-
+    
 if __name__ == '__main__':
     main()
