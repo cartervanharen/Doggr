@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
+import LinearProgress from "@mui/material/LinearProgress";
+import Typography from "@mui/material/Typography";
 
 function ShowProfilebyUUID() {
   const navigate = useNavigate();
@@ -97,63 +99,69 @@ function ShowProfilebyUUID() {
   } = userData;
 
   const renderLevelBar = (label, value) => {
-    const width = `${(value / 10) * 100}%`;
     return (
-      <div className="level-bar">
-        <div className="label">
-          {label}: {value}
-        </div>
-        <div className="level" style={{ width }}></div>
-      </div>
+      <Box sx={{ mb: 1 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+          <Typography variant="body2" color="textSecondary">
+            {label}
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            {value}
+          </Typography>
+        </Box>
+        <LinearProgress
+          sx={{ height: 10, borderRadius: 5 }}
+          variant="determinate"
+          value={(value / 10) * 100}
+        />
+      </Box>
     );
   };
 
   return (
-    // <div className="RootofRoot_MainPage">
-      <div className="Whole_ShowProfile">
-        <div className="DogImageCard_ShowProfile ">
-          <img src={picture1} id="MainDogImage_ShowProfile" alt="Dog 1" />
-          <div className="SmallDogImageGrid_MainPage">
-            <img
-              src={picture2}
-              className="SmallDogImage_ShowProfile"
-              alt="Dog 2"
-            />
-            <img
-              src={picture3}
-              className="SmallDogImage_ShowProfile"
-              alt="Dog 3"
-            />
-            <img
-              src={picture4}
-              className="SmallDogImage_ShowProfile"
-              alt="Dog 4"
-            />
-            <img
-              src={picture5}
-              className="SmallDogImage_ShowProfile"
-              alt="Dog 5"
-            />
-          </div>
-        </div>
-
-        <div className="BioCard_ShowProfile">
-          <h1 className="Header_ShowProfile">{dog_name}</h1>
-          <p className="Paragraph_ShowProfile">{bio}</p>
-        </div>
-
-        <div className="Levels_ShowProfile">
-          <div className="profile-container">
-            {renderLevelBar("Likeability", likeability)}
-            {renderLevelBar("Energy", energy)}
-            {renderLevelBar("Playfulness", playfulness)}
-            {renderLevelBar("Aggression", aggression)}
-            {renderLevelBar("Size", size)}
-            {renderLevelBar("Training", training)}
-          </div>
+    <div className="Whole_ShowProfile">
+      <div className="DogImageCard_ShowProfile">
+        <img src={picture1} id="MainDogImage_ShowProfile" alt="Dog 1" />
+        <div className="SmallDogImageGrid_MainPage">
+          <img
+            src={picture2}
+            className="SmallDogImage_ShowProfile"
+            alt="Dog 2"
+          />
+          <img
+            src={picture3}
+            className="SmallDogImage_ShowProfile"
+            alt="Dog 3"
+          />
+          <img
+            src={picture4}
+            className="SmallDogImage_ShowProfile"
+            alt="Dog 4"
+          />
+          <img
+            src={picture5}
+            className="SmallDogImage_ShowProfile"
+            alt="Dog 5"
+          />
         </div>
       </div>
-    // </div>
+
+      <div className="BioCard_ShowProfile">
+        <h1 className="Header_ShowProfile">{dog_name}</h1>
+        <p className="Paragraph_ShowProfile">{bio}</p>
+      </div>
+
+      <div className="Levels_ShowProfile">
+        <div className="profile-container">
+          {renderLevelBar("Size", size)}
+          {renderLevelBar("Training", training)}
+          {renderLevelBar("Likeability", likeability)}
+          {renderLevelBar("Energy", energy)}
+          {renderLevelBar("Playfulness", playfulness)}
+          {renderLevelBar("Aggression", aggression)}
+        </div>
+      </div>
+    </div>
   );
 }
 

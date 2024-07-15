@@ -1171,16 +1171,14 @@ app.post("/match-closest-users", async (req, res) => {
   }
 });
 
-
-
 async function matchClosestUsers(uuid) {
   if (!uuid) {
     throw new Error("UUID is required");
   }
-
+  
   const { data: userData, error: fetchError } = await supabase
     .from("userdata")
-    .select("likeability, energy, playfulness, aggression, size, training")
+    .select("likeability, energy, playfulness, aggression, size, training, likeabilityFilter, energyFilter, playfulnessFilter, aggressionFilter, sizeFilter, trainingFilter")
     .eq("uuid", uuid)
     .single();
 
@@ -1189,12 +1187,9 @@ async function matchClosestUsers(uuid) {
   }
 
   const url = new URL("http://localhost:3001/predict");
-  url.searchParams.append("trait1", userData.likeability);
-  url.searchParams.append("trait2", userData.energy);
-  url.searchParams.append("trait3", userData.playfulness);
-  url.searchParams.append("trait4", userData.aggression);
-  url.searchParams.append("trait5", userData.size);
-  url.searchParams.append("trait6", userData.training);
+  ['likeability', 'energy', 'playfulness', 'aggression', 'size', 'training'].forEach((trait, index) => {
+    url.searchParams.append(`trait${index + 1}`, userData[trait]);
+  });
 
   const pythonServerResponse = await axios.get(url.href);
   const { predicted_traits } = pythonServerResponse.data;
@@ -1203,40 +1198,49 @@ async function matchClosestUsers(uuid) {
     throw new Error("Failed to receive predicted traits from Python server");
   }
 
-  const { data: relatedUsers, error: relatedUsersError } = await supabase
-    .from("relation")
-    .select("user_to")
-    .eq("user_from", uuid);
-
-  if (relatedUsersError) {
-    throw new Error(`Error fetching related users: ${relatedUsersError.message}`);
-  }
-
-  const blockedUUIDs = new Set(relatedUsers.map((user) => user.user_to));
-
   const { data: allUsers, error: allUsersError } = await supabase
     .from("userdata")
-    .select("*");
+    .select("*")
+    .not("uuid", "eq", uuid);
 
   if (allUsersError) {
     throw new Error(`Error fetching all users: ${allUsersError.message}`);
   }
 
-  const usersWithDistance = allUsers
-    .filter((user) => !blockedUUIDs.has(user.uuid))
-    .map((user) => {
-      const distance = Object.keys(predicted_traits).reduce(
-        (acc, key) => acc + Math.abs(predicted_traits[key] - user[key]),
-        0
-      );
-      return { ...user, distance };
+  const { data: seenUsers, error: seenUsersError } = await supabase
+    .from("relation")
+    .select("user_to")
+    .eq("user_from", uuid);
+
+  if (seenUsersError) {
+    throw new Error(`Error fetching seen users: ${seenUsersError.message}`);
+  }
+
+  const seenUserIds = new Set(seenUsers.map(relation => relation.user_to));
+
+  const manuallyFilteredUsers = allUsers.filter(user => {
+    return ['likeability', 'energy', 'playfulness', 'aggression', 'size', 'training'].every(trait => {
+      const filter = userData[`${trait}Filter`];
+      if (filter) {
+        return user[trait] >= filter.min && user[trait] <= filter.max;
+      }
+      return true;
     });
+  });
 
-  const closestUsers = usersWithDistance
-    .sort((a, b) => a.distance - b.distance)
-    .slice(0, 10);
+  const filteredUsers = manuallyFilteredUsers.filter(user => !seenUserIds.has(user.uuid));
 
-  const userValues = closestUsers.map((user) => user.uuid);
+  const usersWithDistance = filteredUsers.map(user => {
+    const distance = predicted_traits.reduce((acc, predicted_value, index) => {
+      const traitName = ['likeability', 'energy', 'playfulness', 'aggression', 'size', 'training'][index];
+      acc += Math.abs(predicted_value - user[traitName]);
+      return acc;
+    }, 0);
+    return { ...user, distance };
+  });
+
+  const closestUsers = usersWithDistance.sort((a, b) => a.distance - b.distance).slice(0, 10);
+  const userValues = closestUsers.map(user => user.uuid);
 
   const { error: updateError } = await supabase.from("nextusers").upsert(
     {
@@ -1254,16 +1258,17 @@ async function matchClosestUsers(uuid) {
     throw new Error(`Error updating next users: ${updateError.message}`);
   }
 
-  return { message: "Closest users updated successfully" };
+  if (closestUsers.length === 0) {
+    console.log("No users fit criteria");
+  }
+
+  return { message: "Closest users updated successfully", closestUsers };
 }
 
 
 
 
 
-
-
-2
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

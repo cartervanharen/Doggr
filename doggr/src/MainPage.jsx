@@ -109,49 +109,49 @@ const MainPage = () => {
 
   return (
     <>
-<div className="RootofRoot_MainPage">
-      <div className="flexbox_MainPage">
-        <LeftSidebar />
-        <div style={tiltStyles}>
-          <ShowProfileByUUID key={profileKey} />
+      <div className="RootofRoot_MainPage">
+        <div className="flexbox_MainPage">
+          <LeftSidebar />
+          <div style={tiltStyles}>
+            <ShowProfileByUUID key={profileKey} />
+          </div>
+          <RightSidebar />
         </div>
-        <RightSidebar />
-      </div>
 
-      <Box
-        sx={{
-          position: "fixed",
-          bottom: 20,
-          left: 0,
-          right: 0,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Button
-          variant="contained"
-          startIcon={<CloseIcon />}
-          color="error"
-          sx={{ minWidth: 200, height: 60, marginX: 1 }}
-          onMouseEnter={() => handleHoverEnter("left")}
-          onMouseLeave={handleHoverLeave}
-          onClick={dislikeclick}
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: 20,
+            left: 0,
+            right: 0,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
         >
-          Pass
-        </Button>
-        <Button
-          variant="contained"
-          endIcon={<FavoriteIcon />}
-          color="primary"
-          sx={{ minWidth: 200, height: 60, marginX: 1 }}
-          onMouseEnter={() => handleHoverEnter("right")}
-          onMouseLeave={handleHoverLeave}
-          onClick={likeclick}
-        >
-          Like
-        </Button>
-      </Box>
+          <Button
+            variant="contained"
+            startIcon={<CloseIcon />}
+            color="error"
+            sx={{ minWidth: 200, height: 60, marginX: 1 }}
+            onMouseEnter={() => handleHoverEnter("left")}
+            onMouseLeave={handleHoverLeave}
+            onClick={dislikeclick}
+          >
+            Pass
+          </Button>
+          <Button
+            variant="contained"
+            endIcon={<FavoriteIcon />}
+            color="primary"
+            sx={{ minWidth: 200, height: 60, marginX: 1 }}
+            onMouseEnter={() => handleHoverEnter("right")}
+            onMouseLeave={handleHoverLeave}
+            onClick={likeclick}
+          >
+            Like
+          </Button>
+        </Box>
       </div>
     </>
   );
