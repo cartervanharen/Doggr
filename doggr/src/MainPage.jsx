@@ -62,7 +62,6 @@ const MainPage = () => {
       const userId = response.data.id;
       console.log("usersendlikeform:", userId);
 
-      // Update profileKey to force re-render of ShowProfileByUUID
       setProfileKey(prevKey => prevKey + 1);
     } catch (error) {
       console.error("error liking:", error.response ? error.response.data : error.message);
