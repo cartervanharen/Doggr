@@ -133,7 +133,7 @@ const MainPage = () => {
           variant="contained"
           startIcon={<CloseIcon />}
           color="error"
-          sx={{ minWidth: 300, height: 60, marginX: 1 }}
+          sx={{ minWidth: 200, height: 60, marginX: 1 }}
           onMouseEnter={() => handleHoverEnter("left")}
           onMouseLeave={handleHoverLeave}
           onClick={dislikeclick}
@@ -144,7 +144,7 @@ const MainPage = () => {
           variant="contained"
           endIcon={<FavoriteIcon />}
           color="primary"
-          sx={{ minWidth: 300, height: 60, marginX: 1 }}
+          sx={{ minWidth: 200, height: 60, marginX: 1 }}
           onMouseEnter={() => handleHoverEnter("right")}
           onMouseLeave={handleHoverLeave}
           onClick={likeclick}
