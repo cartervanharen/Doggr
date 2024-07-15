@@ -15,10 +15,7 @@ app.use(express.json());
 app.post("/user-info-byuuid", async (req, res) => {
   const uuid = req.body.uuid;
 
-
   try {
-
-
     const { data: userData, fetchError } = await supabase
       .from("users")
       .select("*")
@@ -60,7 +57,6 @@ app.get("/get-all-userdata", async (req, res) => {
   }
   res.json(data);
 });
-
 
 app.get("/get-all-relation", async (req, res) => {
   const { data, error } = await supabase.from("relation").select("*");
@@ -1141,27 +1137,99 @@ app.post("/signup-complete", async (req, res) => {
     return res.status(401).json({ error: error.message });
   }
 });
+app.post("/match-closest-users", async (req, res) => {
+  const { uuid } = req.body;
 
-app.post("/manual-add-interaction", async (req, res) => {
+  if (!uuid) {
+    return res.status(400).json({ error: "UUID is required" });
+  }
+
   try {
-    const { userFrom, userTo, relationNumber } = req.body;
-    const { data: insertData, error: insertUserDataError } = await supabase
-      .from("relation")
-      .insert([
-        {
-          user_from: userFrom,
-          user_to: userTo,
-          type: relationNumber, // type 1 is like, type 2 is pass, type 3 is block
-        },
-      ]);
+    const { data: userData, error: fetchError } = await supabase
+      .from("userdata")
+      .select("likeability, energy, playfulness, aggression, size, training")
+      .eq("uuid", uuid)
+      .single();
 
-    if (insertUserDataError) {
-      throw insertUserDataError;
+    if (fetchError) {
+      throw new Error(`Error fetching user data: ${fetchError.message}`);
     }
 
-    return res.status(200).json({ message: "Interaction added successfully" });
+    const url = new URL("http://localhost:3001/predict");
+    url.searchParams.append("trait1", userData.likeability);
+    url.searchParams.append("trait2", userData.energy);
+    url.searchParams.append("trait3", userData.playfulness);
+    url.searchParams.append("trait4", userData.aggression);
+    url.searchParams.append("trait5", userData.size);
+    url.searchParams.append("trait6", userData.training);
+
+    const pythonServerResponse = await axios.get(url.href);
+    const { predicted_traits } = pythonServerResponse.data;
+
+    if (!predicted_traits) {
+      throw new Error("Failed to receive predicted traits from Python server");
+    }
+
+    //filter out seen users
+    const { data: relatedUsers, error: relatedUsersError } = await supabase
+      .from("relation")
+      .select("user_to")
+      .eq("user_from", uuid);
+
+    if (relatedUsersError) {
+      throw new Error(
+        `Error fetching related users: ${relatedUsersError.message}`
+      );
+    }
+
+    const blockedUUIDs = new Set(relatedUsers.map((user) => user.user_to));
+
+    const { data: allUsers, error: allUsersError } = await supabase
+      .from("userdata")
+      .select("*");
+
+    if (allUsersError) {
+      throw new Error(`Error fetching all users: ${allUsersError.message}`);
+    }
+
+    const usersWithDistance = allUsers
+      .filter((user) => !blockedUUIDs.has(user.uuid))
+      .map((user) => {
+        const distance = Object.keys(predicted_traits).reduce(
+          (acc, key) => acc + Math.abs(predicted_traits[key] - user[key]),
+          0
+        );
+        return { ...user, distance };
+      });
+
+    const closestUsers = usersWithDistance
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, 10);
+
+    const userFields = closestUsers
+      .map((user, index) => `user${index + 1}`)
+      .join(", ");
+    const userValues = closestUsers.map((user) => user.uuid);
+
+    const { error: updateError } = await supabase.from("nextusers").upsert(
+      {
+        uuid: uuid,
+        nextuser: 1,
+        ...userValues.reduce((acc, val, index) => {
+          acc[`user${index + 1}`] = val;
+          return acc;
+        }, {}),
+      },
+      { returning: "minimal" }
+    );
+
+    if (updateError) {
+      throw new Error(`Error updating next users: ${updateError.message}`);
+    }
+
+    res.status(200).json({ message: "Closest users updated successfully" });
   } catch (error) {
-    console.error("Error adding interaction:", error.message);
+    console.error("Error processing the matching:", error.message);
     return res.status(500).json({ error: error.message });
   }
 });

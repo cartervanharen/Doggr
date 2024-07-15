@@ -12,6 +12,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 const MainPage = () => {
   const navigate = useNavigate();
   const [tiltDirection, setTiltDirection] = useState('');
+  const [profileKey, setProfileKey] = useState(0); 
 
   const verifyTokenAndGetUserID = async () => {
     const token = localStorage.getItem("accessToken");
@@ -40,7 +41,7 @@ const MainPage = () => {
 
   useEffect(() => {
     verifyTokenAndGetUserID();
-  });
+  }, []);
 
   const handleHoverEnter = (direction) => {
     setTiltDirection(direction);
@@ -48,6 +49,24 @@ const MainPage = () => {
 
   const handleHoverLeave = () => {
     setTiltDirection('');
+  };
+
+  const likeclick = async () => {
+    const token = localStorage.getItem("accessToken");
+
+    try {
+      const response = await axios.post("http://localhost:3000/mark-user-seen", {
+        accessToken: token,
+        relation: "like"
+      });
+      const userId = response.data.id;
+      console.log("usersendlikeform:", userId);
+
+      // Update profileKey to force re-render of ShowProfileByUUID
+      setProfileKey(prevKey => prevKey + 1);
+    } catch (error) {
+      console.error("error liking:", error.response ? error.response.data : error.message);
+    }
   };
 
   const tiltStyles = {
@@ -58,11 +77,11 @@ const MainPage = () => {
   return (
     <>
       <div className="flexbox_MainPage">
-        <LeftSidebar></LeftSidebar>
+        <LeftSidebar />
         <div style={tiltStyles}>
-          <ShowProfileByUUID></ShowProfileByUUID>
+          <ShowProfileByUUID key={profileKey} />  {/* force reload when button hit */}
         </div>
-        <RightSidebar></RightSidebar>
+        <RightSidebar />
       </div>
 
       <Box sx={{ position: 'fixed', bottom: 20, left: 0, right: 0, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -83,6 +102,7 @@ const MainPage = () => {
           sx={{ minWidth: 140, height: 60, marginX: 1 }}
           onMouseEnter={() => handleHoverEnter('right')}
           onMouseLeave={handleHoverLeave}
+          onClick={likeclick}
         >
           Like
         </Button>

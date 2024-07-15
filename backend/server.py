@@ -1,91 +1,50 @@
-import http.server
-import socketserver
-from urllib.parse import urlparse, parse_qs
-import json
+import os
 import numpy as np
-import pandas as pd
-import requests
-from sklearn.preprocessing import StandardScaler
 import tensorflow as tf
-import time
+import joblib
+from flask import Flask, request, jsonify
 
-def fetch_data(url):
-    response = requests.get(url)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print("Failed to fetch data:", response.status_code)
-        return None
+app = Flask(__name__)
 
-def load_model():
-    print("Loading model...")
-    model = tf.keras.models.load_model('backend/trained_model.h5')
-    print("Model loaded.")
-    return model
+def load_model(path):
+    return tf.keras.models.load_model(path, compile=False)
 
-def recommend_users(model, user_data, user_uuid, num_recommendations=20):
-    user_data_df = pd.DataFrame(user_data)
+def predict_user_traits(model, scaler, user_traits):
+    user_traits = np.array(user_traits).reshape(1, -1)
+    user_traits_scaled = scaler.transform(user_traits)
+    predicted_traits = model.predict(user_traits_scaled)
     
-    if user_uuid not in user_data_df['uuid'].values:
-        raise ValueError("User UUID not found in the dataset.")
+    predicted_traits = np.clip(np.round(predicted_traits.flatten()), 1, 10).astype(int)
     
-    relevant_features = ['likeability', 'energy', 'playfulness', 'aggression', 'size', 'training']
-    user_features = user_data_df.loc[user_data_df['uuid'] == user_uuid, relevant_features]
+    return predicted_traits.tolist()
+
+
+base_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(base_dir, "multi_trait_model.h5")
+scaler_path = os.path.join(base_dir, "scaler.pkl")
+model = load_model(model_path)
+scaler = joblib.load(scaler_path)
+
+@app.route('/predict', methods=['GET'])  
+def predict():
+    print("call")
+    user_traits = [
+        request.args.get('trait1', type=int),
+        request.args.get('trait2', type=int),
+        request.args.get('trait3', type=int),
+        request.args.get('trait4', type=int),
+        request.args.get('trait5', type=int),
+        request.args.get('trait6', type=int)
+    ]
     
-    if user_features.empty:
-        raise ValueError("User features not found for the given UUID.")
-    
-    potential_matches = user_data_df[user_data_df['uuid'] != user_uuid][['uuid'] + relevant_features]
-    
-    input_features = np.repeat(user_features.values, len(potential_matches), axis=0)
-    match_features = potential_matches.drop('uuid', axis=1).values
-    features_combined = np.concatenate((input_features, match_features), axis=1)
+    if not all(isinstance(trait, int) for trait in user_traits) or len(user_traits) != 6:
+        return jsonify({"error": "Invalid or missing input traits"}), 400
 
-    scaler = StandardScaler()
-    features_scaled = scaler.fit_transform(features_combined)
+    try:
+        desirable_traits = predict_user_traits(model, scaler, user_traits)
+        return jsonify({"predicted_traits": desirable_traits})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-    probabilities = model.predict(features_scaled)
-    top_indices = np.argsort(-probabilities.flatten())[:num_recommendations]
-    recommended_uuids = potential_matches.iloc[top_indices]['uuid'].values
-    return recommended_uuids
-
-model = load_model()
-
-PORT = 8000
-class Handler(http.server.SimpleHTTPRequestHandler):
-    def do_POST(self):
-        parsed_path = urlparse(self.path)
-        content_length = int(self.headers['Content-Length'])
-        post_data = self.rfile.read(content_length)
-        data = json.loads(post_data.decode('utf-8'))
-
-        if parsed_path.path == '/generate-next-users':
-            if 'user_uuid' in data:
-                user_uuid = data['user_uuid']
-                user_data = fetch_data("http://localhost:3000/get-all-userdata")
-                try:
-           
-                    recommended_user_uuids = recommend_users(model, user_data, user_uuid)
-                    message = json.dumps({"recommended_user_uuids": recommended_user_uuids.tolist()})
-                except ValueError as e:
-                    message = json.dumps({"error": str(e)})
-            else:
-                message = json.dumps({"error": "User UUID not provided."})
-        elif 'name' in data:
-            name = data['name']
-            message = f"Hello, {name}! Your data was received."
-        else:
-            message = "Error: Expected 'name' key or 'user_uuid' key in JSON data."
-
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.end_headers()
-        self.wfile.write(message.encode('utf-8'))
-
-with socketserver.TCPServer(("", PORT), Handler) as httpd:
-    print("Serving at port", PORT)
-    httpd.serve_forever()
-
-
-
-
+if __name__ == "__main__":
+    app.run(debug=True, port=3001, host='0.0.0.0')
