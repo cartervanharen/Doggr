@@ -704,15 +704,6 @@ Future Action(s):
 
 */
 
-.loadingPage {
-  background-color: black;
-  text-align: center;
-  font-size: 40pt;
-  width: 100vw;
-  height: 100vh;
-  padding: 30%;
-  color: white;
-}
 
 .Whole_ShowProfile {
   display: flex;
@@ -915,5 +906,4 @@ Future Action(s):
   width: 100vw;
   height: 100vh;
   z-index: 987654789876547897654578987667982346798234679986234;
-  position: absolute;
 }
