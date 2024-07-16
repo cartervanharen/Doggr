@@ -702,7 +702,6 @@ Future Action(s):
 -Remove used CSS found above
 
 */
-
 .Whole_ShowProfile {
   scale: 0.9;
   display: flex;
@@ -711,17 +710,54 @@ Future Action(s):
   max-width: 800px;
   background-color: white;
   height: 850px;
-
   padding: 20px;
-  margin-top: 5%;
+  margin-top: 2px;
   justify-content: center;
   align-content: flex-start;
   flex-wrap: wrap;
   border-radius: 15px;
   box-shadow: 5px 5px 400px pink;
   transition: background-color 1s ease;
-
   animation: colorCycle 10s infinite;
+}
+.Whole_ShowProfile_noSty {
+  display: flex;
+  overflow: flex-wrap;
+  width: 800px;
+  max-width: 800px;
+  background-color: black;
+  height: 850px;
+  padding: 20px;
+  margin-top: 2px;
+  justify-content: center;
+  align-content: flex-start;
+  flex-wrap: wrap;
+  border-radius: 15px;
+  box-shadow: 5px 5px 400px pink;
+}
+
+*/ .Whole_ShowProfile_ {
+  scale: 0.9;
+  display: flex;
+  overflow: flex-wrap;
+  width: 800px;
+  max-width: 800px;
+  background-color: white;
+  height: 850px;
+  padding: 20px;
+  margin-top: 2px;
+  justify-content: center;
+  align-content: flex-start;
+  flex-wrap: wrap;
+  border-radius: 15px;
+  box-shadow: 5px 5px 400px pink;
+  transition: background-color 1s ease;
+  animation: colorCycle 10s infinite;
+}
+
+/* New gradient background style */
+.liked {
+  background-image: linear-gradient(to right, red, pink);
 }
 
 .DogImageCard_ShowProfile {
@@ -900,8 +936,56 @@ Future Action(s):
 }
 
 .loadingPage {
-  background-color: white;
   width: 100vw;
   height: 100vh;
-  z-index: 987654789876547897654578987667982346798234679986234;
+  z-index: 999999999999999;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin-on-hover:hover {
+  animation: spin 0.5s linear 1;
+}
+
+.custom-rectangle {
+  position: absolute;
+  top: 50px;
+  left: 50px;
+  width: 33333px;
+  height: 10033px;
+  background-color: black;
+  z-index: 103333;
+}
+.rectangle {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 92px;
+  background-color: black;
+  border: 2px solid black;
+  z-index: 0;
+}
+
+.transition-left {
+  background-color: red;
+  transition: background-color 1s ease-in-out;
+}
+
+.transition-right {
+  background-color: #00a651;
+  transition: background-color 1s ease-in-out;
+}
+
+.transition-none {
+  background-color: white;
+  transition: background-color 1s ease-in-out;
 }

@@ -104,12 +104,23 @@ const MainPage = () => {
         : tiltDirection === "right"
         ? "rotate(5deg)"
         : "none",
-    transition: "transform 0.5s ease-in-out",
+    transition: "transform 1s ease-in-out, box-shadow 0.5s ease-in-out",
+  };
+
+  const getBackgroundClass = () => {
+    switch (tiltDirection) {
+      case "left":
+        return "transition-left";
+      case "right":
+        return "transition-right";
+      default:
+        return "transition-none";
+    }
   };
 
   return (
     <>
-      <div className="RootofRoot_MainPage">
+      <div className={`RootofRoot_MainPage ${getBackgroundClass()}`}>
         <div className="flexbox_MainPage">
           <LeftSidebar />
           <div style={tiltStyles}>
@@ -117,13 +128,13 @@ const MainPage = () => {
           </div>
           <RightSidebar />
         </div>
-
         <Box
           sx={{
             position: "fixed",
             bottom: 20,
             left: 0,
             right: 0,
+            zIndex: 30,
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -133,25 +144,59 @@ const MainPage = () => {
             variant="contained"
             startIcon={<CloseIcon />}
             color="error"
-            sx={{ minWidth: 200, height: 60, marginX: 1 }}
+            sx={{
+              minWidth: 200,
+              height: 60,
+              marginX: 1,
+              background:"red",
+              border: "10px solid black",
+              boxSizing: "content-box",
+              borderRadius: 10,
+            }}
             onMouseEnter={() => handleHoverEnter("left")}
             onMouseLeave={handleHoverLeave}
             onClick={dislikeclick}
           >
             Pass
           </Button>
+
+          <img
+            src="https://i.ibb.co/xmGGCQY/doggr.jpg"
+            alt="Logo"
+            style={{
+              width: 100,
+              height: 100,
+              marginX: 1,
+              borderRadius: 90,
+              margin: -10,
+              border: "10px solid black",
+              boxSizing: "content-box",
+            }}
+            className="spin-on-hover"
+          />
+
           <Button
             variant="contained"
             endIcon={<FavoriteIcon />}
             color="primary"
-            sx={{ minWidth: 200, height: 60, marginX: 1 }}
+            sx={{
+              minWidth: 200,
+              height: 60,
+              background: "#00A651",
+              marginX: 1,
+              border: "10px solid black",
+              boxSizing: "content-box",
+              borderRadius: 10,
+            }}
             onMouseEnter={() => handleHoverEnter("right")}
             onMouseLeave={handleHoverLeave}
             onClick={likeclick}
           >
             Like
           </Button>
+          <Box />
         </Box>
+        <div className="rectangle"></div>
       </div>
     </>
   );

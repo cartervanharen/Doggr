@@ -27,62 +27,66 @@ function LeftSidebar() {
     window.location.reload();
   }
   return (
-    <Drawer
-      variant="permanent"
-      anchor="left"
-      sx={{
-        width: 240,
-        flexShrink: 0,
-        "& .MuiDrawer-paper": { width: 300, boxSizing: "border-box" },
-        "& .MuiListItemIcon-root": { minWidth: 40 },
-        "& .MuiTypography-root": { fontSize: "1.2rem" },
-      }}
-    >
-      <List>
-        {[
-          { text: "Home", icon: <HomeIcon fontSize="large" />, path: "/" },
-          {
-            text: "Settings",
-            icon: <SettingsIcon fontSize="large" />,
-            path: "/settings",
-          },
-          {
-            text: "Messages",
-            icon: <MessageIcon fontSize="large" />,
-            path: "/messages",
-          },
-        ].map((item, index) => (
-          <ListItem
-            button
-            key={index}
-            onClick={() => navigate(item.path)}
-            selected={isSelected(item.path)}
-          >
-            <ListItemIcon
-              sx={{ color: isSelected(item.path) ? "primary.main" : "inherit" }}
+    <>
+      <Drawer
+        variant="permanent"
+        anchor="left"
+        sx={{
+          width: 240,
+          flexShrink: 0,
+          "& .MuiDrawer-paper": { width: 300, boxSizing: "border-box" },
+          "& .MuiListItemIcon-root": { minWidth: 40 },
+          "& .MuiTypography-root": { fontSize: "1.2rem" },
+        }}
+      >
+        <List>
+          {[
+            { text: "Home", icon: <HomeIcon fontSize="large" />, path: "/" },
+            {
+              text: "Settings",
+              icon: <SettingsIcon fontSize="large" />,
+              path: "/settings",
+            },
+            {
+              text: "Messages",
+              icon: <MessageIcon fontSize="large" />,
+              path: "/messages",
+            },
+          ].map((item, index) => (
+            <ListItem
+              button
+              key={index}
+              onClick={() => navigate(item.path)}
+              selected={isSelected(item.path)}
             >
-              {item.icon}
-            </ListItemIcon>
-            <ListItemText primary={item.text} />
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <Box sx={{ p: 2, mt: "auto" }}>
-        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-          <Avatar src="https://via.placeholder.com/40" sx={{ mr: 2 }} />
-          <Typography variant="subtitle1">Julio</Typography>
+              <ListItemIcon
+                sx={{
+                  color: isSelected(item.path) ? "primary.main" : "inherit",
+                }}
+              >
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItem>
+          ))}
+        </List>
+        <Divider />
+        <Box sx={{ p: 2, mt: "auto" }}>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+            <Avatar src="https://via.placeholder.com/40" sx={{ mr: 2 }} />
+            <Typography variant="subtitle1">Julio</Typography>
+          </Box>
+          <Button
+            variant="outlined"
+            startIcon={<LogoutIcon />}
+            fullWidth
+            onClick={() => logout()}
+          >
+            Logout
+          </Button>
         </Box>
-        <Button
-          variant="outlined"
-          startIcon={<LogoutIcon />}
-          fullWidth
-          onClick={() => logout()}
-        >
-          Logout
-        </Button>
-      </Box>
-    </Drawer>
+      </Drawer>
+    </>
   );
 }
 

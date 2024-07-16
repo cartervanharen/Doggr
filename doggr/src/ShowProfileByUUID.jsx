@@ -79,7 +79,7 @@ function ShowProfilebyUUID() {
         alignItems="center"
         minHeight="100vh"
       >
-        <CircularProgress />
+        <CircularProgress size={300} sx={{ color: "white" }} />
       </Box>
     );
   }
