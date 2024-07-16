@@ -143,7 +143,7 @@ const MainPage = () => {
           <Button
             variant="contained"
             startIcon={<CloseIcon />}
-            color="error"
+            color="primary"
             sx={{
               minWidth: 200,
               height: 60,

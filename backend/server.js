@@ -11,7 +11,30 @@ import axios from "axios";
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  //haversine formula
+  const R = 3959; //earth radius
+  const dLat = degeesRadian(lat2 - lat1);
+  const dLon = degeesRadian(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(degeesRadian(lat1)) *
+      Math.cos(degeesRadian(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c;
+  return distance;
+}
+
+function degeesRadian(deg) {
+  return deg * (Math.PI / 180);
+}
+
 app.use(express.json());
+
+
+
 app.post("/user-info-byuuid", async (req, res) => {
   const uuid = req.body.uuid;
 
@@ -685,6 +708,7 @@ app.post("/next-user-data", async (req, res) => {
   let nextUserUuid = null;
   let nextUserNum = null;
   let userId = "";
+
   const { accessToken } = req.body;
 
   if (!accessToken) {
@@ -697,7 +721,6 @@ app.post("/next-user-data", async (req, res) => {
     );
     if (userError) throw userError;
 
-    console.log(user.id);
     userId = user.id;
     const { data: userData, error: dataError } = await supabase
       .from("nextusers")
@@ -708,22 +731,20 @@ app.post("/next-user-data", async (req, res) => {
     if (userData) {
       const nextUserField = `user${userData.nextuser}`;
       const nextUserId = userData[nextUserField];
-      nextUserNum = userData.nextuser
+      nextUserNum = userData.nextuser;
       console.log(`Next user ID for user${userData.nextuser}: ${nextUserId}`);
 
       nextUserUuid = nextUserId;
     } else {
       return res.status(404).json({ error: "No user data found" });
     }
-
-
-
   } catch (error) {
     console.error("Processing error:", error.message);
     return res
       .status(500)
       .json({ error: "Failed to process request: " + error.message });
   }
+
   const { data: userDataTable, fetchError } = await supabase
     .from("userdata")
     .select("*")
@@ -741,29 +762,40 @@ app.post("/next-user-data", async (req, res) => {
     .eq("uuid", nextUserUuid)
     .single();
 
-  console.log("USERNUMBER")
-  console.log(nextUserNum )
+  console.log("USERNUMBER");
+  console.log(nextUserNum);
 
+  if (nextUserNum > 5) {
+    console.log("Over 5");
 
-    if (nextUserNum>5){
-      console.log("Over 5")
+    matchClosestUsers(userId);
+  }
 
-      matchClosestUsers(userId);
+  const { data: currentUserData } = await supabase //Pull cords of current user
 
-    }
+    .from("userdata")
+    .select("*")
+    .eq("uuid", userId)
+    .single();
 
-
+  let CurrentLatitude = currentUserData.latitude; // this is the data thats of the current user
+  let CurrentLongitude = currentUserData.longitude;
+  let NextLatitude = userDataTable.latitude; // this is the data thats shown on the card
+  let NextLongitude = userDataTable.longitude;
+  console.log(CurrentLatitude, CurrentLongitude, NextLatitude, NextLongitude);
+  const distance = calculateDistance(
+    CurrentLatitude,
+    CurrentLongitude,
+    NextLatitude,
+    NextLongitude
+  );
+  console.log(distance);
   return res.status(200).json({
     userUUID: nextUserUuid,
     userdata: userDataTable,
     pictures: pictureLinks,
     basic: basicInfo,
   });
-
-
-
-
-
 });
 
 app.post("/update-bio", async (req, res) => {
@@ -1175,10 +1207,12 @@ async function matchClosestUsers(uuid) {
   if (!uuid) {
     throw new Error("UUID is required");
   }
-  
+
   const { data: userData, error: fetchError } = await supabase
     .from("userdata")
-    .select("likeability, energy, playfulness, aggression, size, training, likeabilityFilter, energyFilter, playfulnessFilter, aggressionFilter, sizeFilter, trainingFilter")
+    .select(
+      "likeability, energy, playfulness, aggression, size, training, likeabilityFilter, energyFilter, playfulnessFilter, aggressionFilter, sizeFilter, trainingFilter"
+    )
     .eq("uuid", uuid)
     .single();
 
@@ -1187,7 +1221,14 @@ async function matchClosestUsers(uuid) {
   }
 
   const url = new URL("http://localhost:3001/predict");
-  ['likeability', 'energy', 'playfulness', 'aggression', 'size', 'training'].forEach((trait, index) => {
+  [
+    "likeability",
+    "energy",
+    "playfulness",
+    "aggression",
+    "size",
+    "training",
+  ].forEach((trait, index) => {
     url.searchParams.append(`trait${index + 1}`, userData[trait]);
   });
 
@@ -1216,10 +1257,17 @@ async function matchClosestUsers(uuid) {
     throw new Error(`Error fetching seen users: ${seenUsersError.message}`);
   }
 
-  const seenUserIds = new Set(seenUsers.map(relation => relation.user_to));
+  const seenUserIds = new Set(seenUsers.map((relation) => relation.user_to));
 
-  const manuallyFilteredUsers = allUsers.filter(user => {
-    return ['likeability', 'energy', 'playfulness', 'aggression', 'size', 'training'].every(trait => {
+  const manuallyFilteredUsers = allUsers.filter((user) => {
+    return [
+      "likeability",
+      "energy",
+      "playfulness",
+      "aggression",
+      "size",
+      "training",
+    ].every((trait) => {
       const filter = userData[`${trait}Filter`];
       if (filter) {
         return user[trait] >= filter.min && user[trait] <= filter.max;
@@ -1228,19 +1276,30 @@ async function matchClosestUsers(uuid) {
     });
   });
 
-  const filteredUsers = manuallyFilteredUsers.filter(user => !seenUserIds.has(user.uuid));
+  const filteredUsers = manuallyFilteredUsers.filter(
+    (user) => !seenUserIds.has(user.uuid)
+  );
 
-  const usersWithDistance = filteredUsers.map(user => {
+  const usersWithDistance = filteredUsers.map((user) => {
     const distance = predicted_traits.reduce((acc, predicted_value, index) => {
-      const traitName = ['likeability', 'energy', 'playfulness', 'aggression', 'size', 'training'][index];
+      const traitName = [
+        "likeability",
+        "energy",
+        "playfulness",
+        "aggression",
+        "size",
+        "training",
+      ][index];
       acc += Math.abs(predicted_value - user[traitName]);
       return acc;
     }, 0);
     return { ...user, distance };
   });
 
-  const closestUsers = usersWithDistance.sort((a, b) => a.distance - b.distance).slice(0, 10);
-  const userValues = closestUsers.map(user => user.uuid);
+  const closestUsers = usersWithDistance
+    .sort((a, b) => a.distance - b.distance)
+    .slice(0, 10);
+  const userValues = closestUsers.map((user) => user.uuid);
 
   const { error: updateError } = await supabase.from("nextusers").upsert(
     {
@@ -1264,10 +1323,6 @@ async function matchClosestUsers(uuid) {
 
   return { message: "Closest users updated successfully", closestUsers };
 }
-
-
-
-
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
