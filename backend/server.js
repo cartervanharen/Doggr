@@ -841,6 +841,8 @@ app.post("/next-user-data", async (req, res) => {
     userdata: userDataTable,
     pictures: pictureLinks,
     basic: basicInfo,
+    distance: distance,
+    oou: 1, //out of users
   });
 });
 
@@ -1239,51 +1241,40 @@ app.post("/signup-complete", async (req, res) => {
     return res.status(401).json({ error: error.message });
   }
 });
-app.post("/match-closest-users", async (req, res) => {
-  try {
-    const result = await matchClosestUsers(req.body.uuid);
-    res.status(200).json(result);
-  } catch (error) {
-    console.error("Error processing the matching:", error.message);
-    return res.status(500).json({ error: error.message });
-  }
-});
 
 async function matchClosestUsers(uuid) {
   if (!uuid) {
     throw new Error("UUID is required");
   }
 
-  const { data: userData, error: fetchError } = await supabase
+  const { data: currentUserData, error: currentUserDataError } = await supabase
     .from("userdata")
     .select(
-      "likeability, energy, playfulness, aggression, size, training, likeabilityFilter, energyFilter, playfulnessFilter, aggressionFilter, sizeFilter, trainingFilter"
+      "latitude, longitude, maxDistance, likeability, energy, playfulness, aggression, size, training, likeabilityFilter, energyFilter, playfulnessFilter, aggressionFilter, sizeFilter, trainingFilter"
     )
     .eq("uuid", uuid)
     .single();
 
-  if (fetchError) {
-    throw new Error(`Error fetching user data: ${fetchError.message}`);
+  if (currentUserDataError) {
+    throw new Error(
+      `Error fetching current user data: ${currentUserDataError.message}`
+    );
   }
 
-  const url = new URL("http://localhost:3001/predict");
-  [
-    "likeability",
-    "energy",
-    "playfulness",
-    "aggression",
-    "size",
-    "training",
-  ].forEach((trait, index) => {
-    url.searchParams.append(`trait${index + 1}`, userData[trait]);
-  });
+  const { data: relations, error: relationsError } = await supabase
+    .from("relation")
+    .select("user_to, user_from")
+    .or(`user_from.eq.${uuid},user_to.eq.${uuid}`);
 
-  const pythonServerResponse = await axios.get(url.href);
-  const { predicted_traits } = pythonServerResponse.data;
-
-  if (!predicted_traits) {
-    throw new Error("Failed to receive predicted traits from Python server");
+  if (relationsError) {
+    throw new Error(`Error fetching relations: ${relationsError.message}`);
   }
+
+  const seenUserIds = new Set(
+    relations.map((relation) =>
+      relation.user_from === uuid ? relation.user_to : relation.user_from
+    )
+  );
 
   const { data: allUsers, error: allUsersError } = await supabase
     .from("userdata")
@@ -1294,59 +1285,45 @@ async function matchClosestUsers(uuid) {
     throw new Error(`Error fetching all users: ${allUsersError.message}`);
   }
 
-  const { data: seenUsers, error: seenUsersError } = await supabase
-    .from("relation")
-    .select("user_to")
-    .eq("user_from", uuid);
-
-  if (seenUsersError) {
-    throw new Error(`Error fetching seen users: ${seenUsersError.message}`);
-  }
-
-  const seenUserIds = new Set(seenUsers.map((relation) => relation.user_to));
-
-  const manuallyFilteredUsers = allUsers.filter((user) => {
-    return [
-      "likeability",
-      "energy",
-      "playfulness",
-      "aggression",
-      "size",
-      "training",
-    ].every((trait) => {
-      const filter = userData[`${trait}Filter`];
-      if (filter) {
-        return user[trait] >= filter.min && user[trait] <= filter.max;
-      }
-      return true;
-    });
-  });
-
-  const filteredUsers = manuallyFilteredUsers.filter(
-    (user) => !seenUserIds.has(user.uuid)
-  );
-
-  const usersWithDistance = filteredUsers.map((user) => {
-    const distance = predicted_traits.reduce((acc, predicted_value, index) => {
-      const traitName = [
+  const filteredUsers = allUsers.filter((user) => {
+    const distance = calculateDistance(
+      currentUserData.latitude,
+      currentUserData.longitude,
+      user.latitude,
+      user.longitude
+    );
+    return (
+      !seenUserIds.has(user.uuid) &&
+      distance <= currentUserData.maxDistance &&
+      [
         "likeability",
         "energy",
         "playfulness",
         "aggression",
         "size",
         "training",
-      ][index];
-      acc += Math.abs(predicted_value - user[traitName]);
-      return acc;
-    }, 0);
-    return { ...user, distance };
+      ].every((trait) => {
+        const filter = currentUserData[`${trait}Filter`];
+        if (filter) {
+          return user[trait] >= filter.min && user[trait] <= filter.max;
+        }
+        return true;
+      })
+    );
   });
 
-  const closestUsers = usersWithDistance
-    .sort((a, b) => a.distance - b.distance)
-    .slice(0, 10);
-  const userValues = closestUsers.map((user) => user.uuid);
+  const closestUsers = filteredUsers.slice(0, 10);
 
+  if (closestUsers.length === 0) {
+    console.log("****no ew users");
+    return {
+      message:
+        "No available users fit the criteria within the specified distance and filters.",
+      closestUsers: [],
+    };
+  }
+
+  const userValues = closestUsers.map((user) => user.uuid);
   const { error: updateError } = await supabase.from("nextusers").upsert(
     {
       uuid: uuid,
@@ -1361,10 +1338,6 @@ async function matchClosestUsers(uuid) {
 
   if (updateError) {
     throw new Error(`Error updating next users: ${updateError.message}`);
-  }
-
-  if (closestUsers.length === 0) {
-    console.log("No users fit criteria");
   }
 
   return { message: "Closest users updated successfully", closestUsers };
