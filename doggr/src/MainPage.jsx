@@ -58,7 +58,7 @@ const MainPage = () => {
       console.log("User ID retrieved:", userId);
 
       const responseUsers = await axios.post(
-        "http://localhost:3000/generate-new-nextusers",
+        "http://localhost:3000/verify-token",
         {
           userid: userId,
         }

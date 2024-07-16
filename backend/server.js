@@ -162,7 +162,7 @@ app.post("/generate-new-nextusers", async (req, res) => {
 
   try {
     matchClosestUsers(userid);
-    return res.status(200).json( "worked" );
+    return res.status(200).json("worked");
   } catch (error) {
     return res.status(401).json({ error: error.message });
   }
@@ -628,19 +628,28 @@ app.post("/current-dog-pictures", async (req, res) => {
     const { data: user, error: userError } = await supabase.auth.api.getUser(
       accessToken
     );
-    if (userError) throw userError;
+    if (userError) {
+      console.error("Authentication error:", userError.message);
+      return res
+        .status(401)
+        .json({ error: "Authentication failed: " + userError.message });
+    }
 
     const { data: userData, error: dataError } = await supabase
       .from("images")
-      .select("picture1, picture2, picture3, picture4, picture5")
-      .eq("uuid", user.id)
-      .single();
+      .select("*")
+      .eq("uuid", user.id);
 
     if (dataError) {
+      console.error("Data fetch error:", dataError.message);
       throw dataError;
+    } 
+    console.log(userData)
+    if (userData.length === 0) {
+      return res.status(404).json({ error: "No images found for the user." });
     }
 
-    return res.status(200).json({ userFilters: userData });
+    return res.status(200).json({ images: userData });
   } catch (error) {
     console.error("Error fetching dog images:", error.message);
     return res
@@ -648,7 +657,6 @@ app.post("/current-dog-pictures", async (req, res) => {
       .json({ error: "Failed to fetch dog images: " + error.message });
   }
 });
-
 app.post("/update-dog-pictures", async (req, res) => {
   const { accessToken, ...pictures } = req.body;
 
@@ -658,9 +666,11 @@ app.post("/update-dog-pictures", async (req, res) => {
 
   try {
     const { data: user, error } = await supabase.auth.api.getUser(accessToken);
-    if (error) throw error;
+    if (error) {
+      console.error("Authentication error:", error.message);
+      return res.status(401).json({ error: "Authentication failed: " + error.message });
+    }
 
-    //Only Update the pictures that are sent over.
     const updates = Object.keys(pictures).reduce((acc, key) => {
       if (key.startsWith("picture") && pictures[key]) {
         acc[key] = pictures[key];
@@ -672,23 +682,34 @@ app.post("/update-dog-pictures", async (req, res) => {
       return res.status(400).json({ error: "No pictures provided for update" });
     }
 
-    const { error: updateError } = await supabase
-      .from("images")
-      .update(updates)
-      .eq("uuid", user.id);
+    updates.uuid = user.id;
 
-    if (updateError) {
-      console.error("Update Error:", updateError.message);
-      return res.status(500).json({ error: updateError.message });
+    const { error: upsertError } = await supabase
+      .from("images")
+      .upsert(updates, {
+        returning: "minimal", 
+      });
+
+    if (upsertError) {
+      console.error("Upsert Error:", upsertError.message);
+      return res.status(500).json({ error: "Failed to update or insert dog pictures: " + upsertError.message });
     }
 
-    return res
-      .status(200)
-      .json({ message: "Dog pictures updated successfully." });
+    return res.status(200).json({ message: "Dog pictures updated successfully." });
   } catch (error) {
-    console.error("Error updating dog pictures:", error.message);
-    return res.status(500).json({ error: error.message });
+    console.error("Error uploading image:", error);
+    if (error.response) {
+      console.error("Error data:", error.response.data);
+      console.error("Error status:", error.response.status);
+      console.error("Error headers:", error.response.headers);
+    } else if (error.request) {
+      console.error("No response received:", error.request);
+    } else {
+      console.error("Error setting up the request:", error.message);
+    }
+    console.error("Error config:", error.config);
   }
+  
 });
 
 app.post("/new-signup-base-data", async (req, res) => {

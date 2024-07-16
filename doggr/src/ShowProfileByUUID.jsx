@@ -135,7 +135,7 @@ function ShowProfilebyUUID() {
           flexDirection: "column",
         }}
       >
-        <h1>Youve seen em all!</h1>
+        <h1>You've seen em all!</h1>
         <Button
           variant="contained"
           color="warning"
