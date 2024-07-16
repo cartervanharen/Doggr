@@ -11,7 +11,74 @@ import axios from "axios";
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  //haversine formula
+  const R = 3959; //earth radius
+  const dLat = degeesRadian(lat2 - lat1);
+  const dLon = degeesRadian(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(degeesRadian(lat1)) *
+      Math.cos(degeesRadian(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c;
+  return distance;
+}
+
+function degeesRadian(deg) {
+  return deg * (Math.PI / 180);
+}
+
 app.use(express.json());
+
+app.get("/update-all-locations", async (req, res) => {
+  try {
+    const { data: allUsers, error: userFetchError } = await supabase
+      .from("users")
+      .select("uuid, address");
+
+    if (userFetchError) throw userFetchError;
+
+    const positionStackApiKey = "be2efb6b90f3a1015d928b4186ca5ec4";
+    const updates = [];
+
+    for (const user of allUsers) {
+      if (user.address) {
+        const formattedAddress = encodeURIComponent(user.address);
+        const positionStackUrl = `http://api.positionstack.com/v1/forward?access_key=${positionStackApiKey}&query=${formattedAddress}`;
+
+        const locationResponse = await axios.get(positionStackUrl);
+        if (
+          locationResponse.data.data &&
+          locationResponse.data.data.length > 0
+        ) {
+          const locationData = locationResponse.data.data[0];
+          updates.push({
+            uuid: user.uuid,
+            latitude: locationData.latitude,
+            longitude: locationData.longitude,
+          });
+        }
+      }
+    }
+
+    const { error: updateError } = await supabase
+      .from("userdata")
+      .upsert(updates);
+
+    if (updateError) throw updateError;
+
+    return res.status(200).json({
+      message: "Locations updated successfully for all users",
+      updatedCount: updates.length,
+    });
+  } catch (error) {
+    console.error("Error updating locations for all users:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
 app.post("/user-info-byuuid", async (req, res) => {
   const uuid = req.body.uuid;
 
@@ -66,8 +133,6 @@ app.get("/get-all-relation", async (req, res) => {
   res.json(data);
 });
 app.post("/login", async (req, res) => {
-  console.log("Login route hit");
-
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -83,6 +148,21 @@ app.post("/login", async (req, res) => {
     if (error) throw error;
     const access_token = session.access_token;
     return res.status(200).json({ access_token });
+  } catch (error) {
+    return res.status(401).json({ error: error.message });
+  }
+});
+
+app.post("/generate-new-nextusers", async (req, res) => {
+  const { userid } = req.body;
+
+  if (!userid) {
+    return res.status(400).json({ error: "Need to inclued uuid" });
+  }
+
+  try {
+    matchClosestUsers(userid);
+    return res.status(200).json("worked");
   } catch (error) {
     return res.status(401).json({ error: error.message });
   }
@@ -111,8 +191,6 @@ app.post("/verify-token", async (req, res) => {
 });
 
 app.post("/signin", async (req, res) => {
-  console.log("Signin route hit");
-
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -134,7 +212,6 @@ app.post("/signin", async (req, res) => {
 });
 
 app.post("/signup", async (req, res) => {
-  console.log("Signup route hit");
   const {
     email,
     password,
@@ -145,7 +222,7 @@ app.post("/signup", async (req, res) => {
   } = req.body;
 
   const currentTime = new Date().toISOString();
-  console.log(req.body);
+
   if (
     !email ||
     !password ||
@@ -406,8 +483,6 @@ app.post("/update-dog-filter", async (req, res) => {
     trainingFilter,
   } = req.body;
 
-  console.log(req.body);
-
   if (!accessToken) {
     return res.status(401).json({ error: "Access token is required" });
   }
@@ -553,19 +628,28 @@ app.post("/current-dog-pictures", async (req, res) => {
     const { data: user, error: userError } = await supabase.auth.api.getUser(
       accessToken
     );
-    if (userError) throw userError;
+    if (userError) {
+      console.error("Authentication error:", userError.message);
+      return res
+        .status(401)
+        .json({ error: "Authentication failed: " + userError.message });
+    }
 
     const { data: userData, error: dataError } = await supabase
       .from("images")
-      .select("picture1, picture2, picture3, picture4, picture5")
-      .eq("uuid", user.id)
-      .single();
+      .select("*")
+      .eq("uuid", user.id);
 
     if (dataError) {
+      console.error("Data fetch error:", dataError.message);
       throw dataError;
+    } 
+    console.log(userData)
+    if (userData.length === 0) {
+      return res.status(404).json({ error: "No images found for the user." });
     }
 
-    return res.status(200).json({ userFilters: userData });
+    return res.status(200).json({ images: userData });
   } catch (error) {
     console.error("Error fetching dog images:", error.message);
     return res
@@ -573,11 +657,8 @@ app.post("/current-dog-pictures", async (req, res) => {
       .json({ error: "Failed to fetch dog images: " + error.message });
   }
 });
-
 app.post("/update-dog-pictures", async (req, res) => {
   const { accessToken, ...pictures } = req.body;
-
-  console.log(req.body);
 
   if (!accessToken) {
     return res.status(401).json({ error: "Access token is required" });
@@ -585,9 +666,11 @@ app.post("/update-dog-pictures", async (req, res) => {
 
   try {
     const { data: user, error } = await supabase.auth.api.getUser(accessToken);
-    if (error) throw error;
+    if (error) {
+      console.error("Authentication error:", error.message);
+      return res.status(401).json({ error: "Authentication failed: " + error.message });
+    }
 
-    //Only Update the pictures that are sent over.
     const updates = Object.keys(pictures).reduce((acc, key) => {
       if (key.startsWith("picture") && pictures[key]) {
         acc[key] = pictures[key];
@@ -599,31 +682,38 @@ app.post("/update-dog-pictures", async (req, res) => {
       return res.status(400).json({ error: "No pictures provided for update" });
     }
 
-    const { error: updateError } = await supabase
-      .from("images")
-      .update(updates)
-      .eq("uuid", user.id);
+    updates.uuid = user.id;
 
-    if (updateError) {
-      console.error("Update Error:", updateError.message);
-      return res.status(500).json({ error: updateError.message });
+    const { error: upsertError } = await supabase
+      .from("images")
+      .upsert(updates, {
+        returning: "minimal", 
+      });
+
+    if (upsertError) {
+      console.error("Upsert Error:", upsertError.message);
+      return res.status(500).json({ error: "Failed to update or insert dog pictures: " + upsertError.message });
     }
 
-    return res
-      .status(200)
-      .json({ message: "Dog pictures updated successfully." });
+    return res.status(200).json({ message: "Dog pictures updated successfully." });
   } catch (error) {
-    console.error("Error updating dog pictures:", error.message);
-    return res.status(500).json({ error: error.message });
+    console.error("Error uploading image:", error);
+    if (error.response) {
+      console.error("Error data:", error.response.data);
+      console.error("Error status:", error.response.status);
+      console.error("Error headers:", error.response.headers);
+    } else if (error.request) {
+      console.error("No response received:", error.request);
+    } else {
+      console.error("Error setting up the request:", error.message);
+    }
+    console.error("Error config:", error.config);
   }
+  
 });
 
 app.post("/new-signup-base-data", async (req, res) => {
-  console.log("new-signup-base-data hit");
-
   const { accessToken } = req.body;
-
-  console.log(req.body);
 
   if (!accessToken) {
     return res.status(401).json({ error: "Access token is required" });
@@ -682,9 +772,10 @@ app.post("/new-signup-base-data", async (req, res) => {
 });
 
 app.post("/next-user-data", async (req, res) => {
-  let nextUserUuid = null;
-  let nextUserNum = null;
+  let nextUserUuid = "";
+  let nextUserNum = "";
   let userId = "";
+  let outofuserstate = 0;
   const { accessToken } = req.body;
 
   if (!accessToken) {
@@ -697,7 +788,6 @@ app.post("/next-user-data", async (req, res) => {
     );
     if (userError) throw userError;
 
-    console.log(user.id);
     userId = user.id;
     const { data: userData, error: dataError } = await supabase
       .from("nextusers")
@@ -707,28 +797,47 @@ app.post("/next-user-data", async (req, res) => {
 
     if (userData) {
       const nextUserField = `user${userData.nextuser}`;
+
       const nextUserId = userData[nextUserField];
-      nextUserNum = userData.nextuser
-      console.log(`Next user ID for user${userData.nextuser}: ${nextUserId}`);
+
+      nextUserNum = userData.nextuser;
 
       nextUserUuid = nextUserId;
     } else {
       return res.status(404).json({ error: "No user data found" });
     }
-
-
-
   } catch (error) {
     console.error("Processing error:", error.message);
     return res
       .status(500)
       .json({ error: "Failed to process request: " + error.message });
   }
-  const { data: userDataTable, fetchError } = await supabase
-    .from("userdata")
-    .select("*")
-    .eq("uuid", nextUserUuid)
-    .single();
+
+  let userDataTable = null;
+
+  try {
+    const { data, error } = await supabase
+      .from("userdata")
+      .select("*")
+      .eq("uuid", nextUserUuid)
+      .single();
+
+    if (error) {
+      throw new Error(`Error fetching user data: ${error.message}`);
+    }
+
+    if (!data) {
+      throw new Error("No user data found for the specified UUID.");
+    }
+
+    userDataTable = data;
+  } catch (error) {
+    console.error("Error retrieving user data:", error.message);
+    return res
+      .status(500)
+      .json({ error: "Failed to retrieve user data: " + error.message });
+  }
+
   const { data: pictureLinks, error: dataError } = await supabase
     .from("images")
     .select("picture1, picture2, picture3, picture4, picture5")
@@ -741,29 +850,61 @@ app.post("/next-user-data", async (req, res) => {
     .eq("uuid", nextUserUuid)
     .single();
 
-  console.log("USERNUMBER")
-  console.log(nextUserNum )
+  if (nextUserNum > 5) {
+    console.log("Over 5, reloading users now");
+    try {
+      outofuserstate = await matchClosestUsers(userId);
+      console.log(outofuserstate);
+    } catch (error) {
+      console.error("Failed to match closest users:", error);
+    }
+  }
 
+  let currentUserData = null;
 
-    if (nextUserNum>5){
-      console.log("Over 5")
+  try {
+    const { data, error } = await supabase
+      .from("userdata")
+      .select("*")
+      .eq("uuid", userId)
+      .single();
 
-      matchClosestUsers(userId);
-
+    if (error) {
+      throw new Error(`Error fetching current user data: ${error.message}`);
     }
 
+    if (!data) {
+      throw new Error("No current user data found.");
+    }
 
+    currentUserData = data;
+  } catch (error) {
+    console.error("Error retrieving current user data:", error.message);
+    return res.status(500).json({
+      error: "Failed to retrieve current user data: " + error.message,
+    });
+  }
+
+  let CurrentLatitude = currentUserData.latitude; // this is the data thats of the current user
+  let CurrentLongitude = currentUserData.longitude;
+  let NextLatitude = userDataTable.latitude; // this is the data thats shown on the card
+  let NextLongitude = userDataTable.longitude;
+
+  const distance = calculateDistance(
+    CurrentLatitude,
+    CurrentLongitude,
+    NextLatitude,
+    NextLongitude
+  );
+  console.log(distance);
   return res.status(200).json({
     userUUID: nextUserUuid,
     userdata: userDataTable,
     pictures: pictureLinks,
     basic: basicInfo,
+    distance: distance,
+    oou: outofuserstate, //out of users
   });
-
-
-
-
-
 });
 
 app.post("/update-bio", async (req, res) => {
@@ -920,19 +1061,12 @@ app.post("/mark-user-seen", async (req, res) => {
       .select("*")
       .eq("uuid", user.id)
       .single();
-    console.log(nextusers);
-    console.log("line844");
 
     const idofNextUser = nextusers.nextuser;
     const nextUserField = `user${idofNextUser}`;
     const currentUserID = nextusers[nextUserField]; //this is the current uuid of the profile that should be currently shown.
 
     if (relation == "like") {
-      console.log("like");
-      console.log(
-        `Current user id of show profile${idofNextUser}: ${currentUserID}`
-      );
-
       const { data: insertData, error: insertUserDataError } = await supabase
         .from("relation")
         .insert([
@@ -999,8 +1133,6 @@ app.post("/mark-user-seen", async (req, res) => {
 });
 
 app.post("/signup-complete", async (req, res) => {
-  console.log("Signup complete route hit");
-
   const {
     email,
     password,
@@ -1161,83 +1293,88 @@ app.post("/signup-complete", async (req, res) => {
     return res.status(401).json({ error: error.message });
   }
 });
-app.post("/match-closest-users", async (req, res) => {
-  try {
-    const result = await matchClosestUsers(req.body.uuid);
-    res.status(200).json(result);
-  } catch (error) {
-    console.error("Error processing the matching:", error.message);
-    return res.status(500).json({ error: error.message });
-  }
-});
-
-
 
 async function matchClosestUsers(uuid) {
+  let outofusers = 0;
   if (!uuid) {
     throw new Error("UUID is required");
   }
 
-  const { data: userData, error: fetchError } = await supabase
+  const { data: currentUserData, error: currentUserDataError } = await supabase
     .from("userdata")
-    .select("likeability, energy, playfulness, aggression, size, training")
+    .select(
+      "latitude, longitude, maxDistance, likeability, energy, playfulness, aggression, size, training, likeabilityFilter, energyFilter, playfulnessFilter, aggressionFilter, sizeFilter, trainingFilter"
+    )
     .eq("uuid", uuid)
     .single();
 
-  if (fetchError) {
-    throw new Error(`Error fetching user data: ${fetchError.message}`);
+  if (currentUserDataError) {
+    throw new Error(
+      `Error fetching current user data: ${currentUserDataError.message}`
+    );
   }
 
-  const url = new URL("http://localhost:3001/predict");
-  url.searchParams.append("trait1", userData.likeability);
-  url.searchParams.append("trait2", userData.energy);
-  url.searchParams.append("trait3", userData.playfulness);
-  url.searchParams.append("trait4", userData.aggression);
-  url.searchParams.append("trait5", userData.size);
-  url.searchParams.append("trait6", userData.training);
-
-  const pythonServerResponse = await axios.get(url.href);
-  const { predicted_traits } = pythonServerResponse.data;
-
-  if (!predicted_traits) {
-    throw new Error("Failed to receive predicted traits from Python server");
-  }
-
-  const { data: relatedUsers, error: relatedUsersError } = await supabase
+  const { data: relations, error: relationsError } = await supabase
     .from("relation")
-    .select("user_to")
-    .eq("user_from", uuid);
+    .select("user_to, user_from")
+    .or(`user_from.eq.${uuid},user_to.eq.${uuid}`);
 
-  if (relatedUsersError) {
-    throw new Error(`Error fetching related users: ${relatedUsersError.message}`);
+  if (relationsError) {
+    throw new Error(`Error fetching relations: ${relationsError.message}`);
   }
 
-  const blockedUUIDs = new Set(relatedUsers.map((user) => user.user_to));
+  const seenUserIds = new Set(
+    relations.map((relation) =>
+      relation.user_from === uuid ? relation.user_to : relation.user_from
+    )
+  );
 
   const { data: allUsers, error: allUsersError } = await supabase
     .from("userdata")
-    .select("*");
+    .select("*")
+    .not("uuid", "eq", uuid);
 
   if (allUsersError) {
     throw new Error(`Error fetching all users: ${allUsersError.message}`);
   }
 
-  const usersWithDistance = allUsers
-    .filter((user) => !blockedUUIDs.has(user.uuid))
-    .map((user) => {
-      const distance = Object.keys(predicted_traits).reduce(
-        (acc, key) => acc + Math.abs(predicted_traits[key] - user[key]),
-        0
-      );
-      return { ...user, distance };
-    });
+  const filteredUsers = allUsers.filter((user) => {
+    const distance = calculateDistance(
+      currentUserData.latitude,
+      currentUserData.longitude,
+      user.latitude,
+      user.longitude
+    );
 
-  const closestUsers = usersWithDistance
-    .sort((a, b) => a.distance - b.distance)
-    .slice(0, 10);
+    return (
+      !seenUserIds.has(user.uuid) &&
+      distance <= currentUserData.maxDistance &&
+      [
+        "likeability",
+        "energy",
+        "playfulness",
+        "aggression",
+        "size",
+        "training",
+      ].every((trait) => {
+        const filter = currentUserData[`${trait}Filter`];
+        if (filter) {
+          return user[trait] >= filter.min && user[trait] <= filter.max;
+        }
+        return true;
+      })
+    );
+  });
+
+  const closestUsers = filteredUsers.slice(0, 10);
+
+  if (closestUsers.length === 0) {
+    console.log("****no new users");
+    outofusers = 1;
+    return outofusers;
+  }
 
   const userValues = closestUsers.map((user) => user.uuid);
-
   const { error: updateError } = await supabase.from("nextusers").upsert(
     {
       uuid: uuid,
@@ -1254,16 +1391,9 @@ async function matchClosestUsers(uuid) {
     throw new Error(`Error updating next users: ${updateError.message}`);
   }
 
-  return { message: "Closest users updated successfully" };
+  return outofusers;
 }
 
-
-
-
-
-
-
-2
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

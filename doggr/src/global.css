@@ -12,7 +12,6 @@
   flex-wrap: wrap;
 }
 
-
 .DogImageCard_MainPage {
   max-width: 300px;
   justify-content: center;
@@ -76,7 +75,7 @@
   height: 75px;
   width: 75px;
   padding: 3px;
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.1s ease-in-out;
   z-index: 1000000000;
 }
 
@@ -703,26 +702,40 @@ Future Action(s):
 -Remove used CSS found above
 
 */
-
-
 .Whole_ShowProfile {
+  scale: 0.9;
   display: flex;
   overflow: flex-wrap;
   width: 800px;
   max-width: 800px;
   background-color: white;
-  height: 800px;
-  
+  height: 850px;
   padding: 20px;
-  margin-top: 5%;
+  margin-top: 2px;
+  justify-content: center;
+  align-content: flex-start;
+  flex-wrap: wrap;
+  border-radius: 15px;
+  box-shadow: 10px 10px 70px gray;
+}
+.Whole_ShowProfile_noSty {
+  display: flex;
+  overflow: flex-wrap;
+  width: 800px;
+  max-width: 800px;
+  background-color: black;
+  height: 850px;
+  padding: 20px;
+  margin-top: 2px;
   justify-content: center;
   align-content: flex-start;
   flex-wrap: wrap;
   border-radius: 15px;
   box-shadow: 5px 5px 400px pink;
-  transition: background-color 1s ease;
+}
 
-  animation: colorCycle 10s infinite;
+.liked {
+  background-image: linear-gradient(to right, red, pink);
 }
 
 .DogImageCard_ShowProfile {
@@ -803,17 +816,16 @@ Future Action(s):
   font-size: 17pt;
   width: 100%;
   padding: 8px;
+
   justify-content: left;
-  height: 200px;
+  height: 300px;
   margin: 10px;
 
   overflow: hidden;
 }
 .flexbox_mainpage {
-
   padding: 30px;
   overflow: hidden;
-
 }
 
 .RightSideBar {
@@ -902,8 +914,52 @@ Future Action(s):
 }
 
 .loadingPage {
-  background-color: white;
   width: 100vw;
   height: 100vh;
-  z-index: 987654789876547897654578987667982346798234679986234;
+  z-index: 999999999999999;
+}
+
+.spin-on-hover {
+  display: inline-block;
+  transition: transform 20s linear;
+}
+
+.spin-on-hover:hover {
+  transform: rotate(7200deg);
+}
+
+.custom-rectangle {
+  position: absolute;
+  top: 50px;
+  left: 50px;
+  width: 33333px;
+  height: 10033px;
+  background-color: black;
+  z-index: 103333;
+}
+.rectangle {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 92px;
+  background-color: black;
+  border: 2px solid black;
+  z-index: 0;
+}
+
+.transition-left {
+  background-color: rgba(255, 0, 0, 0.5);
+  transition: background-color 1s ease-in-out;
+}
+
+.transition-right {
+  background-color: rgba(0, 166, 81, 0.5);
+  transition: background-color 1s ease-in-out;
+}
+
+.transition-none {
+  background-color: white;
+  transition: background-color 1s ease-in-out;
 }
