@@ -13,6 +13,38 @@ function TraitModal() {
   const [aggression, setAggression] = useState(5);
   const [size, setSize] = useState(5);
   const [trainingLevel, setTrainingLevel] = useState(5);
+  const refreshUsers = async () => {
+    const token = localStorage.getItem("accessToken");
+    const wholeToken = "Bearer " + token;
+    console.log(wholeToken);
+    if (!token) {
+      console.error("No token found in local storage.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:3000/verify-token", {
+        authorization: wholeToken,
+      });
+      const userId = response.data.user.id;
+      console.log("User ID retrieved:", userId);
+
+      const responseUsers = await axios.post(
+        "http://localhost:3000/generate-new-nextusers",
+        {
+          userid: userId,
+        }
+      );
+      console.log("Users Refreshed:", userId);
+      return responseUsers;
+    } catch (error) {
+      console.error(
+        "Error verifying token:",
+        error.response ? error.response.data : error.message
+      );
+    }
+  };
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -65,6 +97,8 @@ function TraitModal() {
         size,
         training: trainingLevel,
       });
+      refreshUsers();
+
       console.log("Dog traits updated successfully.");
     } catch (error) {
       console.error(

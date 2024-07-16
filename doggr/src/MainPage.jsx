@@ -30,12 +30,46 @@ const MainPage = () => {
       });
       const userId = response.data.user.id;
       console.log("User ID retrieved:", userId);
+      return userId;
     } catch (error) {
       console.error(
         "Error verifying token:",
         error.response ? error.response.data : error.message
       );
       navigate("/login");
+    }
+  };
+
+  const refreshUsers = async () => {
+    const token = localStorage.getItem("accessToken");
+    const wholeToken = "Bearer " + token;
+    console.log(wholeToken);
+    if (!token) {
+      console.error("No token found in local storage.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:3000/verify-token", {
+        authorization: wholeToken,
+      });
+      const userId = response.data.user.id;
+      console.log("User ID retrieved:", userId);
+
+      const responseUsers = await axios.post(
+        "http://localhost:3000/generate-new-nextusers",
+        {
+          userid: userId,
+        }
+      );
+      console.log("Users Refreshed:", userId);
+      return responseUsers;
+    } catch (error) {
+      console.error(
+        "Error verifying token:",
+        error.response ? error.response.data : error.message
+      );
     }
   };
 
@@ -72,6 +106,8 @@ const MainPage = () => {
         error.response ? error.response.data : error.message
       );
     }
+
+    handleHoverLeave();
   };
 
   const dislikeclick = async () => {
@@ -95,6 +131,7 @@ const MainPage = () => {
         error.response ? error.response.data : error.message
       );
     }
+    handleHoverLeave();
   };
 
   const tiltStyles = {
@@ -148,7 +185,7 @@ const MainPage = () => {
               minWidth: 200,
               height: 60,
               marginX: 1,
-              background:"red",
+              background: "red",
               border: "10px solid black",
               boxSizing: "content-box",
               borderRadius: 10,

@@ -5,6 +5,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
 import Typography from "@mui/material/Typography";
+import { Button } from "@mui/material";
 
 function ShowProfilebyUUID() {
   const navigate = useNavigate();
@@ -118,6 +119,35 @@ function ShowProfilebyUUID() {
     );
   };
 
+  if (userData.oou == 1) {
+    return (
+      <Box
+        sx={{
+          position: "fixed",
+          top: 20,
+          left: 0,
+          right: 0,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          backgroundColor: "white",
+          flexDirection: "column",
+        }}
+      >
+        <h1>Youve seen em all!</h1>
+        <Button
+          variant="contained"
+          color="warning"
+          onClick={() => navigate("/settings")}
+        >
+          Adjust filters to see new users
+        </Button>
+      </Box>
+    );
+  }
+
+  console.log(userData.oou);
   return (
     <div className="Whole_ShowProfile">
       <div className="DogImageCard_ShowProfile">

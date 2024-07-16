@@ -75,7 +75,7 @@
   height: 75px;
   width: 75px;
   padding: 3px;
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.1s ease-in-out;
   z-index: 1000000000;
 }
 
@@ -716,9 +716,7 @@ Future Action(s):
   align-content: flex-start;
   flex-wrap: wrap;
   border-radius: 15px;
-  box-shadow: 5px 5px 400px pink;
-  transition: background-color 1s ease;
-  animation: colorCycle 10s infinite;
+  box-shadow: 10px 10px 70px gray;
 }
 .Whole_ShowProfile_noSty {
   display: flex;
@@ -736,26 +734,6 @@ Future Action(s):
   box-shadow: 5px 5px 400px pink;
 }
 
-*/ .Whole_ShowProfile_ {
-  scale: 0.9;
-  display: flex;
-  overflow: flex-wrap;
-  width: 800px;
-  max-width: 800px;
-  background-color: white;
-  height: 850px;
-  padding: 20px;
-  margin-top: 2px;
-  justify-content: center;
-  align-content: flex-start;
-  flex-wrap: wrap;
-  border-radius: 15px;
-  box-shadow: 5px 5px 400px pink;
-  transition: background-color 1s ease;
-  animation: colorCycle 10s infinite;
-}
-
-/* New gradient background style */
 .liked {
   background-image: linear-gradient(to right, red, pink);
 }
@@ -941,17 +919,13 @@ Future Action(s):
   z-index: 999999999999999;
 }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.spin-on-hover {
+  display: inline-block;
+  transition: transform 20s linear;
 }
 
 .spin-on-hover:hover {
-  animation: spin 0.5s linear 1;
+  transform: rotate(7200deg);
 }
 
 .custom-rectangle {
@@ -976,12 +950,12 @@ Future Action(s):
 }
 
 .transition-left {
-  background-color: red;
+  background-color: rgba(255, 0, 0, 0.5);
   transition: background-color 1s ease-in-out;
 }
 
 .transition-right {
-  background-color: #00a651;
+  background-color: rgba(0, 166, 81, 0.5);
   transition: background-color 1s ease-in-out;
 }
 

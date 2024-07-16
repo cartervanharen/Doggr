@@ -153,6 +153,21 @@ app.post("/login", async (req, res) => {
   }
 });
 
+app.post("/generate-new-nextusers", async (req, res) => {
+  const { userid } = req.body;
+
+  if (!userid) {
+    return res.status(400).json({ error: "Need to inclued uuid" });
+  }
+
+  try {
+    matchClosestUsers(userid);
+    return res.status(200).json( "worked" );
+  } catch (error) {
+    return res.status(401).json({ error: error.message });
+  }
+});
+
 app.post("/verify-token", async (req, res) => {
   const token = req.body.authorization?.split(" ")[1];
 
@@ -817,12 +832,11 @@ app.post("/next-user-data", async (req, res) => {
   if (nextUserNum > 5) {
     console.log("Over 5, reloading users now");
     try {
-       outofuserstate = await matchClosestUsers(userId);
+      outofuserstate = await matchClosestUsers(userId);
       console.log(outofuserstate);
     } catch (error) {
       console.error("Failed to match closest users:", error);
     }
-    
   }
 
   let currentUserData = null;
@@ -849,7 +863,6 @@ app.post("/next-user-data", async (req, res) => {
       error: "Failed to retrieve current user data: " + error.message,
     });
   }
-
 
   let CurrentLatitude = currentUserData.latitude; // this is the data thats of the current user
   let CurrentLongitude = currentUserData.longitude;

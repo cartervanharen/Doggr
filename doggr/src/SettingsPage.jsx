@@ -41,6 +41,38 @@ const SettingsPage = () => {
       navigate("/login");
     }
   };
+  const refreshUsers = async () => {
+    const token = localStorage.getItem("accessToken");
+    const wholeToken = "Bearer " + token;
+    console.log(wholeToken);
+    if (!token) {
+      console.error("No token found in local storage.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:3000/verify-token", {
+        authorization: wholeToken,
+      });
+      const userId = response.data.user.id;
+      console.log("User ID retrieved:", userId);
+
+      const responseUsers = await axios.post(
+        "http://localhost:3000/generate-new-nextusers",
+        {
+          userid: userId,
+        }
+      );
+      console.log("Users Refreshed:", userId);
+      return responseUsers;
+    } catch (error) {
+      console.error(
+        "Error verifying token:",
+        error.response ? error.response.data : error.message
+      );
+    }
+  };
 
   const fetchLocation = async () => {
     const token = localStorage.getItem("accessToken");
@@ -80,6 +112,8 @@ const SettingsPage = () => {
         accessToken: token,
         maxDistance,
       });
+
+      refreshUsers();
       console.log("Max distance updated successfully.");
     } catch (error) {
       console.error(
@@ -157,6 +191,10 @@ const SettingsPage = () => {
         "http://localhost:3000/update-user-info",
         updatedUserInfo
       );
+
+      fetchLocation();
+      refreshUsers();
+
       console.log(
         "User information updated successfully:",
         response.data.message
@@ -166,7 +204,7 @@ const SettingsPage = () => {
       console.error("Error updating user information:", error.message);
     }
 
-    fetchLocation();
+
   };
   const fetchBio = async () => {
     const token = localStorage.getItem("accessToken");
