@@ -45,7 +45,6 @@ app.get("/update-all-locations", async (req, res) => {
     const updates = [];
 
     for (const user of allUsers) {
-      console.log(user.address);
       if (user.address) {
         const formattedAddress = encodeURIComponent(user.address);
         const positionStackUrl = `http://api.positionstack.com/v1/forward?access_key=${positionStackApiKey}&query=${formattedAddress}`;
@@ -56,7 +55,6 @@ app.get("/update-all-locations", async (req, res) => {
           locationResponse.data.data.length > 0
         ) {
           const locationData = locationResponse.data.data[0];
-          console.log(locationData.latitude, locationData.longitude);
           updates.push({
             uuid: user.uuid,
             latitude: locationData.latitude,
@@ -135,8 +133,6 @@ app.get("/get-all-relation", async (req, res) => {
   res.json(data);
 });
 app.post("/login", async (req, res) => {
-  console.log("Login route hit");
-
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -180,8 +176,6 @@ app.post("/verify-token", async (req, res) => {
 });
 
 app.post("/signin", async (req, res) => {
-  console.log("Signin route hit");
-
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -203,7 +197,6 @@ app.post("/signin", async (req, res) => {
 });
 
 app.post("/signup", async (req, res) => {
-  console.log("Signup route hit");
   const {
     email,
     password,
@@ -214,7 +207,7 @@ app.post("/signup", async (req, res) => {
   } = req.body;
 
   const currentTime = new Date().toISOString();
-  console.log(req.body);
+
   if (
     !email ||
     !password ||
@@ -475,8 +468,6 @@ app.post("/update-dog-filter", async (req, res) => {
     trainingFilter,
   } = req.body;
 
-  console.log(req.body);
-
   if (!accessToken) {
     return res.status(401).json({ error: "Access token is required" });
   }
@@ -646,8 +637,6 @@ app.post("/current-dog-pictures", async (req, res) => {
 app.post("/update-dog-pictures", async (req, res) => {
   const { accessToken, ...pictures } = req.body;
 
-  console.log(req.body);
-
   if (!accessToken) {
     return res.status(401).json({ error: "Access token is required" });
   }
@@ -688,11 +677,7 @@ app.post("/update-dog-pictures", async (req, res) => {
 });
 
 app.post("/new-signup-base-data", async (req, res) => {
-  console.log("new-signup-base-data hit");
-
   const { accessToken } = req.body;
-
-  console.log(req.body);
 
   if (!accessToken) {
     return res.status(401).json({ error: "Access token is required" });
@@ -751,10 +736,10 @@ app.post("/new-signup-base-data", async (req, res) => {
 });
 
 app.post("/next-user-data", async (req, res) => {
-  let nextUserUuid = null;
-  let nextUserNum = null;
+  let nextUserUuid = "";
+  let nextUserNum = "";
   let userId = "";
-
+  let outofuserstate = 0;
   const { accessToken } = req.body;
 
   if (!accessToken) {
@@ -776,9 +761,10 @@ app.post("/next-user-data", async (req, res) => {
 
     if (userData) {
       const nextUserField = `user${userData.nextuser}`;
+
       const nextUserId = userData[nextUserField];
+
       nextUserNum = userData.nextuser;
-      console.log(`Next user ID for user${userData.nextuser}: ${nextUserId}`);
 
       nextUserUuid = nextUserId;
     } else {
@@ -791,11 +777,31 @@ app.post("/next-user-data", async (req, res) => {
       .json({ error: "Failed to process request: " + error.message });
   }
 
-  const { data: userDataTable, fetchError } = await supabase
-    .from("userdata")
-    .select("*")
-    .eq("uuid", nextUserUuid)
-    .single();
+  let userDataTable = null;
+
+  try {
+    const { data, error } = await supabase
+      .from("userdata")
+      .select("*")
+      .eq("uuid", nextUserUuid)
+      .single();
+
+    if (error) {
+      throw new Error(`Error fetching user data: ${error.message}`);
+    }
+
+    if (!data) {
+      throw new Error("No user data found for the specified UUID.");
+    }
+
+    userDataTable = data;
+  } catch (error) {
+    console.error("Error retrieving user data:", error.message);
+    return res
+      .status(500)
+      .json({ error: "Failed to retrieve user data: " + error.message });
+  }
+
   const { data: pictureLinks, error: dataError } = await supabase
     .from("images")
     .select("picture1, picture2, picture3, picture4, picture5")
@@ -808,27 +814,48 @@ app.post("/next-user-data", async (req, res) => {
     .eq("uuid", nextUserUuid)
     .single();
 
-  console.log("USERNUMBER");
-  console.log(nextUserNum);
-
   if (nextUserNum > 5) {
-    console.log("Over 5");
-
-    matchClosestUsers(userId);
+    console.log("Over 5, reloading users now");
+    try {
+       outofuserstate = await matchClosestUsers(userId);
+      console.log(outofuserstate);
+    } catch (error) {
+      console.error("Failed to match closest users:", error);
+    }
+    
   }
 
-  const { data: currentUserData } = await supabase //Pull cords of current user
+  let currentUserData = null;
 
-    .from("userdata")
-    .select("*")
-    .eq("uuid", userId)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from("userdata")
+      .select("*")
+      .eq("uuid", userId)
+      .single();
+
+    if (error) {
+      throw new Error(`Error fetching current user data: ${error.message}`);
+    }
+
+    if (!data) {
+      throw new Error("No current user data found.");
+    }
+
+    currentUserData = data;
+  } catch (error) {
+    console.error("Error retrieving current user data:", error.message);
+    return res.status(500).json({
+      error: "Failed to retrieve current user data: " + error.message,
+    });
+  }
+
 
   let CurrentLatitude = currentUserData.latitude; // this is the data thats of the current user
   let CurrentLongitude = currentUserData.longitude;
   let NextLatitude = userDataTable.latitude; // this is the data thats shown on the card
   let NextLongitude = userDataTable.longitude;
-  console.log(CurrentLatitude, CurrentLongitude, NextLatitude, NextLongitude);
+
   const distance = calculateDistance(
     CurrentLatitude,
     CurrentLongitude,
@@ -842,7 +869,7 @@ app.post("/next-user-data", async (req, res) => {
     pictures: pictureLinks,
     basic: basicInfo,
     distance: distance,
-    oou: 1, //out of users
+    oou: outofuserstate, //out of users
   });
 });
 
@@ -1000,19 +1027,12 @@ app.post("/mark-user-seen", async (req, res) => {
       .select("*")
       .eq("uuid", user.id)
       .single();
-    console.log(nextusers);
-    console.log("line844");
 
     const idofNextUser = nextusers.nextuser;
     const nextUserField = `user${idofNextUser}`;
     const currentUserID = nextusers[nextUserField]; //this is the current uuid of the profile that should be currently shown.
 
     if (relation == "like") {
-      console.log("like");
-      console.log(
-        `Current user id of show profile${idofNextUser}: ${currentUserID}`
-      );
-
       const { data: insertData, error: insertUserDataError } = await supabase
         .from("relation")
         .insert([
@@ -1079,8 +1099,6 @@ app.post("/mark-user-seen", async (req, res) => {
 });
 
 app.post("/signup-complete", async (req, res) => {
-  console.log("Signup complete route hit");
-
   const {
     email,
     password,
@@ -1243,6 +1261,7 @@ app.post("/signup-complete", async (req, res) => {
 });
 
 async function matchClosestUsers(uuid) {
+  let outofusers = 0;
   if (!uuid) {
     throw new Error("UUID is required");
   }
@@ -1292,6 +1311,7 @@ async function matchClosestUsers(uuid) {
       user.latitude,
       user.longitude
     );
+
     return (
       !seenUserIds.has(user.uuid) &&
       distance <= currentUserData.maxDistance &&
@@ -1315,12 +1335,9 @@ async function matchClosestUsers(uuid) {
   const closestUsers = filteredUsers.slice(0, 10);
 
   if (closestUsers.length === 0) {
-    console.log("****no ew users");
-    return {
-      message:
-        "No available users fit the criteria within the specified distance and filters.",
-      closestUsers: [],
-    };
+    console.log("****no new users");
+    outofusers = 1;
+    return outofusers;
   }
 
   const userValues = closestUsers.map((user) => user.uuid);
@@ -1340,7 +1357,7 @@ async function matchClosestUsers(uuid) {
     throw new Error(`Error updating next users: ${updateError.message}`);
   }
 
-  return { message: "Closest users updated successfully", closestUsers };
+  return outofusers;
 }
 
 app.listen(PORT, () => {
