@@ -33,8 +33,54 @@ function degeesRadian(deg) {
 
 app.use(express.json());
 
+app.get("/update-all-locations", async (req, res) => {
+  try {
+    const { data: allUsers, error: userFetchError } = await supabase
+      .from("users")
+      .select("uuid, address");
 
+    if (userFetchError) throw userFetchError;
 
+    const positionStackApiKey = "be2efb6b90f3a1015d928b4186ca5ec4";
+    const updates = [];
+
+    for (const user of allUsers) {
+      console.log(user.address);
+      if (user.address) {
+        const formattedAddress = encodeURIComponent(user.address);
+        const positionStackUrl = `http://api.positionstack.com/v1/forward?access_key=${positionStackApiKey}&query=${formattedAddress}`;
+
+        const locationResponse = await axios.get(positionStackUrl);
+        if (
+          locationResponse.data.data &&
+          locationResponse.data.data.length > 0
+        ) {
+          const locationData = locationResponse.data.data[0];
+          console.log(locationData.latitude, locationData.longitude);
+          updates.push({
+            uuid: user.uuid,
+            latitude: locationData.latitude,
+            longitude: locationData.longitude,
+          });
+        }
+      }
+    }
+
+    const { error: updateError } = await supabase
+      .from("userdata")
+      .upsert(updates);
+
+    if (updateError) throw updateError;
+
+    return res.status(200).json({
+      message: "Locations updated successfully for all users",
+      updatedCount: updates.length,
+    });
+  } catch (error) {
+    console.error("Error updating locations for all users:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
 app.post("/user-info-byuuid", async (req, res) => {
   const uuid = req.body.uuid;
 
