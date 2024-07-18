@@ -1,5 +1,5 @@
-import  { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import {
   Box,
   Typography,
@@ -11,16 +11,24 @@ import {
   Button,
   Avatar,
   ListItemAvatar,
-} from '@mui/material';
+} from "@mui/material";
 
 function RightSidebar() {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(true);
   const [matches, setMatches] = useState([]);
-  const [selectedUserTo, setSelectedUserTo] = useState("");
+  const [UserTo, setUserTo] = useState("");
   const [userFrom, setUserFrom] = useState("null");
   const messagesEndRef = useRef(null);
+  const [prevMessagesLength, setPrevMessagesLength] = useState(0);
+
+  useEffect(() => {
+    if (messagesEndRef.current && messages.length > prevMessagesLength) {
+      messagesEndRef.current.scrollIntoView();
+    }
+    setPrevMessagesLength(messages.length);
+  }, [messages]);
 
   useEffect(() => {
     fetchUserUUID();
@@ -31,18 +39,13 @@ function RightSidebar() {
       fetchMatches();
     }
     const interval = setInterval(() => {
-      if (selectedUserTo) {
+      if (UserTo) {
         fetchMessages();
       }
     }, 10000);
-    return () => clearInterval(interval);
-  }, [selectedUserTo, userFrom]);
 
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" }); //change!
-    }
-  }, [messages]);
+    return () => clearInterval(interval);
+  }, [UserTo, userFrom]);
 
   const fetchUserUUID = async () => {
     const token = localStorage.getItem("accessToken");
@@ -50,12 +53,12 @@ function RightSidebar() {
       console.error("No access token found.");
       return;
     }
-  
+
     const wholeToken = "Bearer " + token;
-  
+
     try {
       const response = await axios.post("http://localhost:3000/verify-token", {
-        authorization: wholeToken, 
+        authorization: wholeToken,
       });
       if (response.data && response.data.user) {
         console.log("User ID retrieved:", response.data.user.id);
@@ -64,10 +67,13 @@ function RightSidebar() {
         console.error("Invalid token response structure:", response.data);
       }
     } catch (error) {
-      console.error("Failed to fetch user UUID:", error.response ? error.response.data : error.message);
+      console.error(
+        "Failed to fetch user UUID:",
+        error.response ? error.response.data : error.message
+      );
     }
   };
-  
+
   const fetchMatches = async () => {
     const accessToken = localStorage.getItem("accessToken");
     try {
@@ -79,28 +85,35 @@ function RightSidebar() {
       console.error("Failed to fetch matches:", error);
     }
   };
-
   const fetchMessages = async () => {
-    if (!userFrom || !selectedUserTo) return;
-    setLoading(true);
+    if (!userFrom || !UserTo) return;
+
     try {
-      const response = await axios.get(`http://localhost:3000/messages?user_from=${userFrom}&user_to=${selectedUserTo}`);
-      console.log(`Fetching messages between ${userFrom} and ${selectedUserTo}`);
-      setMessages(response.data);
-      setLoading(false);
+      const response = await axios.get(
+        `http://localhost:3000/messages?user_from=${userFrom}&user_to=${UserTo}`
+      );
+      console.log(`Fetching messages between ${userFrom} and ${UserTo}`);
+      const fetchedMessages = response.data.filter(
+        (msg) =>
+          (msg.user_from === userFrom && msg.user_to === UserTo) ||
+          (msg.user_from === UserTo && msg.user_to === userFrom)
+      );
+
+      if (JSON.stringify(messages) !== JSON.stringify(fetchedMessages)) {
+        setMessages(fetchedMessages);
+      }
     } catch (error) {
       console.error("Failed to fetch messages:", error.message);
-      setLoading(false);
     }
+    setLoading(false);
   };
-  
   const sendMessage = async (event) => {
     event.preventDefault();
-    if (!text.trim() || !userFrom || !selectedUserTo) return;
+    if (!text.trim() || !userFrom || !UserTo) return;
     try {
       await axios.post("http://localhost:3000/send-message", {
         user_from: userFrom,
-        user_to: selectedUserTo,
+        user_to: UserTo,
         text,
       });
       setText("");
@@ -108,6 +121,13 @@ function RightSidebar() {
     } catch (error) {
       console.error("Failed to send message:", error.message);
     }
+  };
+
+  const handleUserSelection = (uuid) => {
+    console.log(UserTo);
+    setUserTo(uuid);
+    setMessages([]);
+    setLoading(true);
   };
 
   return (
@@ -135,7 +155,7 @@ function RightSidebar() {
             <ListItem
               button
               key={match.uuid}
-              onClick={() => setSelectedUserTo(match.uuid)}
+              onClick={() => handleUserSelection(match.uuid)}
             >
               <ListItemAvatar>
                 <Avatar src={match.picture1} alt={match.dog_name} />
@@ -166,8 +186,8 @@ function RightSidebar() {
       >
         <Typography variant="h6" gutterBottom>
           Message{" "}
-          {selectedUserTo
-            ? matches.find((match) => match.uuid === selectedUserTo)?.dog_name
+          {UserTo
+            ? matches.find((match) => match.uuid === UserTo)?.dog_name
             : "Select a match"}
         </Typography>
         {loading ? (
