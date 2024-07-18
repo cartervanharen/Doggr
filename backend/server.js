@@ -694,12 +694,10 @@ app.post("/update-dog-pictures", async (req, res) => {
 
     if (upsertError) {
       console.error("Upsert Error:", upsertError.message);
-      return res
-        .status(500)
-        .json({
-          error:
-            "Failed to update or insert dog pictures: " + upsertError.message,
-        });
+      return res.status(500).json({
+        error:
+          "Failed to update or insert dog pictures: " + upsertError.message,
+      });
     }
 
     return res
@@ -995,17 +993,14 @@ app.post("/get-location", async (req, res) => {
       accessToken
     );
     if (userError) throw userError;
-
     const { data: basicInfo, error: basicInfoError } = await supabase
       .from("users")
       .select("address")
       .eq("uuid", user.id)
       .single();
-
     if (basicInfoError) {
       throw basicInfoError;
     }
-
     if (!basicInfo.address) {
       return res.status(404).json({ error: "No address found for this user." });
     }
@@ -1013,7 +1008,6 @@ app.post("/get-location", async (req, res) => {
     const positionStackApiKey = "be2efb6b90f3a1015d928b4186ca5ec4";
     const formattedAddress = encodeURIComponent(basicInfo.address);
     const positionStackUrl = `http://api.positionstack.com/v1/forward?access_key=${positionStackApiKey}&query=${formattedAddress}`;
-
     const response = await axios.get(positionStackUrl);
 
     if (!response.data.data || response.data.data.length === 0) {
@@ -1301,7 +1295,6 @@ app.post("/signup-complete", async (req, res) => {
     return res.status(401).json({ error: error.message });
   }
 });
-
 async function matchClosestUsers(uuid) {
   let outofusers = 0;
   if (!uuid) {
@@ -1321,6 +1314,11 @@ async function matchClosestUsers(uuid) {
       `Error fetching current user data: ${currentUserDataError.message}`
     );
   }
+
+  const predictedTraitsResponse = await fetch(
+    `http://localhost:3001/predict?trait1=${currentUserData.likeability}&trait2=${currentUserData.energy}&trait3=${currentUserData.playfulness}&trait4=${currentUserData.aggression}&trait5=${currentUserData.size}&trait6=${currentUserData.training}`
+  );
+  const predictedTraits = await predictedTraitsResponse.json();
 
   const { data: relations, error: relationsError } = await supabase
     .from("relation")
@@ -1346,54 +1344,73 @@ async function matchClosestUsers(uuid) {
     throw new Error(`Error fetching all users: ${allUsersError.message}`);
   }
 
-  const filteredUsers = allUsers.filter((user) => {
-    const distance = calculateDistance(
-      currentUserData.latitude,
-      currentUserData.longitude,
-      user.latitude,
-      user.longitude
-    );
+  const filteredAndSortedUsers = allUsers
+    .filter((user) => {
+      const distance = calculateDistance(
+        currentUserData.latitude,
+        currentUserData.longitude,
+        user.latitude,
+        user.longitude
+      );
 
-    return (
-      !seenUserIds.has(user.uuid) &&
-      distance <= currentUserData.maxDistance &&
-      [
-        "likeability",
-        "energy",
-        "playfulness",
-        "aggression",
-        "size",
-        "training",
-      ].every((trait) => {
-        const filter = currentUserData[`${trait}Filter`];
-        if (filter) {
-          return user[trait] >= filter.min && user[trait] <= filter.max;
-        }
-        return true;
-      })
-    );
-  });
+      return (
+        !seenUserIds.has(user.uuid) &&
+        distance <= currentUserData.maxDistance &&
+        [
+          "likeability",
+          "energy",
+          "playfulness",
+          "aggression",
+          "size",
+          "training",
+        ].every((trait) => {
+          const filter = currentUserData[`${trait}Filter`];
+          if (filter) {
+            return user[trait] >= filter.min && user[trait] <= filter.max;
+          }
+          return true;
+        })
+      );
+    })
+    .sort((a, b) => {
+      const scoreA = predictedTraits.predicted_traits.reduce(
+        (acc, trait, index) => {
+          acc += Math.abs(trait - a[`trait${index + 1}`]);
+          return acc;
+        },
+        0
+      );
+      const scoreB = predictedTraits.predicted_traits.reduce(
+        (acc, trait, index) => {
+          acc += Math.abs(trait - b[`trait${index + 1}`]);
+          return acc;
+        },
+        0
+      );
+      return scoreA - scoreB;
+    })
+    .slice(0, 10);
 
-  const closestUsers = filteredUsers.slice(0, 10);
-
-  if (closestUsers.length === 0) {
+  if (filteredAndSortedUsers.length === 0) {
     console.log("****no new users");
     outofusers = 1;
     return outofusers;
   }
 
-  const userValues = closestUsers.map((user) => user.uuid);
-  const { error: updateError } = await supabase.from("nextusers").upsert(
-    {
-      uuid: uuid,
-      nextuser: 1,
-      ...userValues.reduce((acc, val, index) => {
-        acc[`user${index + 1}`] = val;
-        return acc;
-      }, {}),
-    },
-    { returning: "minimal" }
-  );
+  const upsertData = {
+    uuid: uuid,
+    nextuser: 1,
+  };
+
+  for (let i = 1; i <= 10; i++) {
+    upsertData[`user${i}`] = filteredAndSortedUsers[i - 1]
+      ? filteredAndSortedUsers[i - 1].uuid
+      : null;
+  }
+
+  const { error: updateError } = await supabase
+    .from("nextusers")
+    .upsert(upsertData, { returning: "minimal" });
 
   if (updateError) {
     throw new Error(`Error updating next users: ${updateError.message}`);
@@ -1402,20 +1419,25 @@ async function matchClosestUsers(uuid) {
   return outofusers;
 }
 
-app.get("/messages/:user_to", async (req, res) => {
-  const userTo = req.params.user_to;
-  console.log("Looking for messages to:", userTo);
+app.get("/messages", async (req, res) => {
+  const { user_from, user_to } = req.query;
+  console.log("Fetching messages between:", user_from, "and", user_to);
+
   try {
     const { data, error } = await supabase
       .from("messages")
       .select("*")
-      .eq("user_to", userTo)
-      .order("time_sent", { ascending: false });
+      // Correct usage of the or() function with proper logical grouping
+      .or(
+        `user_from.eq.${user_from},user_to.eq.${user_to},user_from.eq.${user_to},user_to.eq.${user_from}`
+      )
+      .order("time_sent", { ascending: true });
 
     if (error) {
       console.error("Error fetching messages:", error);
       return res.status(500).json({ error: error.message });
     }
+
     console.log("Messages fetched:", data);
     res.json(data);
   } catch (error) {
@@ -1424,22 +1446,25 @@ app.get("/messages/:user_to", async (req, res) => {
   }
 });
 
+// Endpoint to send a message
 app.post("/send-message", async (req, res) => {
   const { user_from, user_to, text } = req.body;
   try {
-    const { data, error } = await supabase
-      .from("messages")
-      .insert([
-        {
-          user_from,
-          user_to,
-          message_content: text,
-          time_sent: new Date().toISOString(),
-        },
-      ]);
+    const { data, error } = await supabase.from("messages").insert([
+      {
+        user_from,
+        user_to,
+        message_content: text,
+        time_sent: new Date().toISOString(),
+      },
+    ]);
 
-    if (error) throw error;
-    res.json(data);
+    if (error) {
+      console.error("Error sending message:", error.message);
+      return res.status(500).json({ error: error.message });
+    }
+
+    res.status(201).json(data);
   } catch (error) {
     console.error("Error sending message:", error.message);
     res.status(500).json({ error: error.message });

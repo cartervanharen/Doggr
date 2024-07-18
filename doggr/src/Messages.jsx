@@ -1,52 +1,69 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import {
   TextField,
   Button,
+  Paper,
+  Typography,
   List,
   ListItem,
   ListItemText,
-  Paper,
-  Typography,
-  Divider,
   Box,
 } from "@mui/material";
 
 function MessagingApp() {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
-  const [userTo, setUserTo] = useState("testuser");
+  const userFrom = "Carter";
+  const userTo = "Sammy";
+  const messagesEndRef = useRef(null);
 
-  const fetchMessages = useCallback(async () => {
-    const url = `http://localhost:3000/messages/${encodeURIComponent(userTo)}`;
-    console.log("Fetching from:", url);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const fetchMessages = async () => {
     try {
-      const response = await axios.get(url);
-      console.log("Messages fetched:", response.data);
-      setMessages(response.data);
+      const response = await axios.get(
+        `http://localhost:3000/messages?user_from=${userFrom}&user_to=${userTo}`
+      );
+      if (response.status === 200) {
+        setMessages(response.data);
+      } else {
+        console.error("Failed to fetch messages:", response.statusText);
+      }
     } catch (error) {
-      console.error("Failed to fetch messages:", error);
+      console.error("Error fetching messages:", error.message);
     }
-  }, [userTo]);
+  };
 
   useEffect(() => {
     fetchMessages();
-    const interval = setInterval(fetchMessages, 5000);
+    const interval = setInterval(fetchMessages, 10000);
     return () => clearInterval(interval);
-  }, [fetchMessages]);
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const sendMessage = async () => {
     if (!text.trim()) return;
     try {
-      await axios.post("http://localhost:3000/send-message", {
-        user_from: "testuser",
+      const response = await axios.post("http://localhost:3000/send-message", {
+        user_from: userFrom,
         user_to: userTo,
         text,
       });
-      setText("");
-      fetchMessages();
+      if (response.status === 201) {
+        setText("");
+        fetchMessages();
+      }
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error(
+        "Error sending message:",
+        error.response ? error.response.data : "No response"
+      );
     }
   };
 
@@ -55,33 +72,36 @@ function MessagingApp() {
       style={{ padding: 20, width: "100%", maxWidth: 600, margin: "auto" }}
     >
       <Typography variant="h5" gutterBottom>
-        Chat with {userTo}
+        Chat between Carter and Sammy
       </Typography>
       <List style={{ maxHeight: 400, overflow: "auto" }}>
         {messages.map((msg, index) => (
           <ListItem
             key={index}
-            alignItems="flex-start"
             style={{
               display: "flex",
-              flexDirection:
-                msg.user_from === "testuser" ? "row-reverse" : "row",
+              justifyContent:
+                msg.user_from === userFrom ? "flex-end" : "flex-start",
             }}
           >
             <Box
-              bgcolor={msg.user_from === "testuser" ? "lightblue" : "lightgrey"}
-              padding={1}
-              borderRadius={10}
+              style={{
+                background: msg.user_from === userFrom ? "#0B93F6" : "#E5E5EA",
+                color: msg.user_from === userFrom ? "white" : "black",
+                padding: "8px 16px",
+                borderRadius: "20px",
+                maxWidth: "70%",
+              }}
             >
               <ListItemText
                 primary={msg.message_content}
-                secondary={`From: ${msg.user_from}`}
+                secondary={`From: ${msg.user_from} - To: ${msg.user_to}`}
               />
             </Box>
           </ListItem>
         ))}
+        <div ref={messagesEndRef} />
       </List>
-      <Divider />
       <TextField
         fullWidth
         variant="outlined"
