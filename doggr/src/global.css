@@ -963,3 +963,8 @@ Future Action(s):
   background-color: white;
   transition: background-color 1s ease-in-out;
 }
+.MuiBox-root.css-1nbnqtc {
+
+  z-index: 1;
+}
+
