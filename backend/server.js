@@ -1425,20 +1425,25 @@ async function matchClosestUsers(uuid) {
   return outofusers;
 }
 
-app.get("/messages/:user_to", async (req, res) => {
-  const userTo = req.params.user_to;
-  console.log("Looking for messages to:", userTo);
+
+app.get("/messages", async (req, res) => {
+  const { user_from, user_to } = req.query;
+  console.log("Fetching messages between:", user_from, "and", user_to);
+
   try {
     const { data, error } = await supabase
       .from("messages")
       .select("*")
-      .eq("user_to", userTo)
-      .order("time_sent", { ascending: false });
+      .or(
+        `user_from.eq.${user_from},user_to.eq.${user_to},user_from.eq.${user_to},user_to.eq.${user_from}`
+      )
+      .order("time_sent", { ascending: true });
 
     if (error) {
       console.error("Error fetching messages:", error);
       return res.status(500).json({ error: error.message });
     }
+
     console.log("Messages fetched:", data);
     res.json(data);
   } catch (error) {
@@ -1450,25 +1455,26 @@ app.get("/messages/:user_to", async (req, res) => {
 app.post("/send-message", async (req, res) => {
   const { user_from, user_to, text } = req.body;
   try {
-    const { data, error } = await supabase
-      .from("messages")
-      .insert([
-        {
-          user_from,
-          user_to,
-          message_content: text,
-          time_sent: new Date().toISOString(),
-        },
-      ]);
+    const { data, error } = await supabase.from("messages").insert([
+      {
+        user_from,
+        user_to,
+        message_content: text,
+        time_sent: new Date().toISOString(),
+      },
+    ]);
 
-    if (error) throw error;
-    res.json(data);
+    if (error) {
+      console.error("Error sending message:", error.message);
+      return res.status(500).json({ error: error.message });
+    }
+
+    res.status(201).json(data);
   } catch (error) {
     console.error("Error sending message:", error.message);
     res.status(500).json({ error: error.message });
   }
 });
-
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

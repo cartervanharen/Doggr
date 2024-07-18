@@ -4,6 +4,7 @@ import LoginPage from "./LoginPage.jsx";
 import Test from "./test.jsx";
 import SignUp from "./SignUpPage.jsx";
 import ErrorPage from "./ErrorPage.jsx";
+import Messages from "./Messages.jsx";
 
 import "./general.css";
 
@@ -14,6 +15,7 @@ function App() {
     <Router>
       <ErrorPage>
         <Routes>
+          <Route path="/messages" element={<Messages />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/dogs" element={<MainPage />} />
           <Route path="/signup" element={<SignUp />} />
