@@ -694,10 +694,12 @@ app.post("/update-dog-pictures", async (req, res) => {
 
     if (upsertError) {
       console.error("Upsert Error:", upsertError.message);
-      return res.status(500).json({
-        error:
-          "Failed to update or insert dog pictures: " + upsertError.message,
-      });
+      return res
+        .status(500)
+        .json({
+          error:
+            "Failed to update or insert dog pictures: " + upsertError.message,
+        });
     }
 
     return res
@@ -993,14 +995,17 @@ app.post("/get-location", async (req, res) => {
       accessToken
     );
     if (userError) throw userError;
+
     const { data: basicInfo, error: basicInfoError } = await supabase
       .from("users")
       .select("address")
       .eq("uuid", user.id)
       .single();
+
     if (basicInfoError) {
       throw basicInfoError;
     }
+
     if (!basicInfo.address) {
       return res.status(404).json({ error: "No address found for this user." });
     }
@@ -1008,6 +1013,7 @@ app.post("/get-location", async (req, res) => {
     const positionStackApiKey = "be2efb6b90f3a1015d928b4186ca5ec4";
     const formattedAddress = encodeURIComponent(basicInfo.address);
     const positionStackUrl = `http://api.positionstack.com/v1/forward?access_key=${positionStackApiKey}&query=${formattedAddress}`;
+
     const response = await axios.get(positionStackUrl);
 
     if (!response.data.data || response.data.data.length === 0) {
@@ -1419,6 +1425,7 @@ async function matchClosestUsers(uuid) {
   return outofusers;
 }
 
+
 app.get("/messages", async (req, res) => {
   const { user_from, user_to } = req.query;
   console.log("Fetching messages between:", user_from, "and", user_to);
@@ -1427,7 +1434,6 @@ app.get("/messages", async (req, res) => {
     const { data, error } = await supabase
       .from("messages")
       .select("*")
-      // Correct usage of the or() function with proper logical grouping
       .or(
         `user_from.eq.${user_from},user_to.eq.${user_to},user_from.eq.${user_to},user_to.eq.${user_from}`
       )
@@ -1446,7 +1452,6 @@ app.get("/messages", async (req, res) => {
   }
 });
 
-// Endpoint to send a message
 app.post("/send-message", async (req, res) => {
   const { user_from, user_to, text } = req.body;
   try {
@@ -1470,7 +1475,6 @@ app.post("/send-message", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
