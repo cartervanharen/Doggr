@@ -1477,7 +1477,6 @@ app.post("/send-message", async (req, res) => {
 });
 
 
-
 app.post("/find-matches", async (req, res) => {
   const { accessToken } = req.body;
 
@@ -1514,14 +1513,35 @@ app.post("/find-matches", async (req, res) => {
       const mutualLikes = [...sentUUIDs].filter(userTo => receivedUUIDs.has(userTo));
 
       if (mutualLikes.length > 0) {
-          const { data: matchDetails, error: detailsError } = await supabase
+          const { data: usersData, error: usersError } = await supabase
               .from("users")
-              .select("*")
+              .select("uuid, human_first_name, human_last_name, address, dog_name, created_at, last_active, user_level")
               .in("uuid", mutualLikes);
 
-          if (detailsError) throw detailsError;
+          if (usersError) throw usersError;
 
-          return res.status(200).json({ matches: matchDetails });
+          const picturePromises = mutualLikes.map(userId =>
+              supabase
+                  .from("images")
+                  .select("picture1")
+                  .eq("uuid", userId)
+                  .single()
+          );
+          const picturesResults = await Promise.all(picturePromises);
+          const pictureData = picturesResults.reduce((acc, result, index) => {
+              if (!result.error) {
+                  acc[mutualLikes[index]] = result.data.picture1;
+              }
+              return acc;
+          }, {});
+
+          // Add picture data to user details
+          const matches = usersData.map(user => ({
+              ...user,
+              picture1: pictureData[user.uuid] || "Default image URL or null if none"
+          }));
+
+          return res.status(200).json({ matches });
       } else {
           return res.status(200).json({ message: "No matches found.", matches: [] });
       }
@@ -1530,6 +1550,7 @@ app.post("/find-matches", async (req, res) => {
       return res.status(500).json({ error: error.message });
   }
 });
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
