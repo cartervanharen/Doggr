@@ -21,7 +21,19 @@ function MessagingApp() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
+  const fetchUserUUID = async () => {
+    const accessToken = localStorage.getItem("accessToken");
+    try {
+      const response = await axios.post("http://localhost:3000/verify-token", {
+        accessToken,
+      });
+      return(response);
+    } catch (error) {
+      console.error("Failed to fetch user UUID:", error);
+    }
+  };
+  const test  =fetchUserUUID()
+  console.log(test.data)
   const fetchMessages = async () => {
     try {
       const response = await axios.get(
