@@ -1475,6 +1475,62 @@ app.post("/send-message", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
+
+app.post("/find-matches", async (req, res) => {
+  const { accessToken } = req.body;
+
+  if (!accessToken) {
+      return res.status(400).json({ error: "Access token is required." });
+  }
+
+  try {
+      const { data: user, error: userError } = await supabase.auth.api.getUser(accessToken);
+      if (userError) throw userError;
+      if (!user) return res.status(404).json({ error: "User not found." });
+
+      const uuid = user.id;
+
+      const { data: likesSent, error: likesSentError } = await supabase
+          .from("relation")
+          .select("user_to")
+          .eq("user_from", uuid)
+          .eq("type", 1);
+
+      if (likesSentError) throw likesSentError;
+
+      const { data: likesReceived, error: likesReceivedError } = await supabase
+          .from("relation")
+          .select("user_from")
+          .eq("user_to", uuid)
+          .eq("type", 1);
+
+      if (likesReceivedError) throw likesReceivedError;
+
+      const sentUUIDs = new Set(likesSent.map(like => like.user_to));
+      const receivedUUIDs = new Set(likesReceived.map(like => like.user_from));
+
+      const mutualLikes = [...sentUUIDs].filter(userTo => receivedUUIDs.has(userTo));
+
+      if (mutualLikes.length > 0) {
+          const { data: matchDetails, error: detailsError } = await supabase
+              .from("users")
+              .select("*")
+              .in("uuid", mutualLikes);
+
+          if (detailsError) throw detailsError;
+
+          return res.status(200).json({ matches: matchDetails });
+      } else {
+          return res.status(200).json({ message: "No matches found.", matches: [] });
+      }
+  } catch (error) {
+      console.error("Error finding matches:", error.message);
+      return res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
