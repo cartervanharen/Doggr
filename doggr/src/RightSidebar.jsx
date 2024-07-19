@@ -199,7 +199,7 @@ function RightSidebar() {
               alignItems: "center",
             }}
           >
-            <CircularProgress />
+            {UserTo ? <CircularProgress /> : <Typography>Click a Match to Start Talking!</Typography>}
           </div>
         ) : (
           <List sx={{ flex: 1, overflowY: "auto" }}>
@@ -224,7 +224,6 @@ function RightSidebar() {
                 >
                   <ListItemText
                     primary={msg.message_content}
-                    // secondary={`From: ${msg.user_from}`}
                   />
                 </Box>
               </ListItem>
