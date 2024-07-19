@@ -101,8 +101,8 @@ def schedule_ML_ReTrain():
     scheduler.add_job(ML_ReTrain, 'cron', hour=1) #Re trains the neural network every day at 1 am
     scheduler.start()
 
-@app.route("/run_demo", methods=["GET"])
-def manual_demo_run():
+@app.route("/retrain", methods=["GET"])
+def retrain():
     try:
         result = ML_ReTrain()
         return jsonify({"message": result}), 200
