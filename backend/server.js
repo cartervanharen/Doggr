@@ -1600,6 +1600,31 @@ app.post("/user-profile", async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
+app.post("/manual-add-interaction", async (req, res) => {
+  try {
+    const { user_from, user_to } = req.body;
+
+    if (!user_from || !user_to) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const { data, error } = await supabase.from("relation").insert([
+      {
+        user_from: user_from,
+        user_to: user_to,
+        type: 1,
+      },
+    ]);
+
+    if (error) {
+      throw error;
+    }
+
+    res.status(200).json({ message: "Interaction added successfully", data });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
