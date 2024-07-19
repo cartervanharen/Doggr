@@ -44,7 +44,6 @@ function RightSidebar() {
       }
     }, 100000); //Chats wont load in untill 100,000 seconds, CHANGE THIS FOR ACTUAL DEMO. Currently set high to reduce db calls during testing.
 
-
     return () => clearInterval(interval);
   }, [UserTo, userFrom]);
 
@@ -192,9 +191,17 @@ function RightSidebar() {
             : "Select a match"}
         </Typography>
         {loading ? (
-          <CircularProgress />
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <CircularProgress />
+          </div>
         ) : (
-          
           <List sx={{ flex: 1, overflowY: "auto" }}>
             {messages.map((msg, index) => (
               <ListItem

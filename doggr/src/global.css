@@ -718,6 +718,7 @@ Future Action(s):
   border-radius: 15px;
   box-shadow: 10px 10px 70px gray;
 }
+
 .Whole_ShowProfile_noSty {
   display: flex;
   overflow: flex-wrap;
@@ -964,7 +965,21 @@ Future Action(s):
   transition: background-color 1s ease-in-out;
 }
 .MuiBox-root.css-1nbnqtc {
-
   z-index: 1;
 }
 
+.Whole_ShowMessages {
+  scale: 0.8;
+  display: flex;
+  overflow: flex-wrap;
+  width: 800px;
+  max-width: 800px;
+  background-color: white;
+  height: 500px;
+  padding: 20px;
+  margin-top: 2px;
+  justify-content: center;
+  align-content: flex-start;
+  flex-wrap: wrap;
+  border-radius: 15px;
+}
