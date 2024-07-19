@@ -3,32 +3,27 @@ import axios from "axios";
 import {
   Box,
   Typography,
+  TextField,
+  Button,
+  CircularProgress,
   List,
   ListItem,
   ListItemText,
-  CircularProgress,
-  TextField,
-  Button,
   Avatar,
   ListItemAvatar,
 } from "@mui/material";
+import ProfileView from "./ProfileView";
 
-function RightSidebar() {
+function MessagingApp() {
+  const [matches, setMatches] = useState([]);
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [matches, setMatches] = useState([]);
-  const [UserTo, setUserTo] = useState("");
-  const [userFrom, setUserFrom] = useState("null");
+  const [userFrom, setUserFrom] = useState("");
+  const [userTo, setUserTo] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [userData, setUserData] = useState(null);
   const messagesEndRef = useRef(null);
   const [prevMessagesLength, setPrevMessagesLength] = useState(0);
-
-  useEffect(() => {
-    if (messagesEndRef.current && messages.length > prevMessagesLength) {
-      messagesEndRef.current.scrollIntoView();
-    }
-    setPrevMessagesLength(messages.length);
-  }, [messages]);
 
   useEffect(() => {
     fetchUserUUID();
@@ -38,15 +33,27 @@ function RightSidebar() {
     if (userFrom) {
       fetchMatches();
     }
+  }, [userFrom]);
+
+  useEffect(() => {
+    if (userTo) {
+      fetchMessages();
+      fetchUserProfile(userTo);
+    }
     const interval = setInterval(() => {
-      if (UserTo) {
+      if (userTo) {
         fetchMessages();
       }
-    }, 100000); //Chats wont load in untill 100,000 seconds, CHANGE THIS FOR ACTUAL DEMO. Currently set high to reduce db calls during testing.
-
-
+    }, 10000);
     return () => clearInterval(interval);
-  }, [UserTo, userFrom]);
+  }, [userTo, userFrom]);
+
+  useEffect(() => {
+    if (messagesEndRef.current && messages.length > prevMessagesLength) {
+      messagesEndRef.current.scrollIntoView();
+    }
+    setPrevMessagesLength(messages.length);
+  }, [messages]);
 
   const fetchUserUUID = async () => {
     const token = localStorage.getItem("accessToken");
@@ -54,24 +61,18 @@ function RightSidebar() {
       console.error("No access token found.");
       return;
     }
-
     const wholeToken = "Bearer " + token;
-
     try {
       const response = await axios.post("http://localhost:3000/verify-token", {
         authorization: wholeToken,
       });
       if (response.data && response.data.user) {
-        console.log("User ID retrieved:", response.data.user.id);
         setUserFrom(response.data.user.id);
       } else {
         console.error("Invalid token response structure:", response.data);
       }
     } catch (error) {
-      console.error(
-        "Failed to fetch user UUID:",
-        error.response ? error.response.data : error.message
-      );
+      console.error("Failed to fetch user UUID:", error);
     }
   };
 
@@ -86,72 +87,68 @@ function RightSidebar() {
       console.error("Failed to fetch matches:", error);
     }
   };
-  const fetchMessages = async () => {
-    if (!userFrom || !UserTo) return;
 
+  const fetchMessages = async () => {
+    if (!userFrom || !userTo) return;
+    setLoading(true);
     try {
       const response = await axios.get(
-        `http://localhost:3000/messages?user_from=${userFrom}&user_to=${UserTo}`
+        `http://localhost:3000/messages?user_from=${userFrom}&user_to=${userTo}`
       );
-      console.log(`Fetching messages between ${userFrom} and ${UserTo}`);
       const fetchedMessages = response.data.filter(
         (msg) =>
-          (msg.user_from === userFrom && msg.user_to === UserTo) ||
-          (msg.user_from === UserTo && msg.user_to === userFrom)
+          (msg.user_from === userFrom && msg.user_to === userTo) ||
+          (msg.user_from === userTo && msg.user_to === userFrom)
       );
-
       if (JSON.stringify(messages) !== JSON.stringify(fetchedMessages)) {
         setMessages(fetchedMessages);
       }
     } catch (error) {
-      console.error("Failed to fetch messages:", error.message);
+      console.error("Failed to fetch messages:", error);
     }
     setLoading(false);
   };
+
+  const fetchUserProfile = async (userId) => {
+    const token = localStorage.getItem("accessToken");
+    try {
+      const response = await axios.post("http://localhost:3000/user-profile", {
+        userId,
+        accessToken: token,
+      });
+      setUserData(response.data);
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+    }
+  };
+
   const sendMessage = async (event) => {
     event.preventDefault();
-    if (!text.trim() || !userFrom || !UserTo) return;
+    if (!text.trim() || !userFrom || !userTo) return;
     try {
       await axios.post("http://localhost:3000/send-message", {
         user_from: userFrom,
-        user_to: UserTo,
+        user_to: userTo,
         text,
       });
       setText("");
       fetchMessages();
     } catch (error) {
-      console.error("Failed to send message:", error.message);
+      console.error("Error sending message:", error);
     }
   };
 
   const handleUserSelection = (uuid) => {
-    console.log(UserTo);
     setUserTo(uuid);
     setMessages([]);
     setLoading(true);
   };
 
   return (
-    <div className="KeepOnTop">
-      <Box
-        sx={{
-          width: 300,
-          height: "50vh",
-          position: "fixed",
-          zIndex: 30,
-          top: 0,
-          right: 0,
-          bgcolor: "background.paper",
-          boxShadow: 1,
-          padding: 2,
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <Typography variant="h6" gutterBottom>
-          Matches
-        </Typography>
-        <List sx={{ overflowY: "auto", maxHeight: "45vh" }}>
+    <Box sx={{ display: "flex", height: "100vh" }}>
+      <Box sx={{ width: "30%", borderRight: "1px solid #ccc", p: 2 }}>
+        <Typography variant="h6">Matches</Typography>
+        <List sx={{ overflowY: "auto", maxHeight: "80vh" }}>
           {matches.map((match) => (
             <ListItem
               button
@@ -169,32 +166,13 @@ function RightSidebar() {
           ))}
         </List>
       </Box>
-
       <Box
-        sx={{
-          width: 300,
-          height: "50vh",
-          position: "fixed",
-          zIndex: 30,
-          top: "50vh",
-          right: 0,
-          bgcolor: "background.paper",
-          boxShadow: 1,
-          padding: 2,
-          display: "flex",
-          flexDirection: "column",
-        }}
+        sx={{ width: "40%", p: 2, display: "flex", flexDirection: "column" }}
       >
-        <Typography variant="h6" gutterBottom>
-          Message{" "}
-          {UserTo
-            ? matches.find((match) => match.uuid === UserTo)?.dog_name
-            : "Select a match"}
-        </Typography>
+        <Typography variant="h6">Messages</Typography>
         {loading ? (
           <CircularProgress />
         ) : (
-          
           <List sx={{ flex: 1, overflowY: "auto" }}>
             {messages.map((msg, index) => (
               <ListItem
@@ -215,10 +193,7 @@ function RightSidebar() {
                     maxWidth: "70%",
                   }}
                 >
-                  <ListItemText
-                    primary={msg.message_content}
-                    // secondary={`From: ${msg.user_from}`}
-                  />
+                  <ListItemText primary={msg.message_content} />
                 </Box>
               </ListItem>
             ))}
@@ -231,7 +206,7 @@ function RightSidebar() {
           label="Type your message"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          onKeyDown={(event) => {
+          onKeyPress={(event) => {
             if (event.key === "Enter" && text.trim()) {
               sendMessage(event);
             }
@@ -242,13 +217,21 @@ function RightSidebar() {
           variant="contained"
           color="primary"
           onClick={sendMessage}
-          sx={{ marginTop: 1, width: "100%" }}
+          sx={{ mt: 1 }}
         >
           Send
         </Button>
       </Box>
-    </div>
+      <Box sx={{ width: "30%", p: 2 }}>
+        <Typography variant="h6">Profile</Typography>
+        {userData ? (
+          <ProfileView userData={userData} />
+        ) : (
+          <Typography>Select a match to view profile</Typography>
+        )}
+      </Box>
+    </Box>
   );
 }
 
-export default RightSidebar;
+export default MessagingApp;

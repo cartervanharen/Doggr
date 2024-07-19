@@ -694,12 +694,10 @@ app.post("/update-dog-pictures", async (req, res) => {
 
     if (upsertError) {
       console.error("Upsert Error:", upsertError.message);
-      return res
-        .status(500)
-        .json({
-          error:
-            "Failed to update or insert dog pictures: " + upsertError.message,
-        });
+      return res.status(500).json({
+        error:
+          "Failed to update or insert dog pictures: " + upsertError.message,
+      });
     }
 
     return res
@@ -1425,7 +1423,6 @@ async function matchClosestUsers(uuid) {
   return outofusers;
 }
 
-
 app.get("/messages", async (req, res) => {
   const { user_from, user_to } = req.query;
   console.log("Fetching messages between:", user_from, "and", user_to);
@@ -1476,81 +1473,133 @@ app.post("/send-message", async (req, res) => {
   }
 });
 
-
 app.post("/find-matches", async (req, res) => {
   const { accessToken } = req.body;
 
   if (!accessToken) {
-      return res.status(400).json({ error: "Access token is required." });
+    return res.status(400).json({ error: "Access token is required." });
   }
 
   try {
-      const { data: user, error: userError } = await supabase.auth.api.getUser(accessToken);
-      if (userError) throw userError;
-      if (!user) return res.status(404).json({ error: "User not found." });
+    const { data: user, error: userError } = await supabase.auth.api.getUser(
+      accessToken
+    );
+    if (userError) throw userError;
+    if (!user) return res.status(404).json({ error: "User not found." });
 
-      const uuid = user.id;
+    const uuid = user.id;
 
-      const { data: likesSent, error: likesSentError } = await supabase
-          .from("relation")
-          .select("user_to")
-          .eq("user_from", uuid)
-          .eq("type", 1);
+    const { data: likesSent, error: likesSentError } = await supabase
+      .from("relation")
+      .select("user_to")
+      .eq("user_from", uuid)
+      .eq("type", 1);
 
-      if (likesSentError) throw likesSentError;
+    if (likesSentError) throw likesSentError;
 
-      const { data: likesReceived, error: likesReceivedError } = await supabase
-          .from("relation")
-          .select("user_from")
-          .eq("user_to", uuid)
-          .eq("type", 1);
+    const { data: likesReceived, error: likesReceivedError } = await supabase
+      .from("relation")
+      .select("user_from")
+      .eq("user_to", uuid)
+      .eq("type", 1);
 
-      if (likesReceivedError) throw likesReceivedError;
+    if (likesReceivedError) throw likesReceivedError;
 
-      const sentUUIDs = new Set(likesSent.map(like => like.user_to));
-      const receivedUUIDs = new Set(likesReceived.map(like => like.user_from));
+    const sentUUIDs = new Set(likesSent.map((like) => like.user_to));
+    const receivedUUIDs = new Set(likesReceived.map((like) => like.user_from));
 
-      const mutualLikes = [...sentUUIDs].filter(userTo => receivedUUIDs.has(userTo));
+    const mutualLikes = [...sentUUIDs].filter((userTo) =>
+      receivedUUIDs.has(userTo)
+    );
 
-      if (mutualLikes.length > 0) {
-          const { data: usersData, error: usersError } = await supabase
-              .from("users")
-              .select("uuid, human_first_name, human_last_name, address, dog_name, created_at, last_active, user_level")
-              .in("uuid", mutualLikes);
+    if (mutualLikes.length > 0) {
+      const { data: usersData, error: usersError } = await supabase
+        .from("users")
+        .select(
+          "uuid, human_first_name, human_last_name, address, dog_name, created_at, last_active, user_level"
+        )
+        .in("uuid", mutualLikes);
 
-          if (usersError) throw usersError;
+      if (usersError) throw usersError;
 
-          const picturePromises = mutualLikes.map(userId =>
-              supabase
-                  .from("images")
-                  .select("picture1")
-                  .eq("uuid", userId)
-                  .single()
-          );
-          const picturesResults = await Promise.all(picturePromises);
-          const pictureData = picturesResults.reduce((acc, result, index) => {
-              if (!result.error) {
-                  acc[mutualLikes[index]] = result.data.picture1;
-              }
-              return acc;
-          }, {});
+      const picturePromises = mutualLikes.map((userId) =>
+        supabase.from("images").select("picture1").eq("uuid", userId).single()
+      );
+      const picturesResults = await Promise.all(picturePromises);
+      const pictureData = picturesResults.reduce((acc, result, index) => {
+        if (!result.error) {
+          acc[mutualLikes[index]] = result.data.picture1;
+        }
+        return acc;
+      }, {});
 
-          // Add picture data to user details
-          const matches = usersData.map(user => ({
-              ...user,
-              picture1: pictureData[user.uuid] || "Default image URL or null if none"
-          }));
+      // Add picture data to user details
+      const matches = usersData.map((user) => ({
+        ...user,
+        picture1: pictureData[user.uuid] || "Default image URL or null if none",
+      }));
 
-          return res.status(200).json({ matches });
-      } else {
-          return res.status(200).json({ message: "No matches found.", matches: [] });
-      }
+      return res.status(200).json({ matches });
+    } else {
+      return res
+        .status(200)
+        .json({ message: "No matches found.", matches: [] });
+    }
   } catch (error) {
-      console.error("Error finding matches:", error.message);
-      return res.status(500).json({ error: error.message });
+    console.error("Error finding matches:", error.message);
+    return res.status(500).json({ error: error.message });
   }
 });
 
+app.post("/user-profile", async (req, res) => {
+  const { userId, accessToken } = req.body;
+
+  if (!userId || !accessToken) {
+    return res
+      .status(400)
+      .json({ error: "User ID and access token are required" });
+  }
+
+  try {
+    const { data: user, error: userError } = await supabase.auth.api.getUser(
+      accessToken
+    );
+    if (userError) throw userError;
+
+    const { data: userBasicInfo, error: basicInfoError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("uuid", userId)
+      .single();
+
+    if (basicInfoError) throw basicInfoError;
+
+    const { data: userData, error: dataError } = await supabase
+      .from("userdata")
+      .select("*")
+      .eq("uuid", userId)
+      .single();
+
+    if (dataError) throw dataError;
+
+    const { data: userImages, error: imagesError } = await supabase
+      .from("images")
+      .select("*")
+      .eq("uuid", userId)
+      .single();
+
+    if (imagesError) throw imagesError;
+
+    return res.status(200).json({
+      basic: userBasicInfo,
+      userdata: userData,
+      pictures: userImages,
+    });
+  } catch (error) {
+    console.error("Error fetching user profile:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

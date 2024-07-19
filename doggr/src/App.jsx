@@ -4,7 +4,7 @@ import LoginPage from "./LoginPage.jsx";
 import Test from "./test.jsx";
 import SignUp from "./SignUpPage.jsx";
 import ErrorPage from "./ErrorPage.jsx";
-import Messages from "./Messages.jsx";
+import Messages from "./Matches&Messages.jsx";
 
 import "./general.css";
 
