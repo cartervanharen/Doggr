@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import HomeIcon from "@mui/icons-material/Home";
 import SettingsIcon from "@mui/icons-material/Settings";
-import MessageIcon from "@mui/icons-material/Message";
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import LogoutIcon from "@mui/icons-material/Logout";
 
 function LeftSidebar() {
@@ -79,8 +79,8 @@ function LeftSidebar() {
               path: "/settings",
             },
             {
-              text: "Messages",
-              icon: <MessageIcon fontSize="large" />,
+              text: "Matches",
+              icon: <FavoriteIcon fontSize="large" />,
               path: "/messages",
             },
           ].map((item, index) => (

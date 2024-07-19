@@ -42,7 +42,7 @@ function RightSidebar() {
       if (UserTo) {
         fetchMessages();
       }
-    }, 10000);
+    }, 100000); //Chats wont load in untill 100,000 seconds, CHANGE THIS FOR ACTUAL DEMO. Currently set high to reduce db calls during testing.
 
     return () => clearInterval(interval);
   }, [UserTo, userFrom]);
@@ -191,7 +191,16 @@ function RightSidebar() {
             : "Select a match"}
         </Typography>
         {loading ? (
-          <CircularProgress />
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            {UserTo ? <CircularProgress /> : <Typography>Click a Match to Start Talking!</Typography>}
+          </div>
         ) : (
           <List sx={{ flex: 1, overflowY: "auto" }}>
             {messages.map((msg, index) => (
@@ -215,7 +224,6 @@ function RightSidebar() {
                 >
                   <ListItemText
                     primary={msg.message_content}
-                    secondary={`From: ${msg.user_from}`}
                   />
                 </Box>
               </ListItem>
