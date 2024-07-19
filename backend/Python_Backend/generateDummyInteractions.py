@@ -11,11 +11,10 @@ def fetch_uuids():
     else:
         raise Exception("Failed to fetch UUIDs")
 
-def post_interaction(user_from, user_to, relation_number):
+def post_interaction(user_from, user_to):
     interaction_data = {
-        "userFrom": user_from,
-        "userTo": user_to,
-        "relationNumber": relation_number
+        "user_from": user_from,
+        "user_to": user_to
     }
     response = requests.post(post_interaction_url, json=interaction_data)
     if response.status_code != 200:
@@ -27,7 +26,6 @@ def main():
         mid_point = len(uuids) // 2 
         uuids = uuids[mid_point:] 
 
-        # uuids.reverse()
         uuid_list = [item['uuid'] for item in uuids]
         existing_interactions = set()
 
@@ -40,9 +38,8 @@ def main():
                 if interactions_count >= 3:  
                     break
                 if (user_from, user_to) not in existing_interactions:
-                    relation_number = 1
-                    post_interaction(user_from, user_to, relation_number)
-                    print(f"Posted interaction from {user_from} to {user_to} with type {relation_number}")
+                    post_interaction(user_from, user_to)
+                    print(f"Posted interaction from {user_from} to {user_to}")
                     existing_interactions.add((user_from, user_to))
                     interactions_count += 1
 
