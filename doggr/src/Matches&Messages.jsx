@@ -15,7 +15,7 @@ import {
   DialogContent,
   DialogTitle,
 } from "@mui/material";
-import ProfileView from "./ProfileView";
+import ProfileView from "./ProfileView.jsx";
 import LeftSidebar from "./LeftSidebar.jsx";
 
 function MessagingApp() {
@@ -49,7 +49,7 @@ function MessagingApp() {
       if (userTo) {
         fetchMessages(true);
       }
-    }, 10000);
+    }, 100000); //Chats wont load in untill 100,000 seconds, CHANGE THIS FOR ACTUAL DEMO. Currently set high to reduce db calls during testing.
     return () => clearInterval(interval);
   }, [userTo, userFrom]);
 
@@ -147,9 +147,14 @@ function MessagingApp() {
   };
 
   const handleUserSelection = (uuid) => {
-    setUserTo(uuid);
-    setMessages([]);
-    setLoading(true);
+    if (userTo === uuid) {
+      fetchUserProfile(uuid);
+    } else {
+      setUserTo(uuid);
+      setMessages([]);
+      setLoading(true);
+      setUserData(null); // Clear the previous user data
+    }
   };
 
   const handleClickOpen = () => {
@@ -291,7 +296,7 @@ function MessagingApp() {
             {userData ? (
               <ProfileView userData={userData} />
             ) : (
-              <Typography>Select a match to view profile</Typography>
+              <CircularProgress />
             )}
           </DialogContent>
         </Dialog>
