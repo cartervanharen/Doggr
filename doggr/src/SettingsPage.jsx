@@ -18,6 +18,7 @@ const SettingsPage = () => {
   const [maxDistance, setMaxDistance] = useState(5);
   const [bio, setBio] = useState("");
   const [bioEditMode, setBioEditMode] = useState(false);
+
   const navigate = useNavigate();
   const verifyTokenAndGetUserID = async () => {
     const token = localStorage.getItem("accessToken");
@@ -41,6 +42,7 @@ const SettingsPage = () => {
       navigate("/login");
     }
   };
+
   const refreshUsers = async () => {
     const token = localStorage.getItem("accessToken");
     const wholeToken = "Bearer " + token;
@@ -128,6 +130,7 @@ const SettingsPage = () => {
     verifyTokenAndGetUserID();
     fetchBio();
   }, []); //[] are needed to it doesn't run on every keystroke
+
   useEffect(() => {
     const fetchMaxDistance = async () => {
       const token = localStorage.getItem("accessToken");
@@ -203,8 +206,6 @@ const SettingsPage = () => {
     } catch (error) {
       console.error("Error updating user information:", error.message);
     }
-
-
   };
   const fetchBio = async () => {
     const token = localStorage.getItem("accessToken");
@@ -402,19 +403,15 @@ const SettingsPage = () => {
             </Button>
           </Box>
         </div>
-
         <div className="picture_SettingsPage BorderRadius10px_MainPage">
           <ImageUpload></ImageUpload>
         </div>
-
         <div className="shortBox_SettingsPage BorderRadius10px_MainPage">
           <h2>User Filtering</h2>
-
           <FilterModal />
         </div>
         <div className="shortBox_SettingsPage BorderRadius10px_MainPage">
           <h2>Trait Evaluation</h2>
-
           <TraitModal></TraitModal>
         </div>
       </div>
