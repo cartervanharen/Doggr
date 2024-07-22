@@ -80,8 +80,8 @@ const SettingsPage = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:3000/get-location", {
-        accessToken: token,
+      const response = await axios.get("http://localhost:3000/get-location", {
+        headers: {Authorization: token},
       });
       const { latitude, longitude } = response.data;
       console.log(
@@ -134,10 +134,10 @@ const SettingsPage = () => {
         return;
       }
       try {
-        const response = await axios.post(
-          "http://localhost:3000/max-distance",
+        const response = await axios.get(
+          "http://localhost:3000/get-max-distance",
           {
-            accessToken: token,
+            headers: {Authorization: token},
           }
         );
         setMaxDistance(response.data.maxDistance);
@@ -152,8 +152,8 @@ const SettingsPage = () => {
         return;
       }
       try {
-        const response = await axios.post("http://localhost:3000/get-user-info", {
-          accessToken: token,
+        const response = await axios.get("http://localhost:3000/get-user-info", {
+          headers: {Authorization: token},
         });
         const userData = response.data.user;
         setFirstName(userData.human_first_name);
@@ -209,8 +209,8 @@ const SettingsPage = () => {
       return;
     }
     try {
-      const response = await axios.post("http://localhost:3000/get-bio", {
-        accessToken: token,
+      const response = await axios.get("http://localhost:3000/get-bio", {
+        headers: {Authorization: token},
       });
       setBio(response.data.bio);
     } catch (error) {

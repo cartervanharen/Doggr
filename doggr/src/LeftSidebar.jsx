@@ -56,9 +56,9 @@ function LeftSidebar() {
       }
 
       try {
-        const response = await axios.post(
-          "http://localhost:3000/current-dog-pictures",
-          { accessToken: token }
+        const response = await axios.get(
+          "http://localhost:3000/get-dog-pictures",
+          { headers: { Authorization: token } }
         );
         const firstImage = response.data.images[0];
         if (firstImage && firstImage.picture1) {
@@ -89,11 +89,10 @@ function LeftSidebar() {
       }
     };
 
-
     fetchPfp();
     fetchUserId();
     fetchUserProfile();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const isSelected = (path) => location.pathname === path;
@@ -109,6 +108,7 @@ function LeftSidebar() {
 
   function logout() {
     localStorage.removeItem("accessToken");
+    navigate("/login");
     window.location.reload();
   }
 
@@ -160,7 +160,9 @@ function LeftSidebar() {
         <Box sx={{ p: 2, mt: "auto" }}>
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
             <Avatar src={pfpUrl} sx={{ mr: 2 }} />
-            <Typography variant="subtitle1">{userData?.basic?.dog_name}</Typography>
+            <Typography variant="subtitle1">
+              {userData?.basic?.dog_name}
+            </Typography>
           </Box>
           <Button
             variant="contained"

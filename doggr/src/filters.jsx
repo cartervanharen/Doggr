@@ -1,12 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import PropTypes from "prop-types";
 import { Slider, Box, Typography, Button, Snackbar } from "@mui/material";
 
 function FilterModal() {
-  const navigate = useNavigate();
-
   const [isOpen, setIsOpen] = useState(false);
   const [likeability, setLikeability] = useState([1, 10]);
   const [energy, setEnergy] = useState([1, 10]);
@@ -22,7 +19,6 @@ function FilterModal() {
     console.log(wholeToken);
     if (!token) {
       console.error("No token found in local storage.");
-      navigate("/login");
       return;
     }
 
@@ -54,15 +50,15 @@ function FilterModal() {
       const token = localStorage.getItem("accessToken");
       if (!token) {
         console.error("No token found in local storage.");
-        navigate("/login");
         return;
       }
 
       try {
-        const response = await axios.post(
-          "http://localhost:3000/current-dog-filters",
+        const response = await axios.get(
+          "http://localhost:3000/get-dog-filters",
           {
-            accessToken: token,
+            headers: {
+              Authorization: token,},
           }
         );
         const {
@@ -84,12 +80,11 @@ function FilterModal() {
           "Error fetching user information:",
           error.response ? error.response.data : error.message
         );
-        navigate("/login");
       }
     };
 
     fetchUserInfo();
-  }, [navigate]);
+  }, []);
 
   function Modal({ isOpen, close, children }) {
     if (!isOpen) return null;
@@ -146,7 +141,6 @@ function FilterModal() {
     const token = localStorage.getItem("accessToken");
     if (!token) {
       console.error("No token found in local storage.");
-      navigate("/login");
       return;
     }
 

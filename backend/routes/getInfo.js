@@ -17,17 +17,17 @@ const router = express.Router();
 
 /**
  * Retrieves user information.
- * @route POST /get-user-info
+ * @route GET /get-user-info
  * @param {string} accessToken - The access token for authentication.
  * @returns {Object} The user's personal details or an error message.
  */
-router.post("/get-user-info", async (req, res) => {
-  const token = req.body.accessToken;
-  if (!token) {
+router.get("/get-user-info", async (req, res) => {
+  const accessToken = req.headers.authorization;
+  if (!accessToken) {
     return res.status(403).json({ error: "Access token is required" });
   }
   try {
-    const { data: user, error } = await supabase.auth.api.getUser(token);
+    const { data: user, error } = await supabase.auth.api.getUser(accessToken);
     if (error) {
       throw error;
     }
@@ -48,12 +48,12 @@ router.post("/get-user-info", async (req, res) => {
 
 /**
  * Retrieves the current dog trait filters for a user.
- * @route POST /current-dog-filters
+ * @route GET /current-dog-filters
  * @param {string} accessToken - The access token for authentication.
  * @returns {Object} The user's dog trait filters or an error message.
  */
-router.post("/current-dog-filters", async (req, res) => {
-  const { accessToken } = req.body;
+router.get("/get-dog-filters", async (req, res) => {
+  const accessToken = req.headers.authorization;
   if (!accessToken) {
     return res.status(401).json({ error: "Access token is required" });
   }
@@ -83,12 +83,12 @@ router.post("/current-dog-filters", async (req, res) => {
 
 /**
  * Retrieves the maximum allowable distance for dog matching.
- * @route POST /max-distance
+ * @route GET /max-distance
  * @param {string} accessToken - The access token for authentication.
  * @returns {Object} The user's maximum distance or an error message.
  */
-router.post("/max-distance", async (req, res) => {
-  const { accessToken } = req.body;
+router.get("/get-max-distance", async (req, res) => {
+  const accessToken = req.headers.authorization;
   if (!accessToken) {
     return res.status(401).json({ error: "Access token is required" });
   }
@@ -118,12 +118,12 @@ router.post("/max-distance", async (req, res) => {
 
 /**
  * Retrieves the current dog pictures for a user.
- * @route POST /current-dog-pictures
+ * @route GET /current-dog-pictures
  * @param {string} accessToken - The access token for authentication.
  * @returns {Object} The user's dog pictures or an error message.
  */
-router.post("/current-dog-pictures", async (req, res) => {
-  const { accessToken } = req.body;
+router.get("/get-dog-pictures", async (req, res) => {
+  const accessToken = req.headers.authorization;
   if (!accessToken) {
     return res.status(401).json({ error: "Access token is required" });
   }
@@ -160,12 +160,12 @@ router.post("/current-dog-pictures", async (req, res) => {
 
 /**
  * Retrieves the user's bio information.
- * @route POST /get-bio
+ * @route GET /get-bio
  * @param {string} accessToken - The access token for authentication.
  * @returns {Object} The user's bio or an error message.
  */
-router.post("/get-bio", async (req, res) => {
-  const { accessToken } = req.body;
+router.get("/get-bio", async (req, res) => {
+  const accessToken = req.headers.authorization;
   if (!accessToken) {
     return res.status(401).json({ error: "Access token is required" });
   }
@@ -195,18 +195,18 @@ router.post("/get-bio", async (req, res) => {
 
 /**
  * Retrieves and updates the user's geographical location based on their address.
- * 
+ *
  * How it works:
  * 1. Fetches the UUID from the access token
  * 2. Uses the (free) Position Stack API to get the coordinates of the the entered address.
  * 3. Updates the coordinates in the userdata table.
- * 
- * @route POST /get-location
+ *
+ * @route GET /get-location
  * @param {string} accessToken - The access token for authentication.
  * @returns {Object} The user's updated location or an error message.
  */
-router.post("/get-location", async (req, res) => {
-  const { accessToken } = req.body;
+router.get("/get-location", async (req, res) => {
+  const accessToken = req.headers.authorization;
   if (!accessToken) {
     return res.status(401).json({ error: "Access token is required" });
   }

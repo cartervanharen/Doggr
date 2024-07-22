@@ -1,10 +1,10 @@
-/** 
- *         ____                                  
+/**
+ *         ____
  *        / __ \  ____    ____ _   ____ _   _____
  *       / / / / / __ \  / __ `/  / __ `/  / ___/
- *      / /_/ / / /_/ / / /_/ /  / /_/ /  / /    
- *     /_____/  \____/  \__, /   \__, /  /_/     
- *                     /____/   /____/           
+ *      / /_/ / / /_/ / / /_/ /  / /_/ /  / /
+ *     /_____/  \____/  \__, /   \__, /  /_/
+ *                     /____/   /____/
  *
  * @fileoverview This file contains the router definitions for internal API endpoints that manage user data for Doggr.
  * These endpoints are used primarily for administrative tasks such as managing user accounts, interactions, and testing.
@@ -69,19 +69,20 @@ router.get("/get-all-userdata", async (req, res) => {
  * 1. Fetches the UUID from the auth table
  * 2. Selects the record from the userdata table via UUID.
  *
- * @route POST /userdata
- * @param {string} req.body.accessToken - Access token to authenticate and identify the user.
+ * @route GET /userdata
+ * @param {string} accessToken - Access token to authenticate and identify the user.
  * @returns {Object} user - User data for the authenticated user.
  * @returns {Error} 403 - Access token missing.
  * @returns {Error} 401 - Unauthorized or other errors.
  */
-router.post("/userdata", async (req, res) => {
-  const token = req.body.accessToken;
-  if (!token) {
+
+router.get("/get-userdata", async (req, res) => {
+  const accessToken = req.headers.authorization;
+  if (!accessToken) {
     return res.status(403).json({ error: "Access token is required" });
   }
   try {
-    const { data: user } = await supabase.auth.api.getUser(token);
+    const { data: user } = await supabase.auth.api.getUser(accessToken);
     const { data: userData, fetchError } = await supabase
       .from("userdata")
       .select("*")
@@ -191,13 +192,14 @@ router.post("/manual-add-interaction", async (req, res) => {
 
 /**
  * Fetches user information by UUID from the userdata table.
- * @route POST /user-info-byuuid
+ * @route GET /user-info-byuuid
  * @param {string} req.body.uuid - UUID of the user to fetch.
  * @returns {Object} user - User data for the specified UUID.
  * @returns {Error} 401 - Unauthorized or other errors.
  */
-router.post("/user-info-byuuid", async (req, res) => {
-  const uuid = req.body.uuid;
+router.get("/user-info-byuuid", async (req, res) => {
+  const uuid = req.headers.uuid;
+
   try {
     const { data: userData, fetchError } = await supabase
       .from("users")

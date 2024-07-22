@@ -26,7 +26,7 @@ function ShowProfilebyUUID() {
 
     fetchData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigate]);
+  }, []);
 
   const verifyTokenAndGetUserID = async () => {
     const token = localStorage.getItem("accessToken");
@@ -34,7 +34,6 @@ function ShowProfilebyUUID() {
     if (!token) {
       console.error("No token found in local storage.");
       setError(true); // Set error state if no token
-      navigate("/login");
       return;
     }
 
