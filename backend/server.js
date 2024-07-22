@@ -264,13 +264,15 @@ app.post("/signup", async (req, res) => {
       .insert([
         {
           uuid: user.id,
+          longitude: -122.147966,
+          latitude: 37.485576,
           likeability: 5,
           energy: 5,
           playfulness: 5,
           aggression: 5,
           size: 5,
           training: 5,
-          maxDistance: 1,
+          maxDistance: 50,
           likeabilityFilter: { min: 1, max: 10 },
           energyFilter: { min: 1, max: 10 },
           playfulnessFilter: { min: 1, max: 10 },
@@ -310,6 +312,8 @@ app.post("/signup", async (req, res) => {
     if (insertImagesError) {
       throw insertImagesError;
     }
+
+    matchClosestUsers(user.id)
 
     return res
       .status(200)
@@ -733,6 +737,8 @@ app.post("/new-signup-base-data", async (req, res) => {
       .insert([
         {
           uuid: user.id,
+          longitude: -122.147966,
+          latitude:37.485576,
           likeability: 5,
           energy: 5,
           playfulness: 5,
@@ -856,8 +862,8 @@ app.post("/next-user-data", async (req, res) => {
     .eq("uuid", nextUserUuid)
     .single();
 
-  if (nextUserNum > 5) {
-    console.log("Over 5, reloading users now");
+    if (nextUserNum > 5 || nextUserNum === null) {
+      console.log("Over 5, reloading users now");
     try {
       outofuserstate = await matchClosestUsers(userId);
       console.log(outofuserstate);
@@ -1233,6 +1239,8 @@ app.post("/signup-complete", async (req, res) => {
           uuid: user.id,
           likeability,
           energy,
+          longitude: -122.147966,
+          latitude:37.485576,
           playfulness,
           aggression,
           size,
@@ -1533,7 +1541,6 @@ app.post("/find-matches", async (req, res) => {
         return acc;
       }, {});
 
-      // Add picture data to user details
       const matches = usersData.map((user) => ({
         ...user,
         picture1: pictureData[user.uuid] || "Default image URL or null if none",
