@@ -152,7 +152,7 @@ const SettingsPage = () => {
         return;
       }
       try {
-        const response = await axios.post("http://localhost:3000/user-info", {
+        const response = await axios.post("http://localhost:3000/get-user-info", {
           accessToken: token,
         });
         const userData = response.data.user;

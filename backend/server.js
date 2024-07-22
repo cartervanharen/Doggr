@@ -1,137 +1,19 @@
 import express from "express";
-import { createClient } from "@supabase/supabase-js";
 import cors from "cors";
 const app = express();
+import { supabase } from './utils/supabaseClient.js';
 const PORT = process.env.PORT || 3000;
-const supabaseUrl = "https://oewelgbnnzgyamhpxyqs.supabase.co";
-const supabaseKey = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ld2VsZ2JubnpneWFtaHB4eXFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkzMzQ0MDIsImV4cCI6MjAzNDkxMDQwMn0.wrKCzM1wbzyTLwBN7xbYu2mzS2GzQ6zAWHNe9Wv1BBo`;
+import matchClosestUsers from './utils/userMatching.js';
+import calculateDistance from './utils/distanceCalc.js';
+
 app.use(express.json());
 app.use(cors());
 import axios from "axios";
+import internal from "./routes/internalOps.js";
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+app.use(internal);
 
-function calculateDistance(lat1, lon1, lat2, lon2) {
-  //haversine formula
-  const R = 3959; //earth radius
-  const dLat = degeesRadian(lat2 - lat1);
-  const dLon = degeesRadian(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(degeesRadian(lat1)) *
-      Math.cos(degeesRadian(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  const distance = R * c;
-  return distance;
-}
 
-function degeesRadian(deg) {
-  return deg * (Math.PI / 180);
-}
-
-app.use(express.json());
-
-app.get("/update-all-locations", async (req, res) => {
-  try {
-    const { data: allUsers, error: userFetchError } = await supabase
-      .from("users")
-      .select("uuid, address");
-
-    if (userFetchError) throw userFetchError;
-
-    const positionStackApiKey = "be2efb6b90f3a1015d928b4186ca5ec4";
-    const updates = [];
-
-    for (const user of allUsers) {
-      if (user.address) {
-        const formattedAddress = encodeURIComponent(user.address);
-        const positionStackUrl = `http://api.positionstack.com/v1/forward?access_key=${positionStackApiKey}&query=${formattedAddress}`;
-
-        const locationResponse = await axios.get(positionStackUrl);
-        if (
-          locationResponse.data.data &&
-          locationResponse.data.data.length > 0
-        ) {
-          const locationData = locationResponse.data.data[0];
-          updates.push({
-            uuid: user.uuid,
-            latitude: locationData.latitude,
-            longitude: locationData.longitude,
-          });
-        }
-      }
-    }
-
-    const { error: updateError } = await supabase
-      .from("userdata")
-      .upsert(updates);
-
-    if (updateError) throw updateError;
-
-    return res.status(200).json({
-      message: "Locations updated successfully for all users",
-      updatedCount: updates.length,
-    });
-  } catch (error) {
-    console.error("Error updating locations for all users:", error.message);
-    return res.status(500).json({ error: error.message });
-  }
-});
-app.post("/user-info-byuuid", async (req, res) => {
-  const uuid = req.body.uuid;
-
-  try {
-    const { data: userData, fetchError } = await supabase
-      .from("users")
-      .select("*")
-      .eq("uuid", uuid)
-      .single();
-
-    if (fetchError) {
-      throw fetchError;
-    }
-
-    return res.status(200).json({ user: userData });
-  } catch (error) {
-    console.error("Error fetching user data:", error.message);
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-});
-
-app.get("/get-all-users", async (req, res) => {
-  const { data, error } = await supabase.from("users").select("*");
-  if (error) {
-    return res.status(500).json({ error: error.message });
-  }
-  res.json(data);
-});
-app.get("/get-all-uuid", async (req, res) => {
-  const { data, error } = await supabase.from("users").select("uuid");
-
-  if (error) {
-    return res.status(500).json({ error: error.message });
-  }
-
-  res.json(data);
-});
-
-app.get("/get-all-userdata", async (req, res) => {
-  const { data, error } = await supabase.from("userdata").select("*");
-  if (error) {
-    return res.status(500).json({ error: error.message });
-  }
-  res.json(data);
-});
-
-app.get("/get-all-relation", async (req, res) => {
-  const { data, error } = await supabase.from("relation").select("*");
-  if (error) {
-    return res.status(500).json({ error: error.message });
-  }
-  res.json(data);
-});
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -153,20 +35,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.post("/generate-new-nextusers", async (req, res) => {
-  const { userid } = req.body;
-
-  if (!userid) {
-    return res.status(400).json({ error: "Need to inclued uuid" });
-  }
-
-  try {
-    matchClosestUsers(userid);
-    return res.status(200).json("worked");
-  } catch (error) {
-    return res.status(401).json({ error: error.message });
-  }
-});
 
 app.post("/verify-token", async (req, res) => {
   const token = req.body.authorization?.split(" ")[1];
@@ -211,158 +79,7 @@ app.post("/signin", async (req, res) => {
   }
 });
 
-app.post("/signup", async (req, res) => {
-  const {
-    email,
-    password,
-    human_first_name,
-    human_last_name,
-    address,
-    dog_name,
-  } = req.body;
-
-  const currentTime = new Date().toISOString();
-
-  if (
-    !email ||
-    !password ||
-    !human_first_name ||
-    !human_last_name ||
-    !address ||
-    !dog_name
-  ) {
-    return res
-      .status(400)
-      .json({ error: "All fields are required and must not be empty" });
-  }
-  try {
-    const { user, session, error } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-    });
-
-    const { error: insertError } = await supabase.from("users").insert([
-      {
-        uuid: user.id,
-        human_first_name: human_first_name,
-        human_last_name: human_last_name,
-        address: address,
-        dog_name: dog_name,
-        created_at: currentTime,
-        last_active: currentTime,
-        user_level: 1,
-      },
-    ]);
-
-    if (insertError) {
-      console.error("Insert Error:", insertError.message);
-      return res.status(500).json({ error: insertError.message });
-    }
-
-    const { error: insertUserDataError } = await supabase
-      .from("userdata")
-      .insert([
-        {
-          uuid: user.id,
-          longitude: -122.147966,
-          latitude: 37.485576,
-          likeability: 5,
-          energy: 5,
-          playfulness: 5,
-          aggression: 5,
-          size: 5,
-          training: 5,
-          maxDistance: 50,
-          likeabilityFilter: { min: 1, max: 10 },
-          energyFilter: { min: 1, max: 10 },
-          playfulnessFilter: { min: 1, max: 10 },
-          aggressionFilter: { min: 1, max: 10 },
-          sizeFilter: { min: 1, max: 10 },
-          trainingFilter: { min: 1, max: 10 },
-        },
-      ]);
-
-    if (insertUserDataError) {
-      throw insertUserDataError;
-    }
-
-    const { error: insertNextUserError } = await supabase
-      .from("nextusers")
-      .insert([
-        {
-          uuid: user.id,
-        },
-      ]);
-
-    if (insertNextUserError) {
-      throw insertNextUserError;
-    }
-
-    const { error: insertImagesError } = await supabase.from("images").insert([
-      {
-        uuid: user.id,
-        picture1: "https://i.ibb.co/nwPz4Hw/blank.jpg",
-        picture2: "https://i.ibb.co/nwPz4Hw/blank.jpg",
-        picture3: "https://i.ibb.co/nwPz4Hw/blank.jpg",
-        picture4: "https://i.ibb.co/nwPz4Hw/blank.jpg",
-        picture5: "https://i.ibb.co/nwPz4Hw/blank.jpg",
-      },
-    ]);
-
-    if (insertImagesError) {
-      throw insertImagesError;
-    }
-
-    matchClosestUsers(user.id);
-
-    return res
-      .status(200)
-      .json({ message: "User account created successfully", user, session });
-  } catch (error) {
-    return res.status(401).json({ error: error.message });
-  }
-});
-
-app.get("/allusr", async (req, res) => {
-  const { data, error } = await supabase.from("users").select("*");
-  if (error) {
-    return res.status(500).json({ error: error.message });
-  }
-  res.json(data);
-});
-
-app.post("/userdata", async (req, res) => {
-  const token = req.body.accessToken;
-
-  if (!token) {
-    return res.status(403).json({ error: "Access token is required" });
-  }
-
-  try {
-    const { data: user, error } = await supabase.auth.api.getUser(token);
-
-    if (error) {
-      throw error;
-    }
-
-    const { data: userData, fetchError } = await supabase
-      .from("userdata")
-      .select("*")
-      .eq("uuid", user.id)
-      .single();
-
-    if (fetchError) {
-      throw fetchError;
-    }
-
-    return res.status(200).json({ user: userData });
-  } catch (error) {
-    console.error("Error fetching user data:", error.message);
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-});
-
-app.post("/user-info", async (req, res) => {
+app.post("/get-user-info", async (req, res) => {
   const token = req.body.accessToken;
 
   if (!token) {
@@ -1302,129 +1019,6 @@ app.post("/signup-complete", async (req, res) => {
     return res.status(401).json({ error: error.message });
   }
 });
-async function matchClosestUsers(uuid) {
-  let outofusers = 0;
-  if (!uuid) {
-    throw new Error("UUID is required");
-  }
-
-  const { data: currentUserData, error: currentUserDataError } = await supabase
-    .from("userdata")
-    .select(
-      "latitude, longitude, maxDistance, likeability, energy, playfulness, aggression, size, training, likeabilityFilter, energyFilter, playfulnessFilter, aggressionFilter, sizeFilter, trainingFilter"
-    )
-    .eq("uuid", uuid)
-    .single();
-
-  if (currentUserDataError) {
-    throw new Error(
-      `Error fetching current user data: ${currentUserDataError.message}`
-    );
-  }
-
-  const predictedTraitsResponse = await fetch(
-    `http://localhost:3001/predict?trait1=${currentUserData.likeability}&trait2=${currentUserData.energy}&trait3=${currentUserData.playfulness}&trait4=${currentUserData.aggression}&trait5=${currentUserData.size}&trait6=${currentUserData.training}`
-  );
-  const predictedTraits = await predictedTraitsResponse.json();
-
-  const { data: relations, error: relationsError } = await supabase
-    .from("relation")
-    .select("user_to, user_from")
-    .or(`user_from.eq.${uuid},user_to.eq.${uuid}`);
-
-  if (relationsError) {
-    throw new Error(`Error fetching relations: ${relationsError.message}`);
-  }
-
-  const seenUserIds = new Set(
-    relations.map((relation) =>
-      relation.user_from === uuid ? relation.user_to : relation.user_from
-    )
-  );
-
-  const { data: allUsers, error: allUsersError } = await supabase
-    .from("userdata")
-    .select("*")
-    .not("uuid", "eq", uuid);
-
-  if (allUsersError) {
-    throw new Error(`Error fetching all users: ${allUsersError.message}`);
-  }
-
-  const filteredAndSortedUsers = allUsers
-    .filter((user) => {
-      const distance = calculateDistance(
-        currentUserData.latitude,
-        currentUserData.longitude,
-        user.latitude,
-        user.longitude
-      );
-
-      return (
-        !seenUserIds.has(user.uuid) &&
-        distance <= currentUserData.maxDistance &&
-        [
-          "likeability",
-          "energy",
-          "playfulness",
-          "aggression",
-          "size",
-          "training",
-        ].every((trait) => {
-          const filter = currentUserData[`${trait}Filter`];
-          if (filter) {
-            return user[trait] >= filter.min && user[trait] <= filter.max;
-          }
-          return true;
-        })
-      );
-    })
-    .sort((a, b) => {
-      const scoreA = predictedTraits.predicted_traits.reduce(
-        (acc, trait, index) => {
-          acc += Math.abs(trait - a[`trait${index + 1}`]);
-          return acc;
-        },
-        0
-      );
-      const scoreB = predictedTraits.predicted_traits.reduce(
-        (acc, trait, index) => {
-          acc += Math.abs(trait - b[`trait${index + 1}`]);
-          return acc;
-        },
-        0
-      );
-      return scoreA - scoreB;
-    })
-    .slice(0, 10);
-
-  if (filteredAndSortedUsers.length === 0) {
-    console.log("****no new users");
-    outofusers = 1;
-    return outofusers;
-  }
-
-  const upsertData = {
-    uuid: uuid,
-    nextuser: 1,
-  };
-
-  for (let i = 1; i <= 10; i++) {
-    upsertData[`user${i}`] = filteredAndSortedUsers[i - 1]
-      ? filteredAndSortedUsers[i - 1].uuid
-      : null;
-  }
-
-  const { error: updateError } = await supabase
-    .from("nextusers")
-    .upsert(upsertData, { returning: "minimal" });
-
-  if (updateError) {
-    throw new Error(`Error updating next users: ${updateError.message}`);
-  }
-
-  return outofusers;
-}
 
 app.get("/messages", async (req, res) => {
   const { user_from, user_to } = req.query;
@@ -1600,31 +1194,6 @@ app.post("/user-profile", async (req, res) => {
   } catch (error) {
     console.error("Error fetching user profile:", error.message);
     return res.status(500).json({ error: error.message });
-  }
-});
-app.post("/manual-add-interaction", async (req, res) => {
-  try {
-    const { user_from, user_to } = req.body;
-
-    if (!user_from || !user_to) {
-      return res.status(400).json({ error: "All fields are required" });
-    }
-
-    const { data, error } = await supabase.from("relation").insert([
-      {
-        user_from: user_from,
-        user_to: user_to,
-        type: 1,
-      },
-    ]);
-
-    if (error) {
-      throw error;
-    }
-
-    res.status(200).json({ message: "Interaction added successfully", data });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
   }
 });
 
