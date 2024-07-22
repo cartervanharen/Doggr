@@ -118,12 +118,13 @@ function MessagingApp() {
   };
 
   const fetchUserProfile = async (userId) => {
-    const token = localStorage.getItem("accessToken");
     try {
-      const response = await axios.post("http://localhost:3000/user-profile", {
-        userId,
-        accessToken: token,
-      });
+      const response = await axios.get(
+        "http://localhost:3000/get-user-profile",
+        {
+          headers: { userId },
+        }
+      );
       setUserData(response.data);
     } catch (error) {
       console.error("Error fetching user profile:", error);

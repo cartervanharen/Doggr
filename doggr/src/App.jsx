@@ -1,7 +1,6 @@
 import MainPage from "./MainPage.jsx";
 import Settings from "./SettingsPage.jsx";
 import LoginPage from "./LoginPage.jsx";
-import Test from "./test.jsx";
 import SignUp from "./SignUpPage.jsx";
 import ErrorPage from "./ErrorPage.jsx";
 import Messages from "./Matches&Messages.jsx";
@@ -19,7 +18,6 @@ function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/dogs" element={<MainPage />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/test" element={<Test />} />
           <Route path="/*" element={<MainPage />} />
           <Route path="login" element={<LoginPage />} />
         </Routes>

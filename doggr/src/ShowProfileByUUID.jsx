@@ -26,7 +26,7 @@ function ShowProfilebyUUID() {
 
     fetchData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigate]);
+  }, []);
 
   const verifyTokenAndGetUserID = async () => {
     const token = localStorage.getItem("accessToken");
@@ -34,7 +34,6 @@ function ShowProfilebyUUID() {
     if (!token) {
       console.error("No token found in local storage.");
       setError(true); // Set error state if no token
-      navigate("/login");
       return;
     }
 
@@ -56,10 +55,10 @@ function ShowProfilebyUUID() {
   const getNextUser = async () => {
     const token = localStorage.getItem("accessToken");
     try {
-      const response = await axios.post(
-        "http://localhost:3000/next-user-data",
+      const response = await axios.get(
+        "http://localhost:3000/get-next-user-data",
         {
-          accessToken: token,
+          headers: {Authorization: token},
         }
       );
 

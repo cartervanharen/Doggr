@@ -19,7 +19,6 @@ function TraitModal() {
     console.log(wholeToken);
     if (!token) {
       console.error("No token found in local storage.");
-      navigate("/login");
       return;
     }
 
@@ -51,13 +50,13 @@ function TraitModal() {
       const token = localStorage.getItem("accessToken");
       if (!token) {
         console.error("No token found in local storage.");
-        navigate("/login");
         return;
       }
 
       try {
-        const response = await axios.post("http://localhost:3000/userdata", {
-          accessToken: token,
+
+        const response = await axios.get("http://localhost:3000/get-userdata", {
+          headers: {Authorization: token},
         });
         const userData = response.data.user;
         setLikeability(userData.likeability);
@@ -71,7 +70,6 @@ function TraitModal() {
           "Error fetching user information:",
           error.response ? error.response.data : error.message
         );
-        navigate("/login");
       }
     };
 
@@ -83,7 +81,6 @@ function TraitModal() {
     const token = localStorage.getItem("accessToken");
     if (!token) {
       console.error("No token found in local storage.");
-      navigate("/login");
       return;
     }
 

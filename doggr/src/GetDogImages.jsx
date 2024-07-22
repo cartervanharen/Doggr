@@ -14,10 +14,10 @@ function GetDogImages() {
       }
 
       try {
-        const response = await axios.post(
-          "http://localhost:3000/current-dog-pictures",
+        const response = await axios.get(
+          "http://localhost:3000/get-dog-pictures",
           {
-            accessToken: token,
+            headers: {Authorization: token},
           }
         );
 

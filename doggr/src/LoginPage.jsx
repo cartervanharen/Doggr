@@ -26,7 +26,13 @@ function LoginPage() {
     try {
       const response = await signUserIn(userData);
       console.log("User signed in successfully:", response);
-      navigate("/settings");
+
+      setTimeout(() => {
+        //wait for access token to be stored.
+        navigate("/settings");
+        window.location.reload();
+        window.location.reload();
+      }, 300);
     } catch (error) {
       console.error("Error signing in user:", error);
       setError("Failed to sign in. Check your email and password.");

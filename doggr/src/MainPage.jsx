@@ -20,7 +20,7 @@ const MainPage = () => {
     console.log(wholeToken);
     if (!token) {
       console.error("No token found in local storage.");
-      navigate("/login");
+
       return;
     }
 
@@ -36,7 +36,8 @@ const MainPage = () => {
         "Error verifying token:",
         error.response ? error.response.data : error.message
       );
-      navigate("/settings");
+      navigate("/login");
+      
     }
   };
 
