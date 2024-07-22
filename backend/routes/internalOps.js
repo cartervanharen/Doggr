@@ -14,6 +14,10 @@
 
 import express from "express";
 import { supabase } from "../utils/supabaseClient.js";
+import axios from "axios";
+import matchClosestUsers from "../utils/userMatching.js";
+import calculateDistance from "../utils/distanceCalc.js";
+
 const router = express.Router();
 
 /**
