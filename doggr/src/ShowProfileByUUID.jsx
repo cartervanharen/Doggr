@@ -55,10 +55,10 @@ function ShowProfilebyUUID() {
   const getNextUser = async () => {
     const token = localStorage.getItem("accessToken");
     try {
-      const response = await axios.post(
-        "http://localhost:3000/next-user-data",
+      const response = await axios.get(
+        "http://localhost:3000/get-next-user-data",
         {
-          accessToken: token,
+          headers: {Authorization: token},
         }
       );
 

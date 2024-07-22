@@ -37,9 +37,8 @@ function LeftSidebar() {
     }
 
     try {
-      const response = await axios.post("http://localhost:3000/user-profile", {
-        userId,
-        accessToken: token,
+      const response = await axios.get("http://localhost:3000/get-user-profile", {
+        headers: { userId },
       });
       setUserData(response.data);
       console.log("User Data fetched:", response.data);

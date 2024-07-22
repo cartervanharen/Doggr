@@ -66,7 +66,7 @@ router.get("/get-all-userdata", async (req, res) => {
  * Fetches user data based on the provided access token
  *
  * How it works:
- * 1. Fetches the UUID from the auth table
+ * 1. Fetches the UUID from the auth table.
  * 2. Selects the record from the userdata table via UUID.
  *
  * @route GET /userdata

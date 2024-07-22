@@ -6,7 +6,10 @@
  *     /_____/  \____/  \__, /   \__, /  /_/
  *                     /____/   /____/
  *
- * @fileoverview FILL IN STILL
+ * @fileoverview This file contains the router definitions for internal API endpoints that manage user data for Doggr.
+ * The endpoints include functionalities for retrieving user information, fetching and updating user preferences and geographical data,
+ * and managing user-related images and filters. These routes facilitate essential administrative tasks to maintain user profiles, 
+ * interactions, and system configurations within the Doggr application.
  * @author Carter VanHaren
  */
 
