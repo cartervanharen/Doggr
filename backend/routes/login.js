@@ -6,7 +6,7 @@
  *     /_____/  \____/  \__, /   \__, /  /_/
  *                     /____/   /____/
  *
- * @fileoverview This file contains the authentication routes for the application. It includes
+ * @fileoverview This file contains the authentication routes for Doggr. It includes
  * routes for signing in users and verifying authentication tokens. These endpoints facilitate
  * secure access and identity verification for users.
  * @author Carter VanHaren

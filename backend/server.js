@@ -7,6 +7,7 @@ import calculateDistance from "./utils/distanceCalc.js";
 import internalOps from "./routes/internalOps.js";
 import signUp from "./routes/signUp.js";
 import login from "./routes/login.js";
+import messaging from "./routes/messaging.js";
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -16,6 +17,7 @@ app.use(cors());
 app.use(internalOps);
 app.use(login);
 app.use(signUp);
+app.use(messaging);
 
 app.post("/get-user-info", async (req, res) => {
   const token = req.body.accessToken;
@@ -733,132 +735,7 @@ app.post("/mark-user-seen", async (req, res) => {
   }
 });
 
-app.get("/messages", async (req, res) => {
-  const { user_from, user_to } = req.query;
-  console.log("Fetching messages between:", user_from, "and", user_to);
 
-  try {
-    const { data, error } = await supabase
-      .from("messages")
-      .select("*")
-      .or(
-        `user_from.eq.${user_from},user_to.eq.${user_to},user_from.eq.${user_to},user_to.eq.${user_from}`
-      )
-      .order("time_sent", { ascending: true });
-
-    if (error) {
-      console.error("Error fetching messages:", error);
-      return res.status(500).json({ error: error.message });
-    }
-
-    console.log("Messages fetched:", data);
-    res.json(data);
-  } catch (error) {
-    console.error("Server error:", error);
-    res.status(500).json({ message: "Server error occurred." });
-  }
-});
-
-app.post("/send-message", async (req, res) => {
-  const { user_from, user_to, text } = req.body;
-  try {
-    const { data, error } = await supabase.from("messages").insert([
-      {
-        user_from,
-        user_to,
-        message_content: text,
-        time_sent: new Date().toISOString(),
-      },
-    ]);
-
-    if (error) {
-      console.error("Error sending message:", error.message);
-      return res.status(500).json({ error: error.message });
-    }
-
-    res.status(201).json(data);
-  } catch (error) {
-    console.error("Error sending message:", error.message);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post("/find-matches", async (req, res) => {
-  const { accessToken } = req.body;
-
-  if (!accessToken) {
-    return res.status(400).json({ error: "Access token is required." });
-  }
-
-  try {
-    const { data: user, error: userError } = await supabase.auth.api.getUser(
-      accessToken
-    );
-    if (userError) throw userError;
-    if (!user) return res.status(404).json({ error: "User not found." });
-
-    const uuid = user.id;
-
-    const { data: likesSent, error: likesSentError } = await supabase
-      .from("relation")
-      .select("user_to")
-      .eq("user_from", uuid)
-      .eq("type", 1);
-
-    if (likesSentError) throw likesSentError;
-
-    const { data: likesReceived, error: likesReceivedError } = await supabase
-      .from("relation")
-      .select("user_from")
-      .eq("user_to", uuid)
-      .eq("type", 1);
-
-    if (likesReceivedError) throw likesReceivedError;
-
-    const sentUUIDs = new Set(likesSent.map((like) => like.user_to));
-    const receivedUUIDs = new Set(likesReceived.map((like) => like.user_from));
-
-    const mutualLikes = [...sentUUIDs].filter((userTo) =>
-      receivedUUIDs.has(userTo)
-    );
-
-    if (mutualLikes.length > 0) {
-      const { data: usersData, error: usersError } = await supabase
-        .from("users")
-        .select(
-          "uuid, human_first_name, human_last_name, address, dog_name, created_at, last_active, user_level"
-        )
-        .in("uuid", mutualLikes);
-
-      if (usersError) throw usersError;
-
-      const picturePromises = mutualLikes.map((userId) =>
-        supabase.from("images").select("picture1").eq("uuid", userId).single()
-      );
-      const picturesResults = await Promise.all(picturePromises);
-      const pictureData = picturesResults.reduce((acc, result, index) => {
-        if (!result.error) {
-          acc[mutualLikes[index]] = result.data.picture1;
-        }
-        return acc;
-      }, {});
-
-      const matches = usersData.map((user) => ({
-        ...user,
-        picture1: pictureData[user.uuid] || "Default image URL or null if none",
-      }));
-
-      return res.status(200).json({ matches });
-    } else {
-      return res
-        .status(200)
-        .json({ message: "No matches found.", matches: [] });
-    }
-  } catch (error) {
-    console.error("Error finding matches:", error.message);
-    return res.status(500).json({ error: error.message });
-  }
-});
 
 app.post("/user-profile", async (req, res) => {
   const { userId, accessToken } = req.body;
