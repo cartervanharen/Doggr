@@ -313,7 +313,7 @@ app.post("/signup", async (req, res) => {
       throw insertImagesError;
     }
 
-    matchClosestUsers(user.id)
+    matchClosestUsers(user.id);
 
     return res
       .status(200)
@@ -738,7 +738,7 @@ app.post("/new-signup-base-data", async (req, res) => {
         {
           uuid: user.id,
           longitude: -122.147966,
-          latitude:37.485576,
+          latitude: 37.485576,
           likeability: 5,
           energy: 5,
           playfulness: 5,
@@ -816,13 +816,11 @@ app.post("/next-user-data", async (req, res) => {
 
       nextUserUuid = nextUserId;
     } else {
-      return res.status(404).json({ error: "No user data found" });
+      return res.status(404).json({ oou: 1 });
     }
   } catch (error) {
     console.error("Processing error:", error.message);
-    return res
-      .status(500)
-      .json({ error: "Failed to process request: " + error.message });
+    return res.status(404).json({ oou: 1 });
   }
 
   let userDataTable = null;
@@ -845,9 +843,7 @@ app.post("/next-user-data", async (req, res) => {
     userDataTable = data;
   } catch (error) {
     console.error("Error retrieving user data:", error.message);
-    return res
-      .status(500)
-      .json({ error: "Failed to retrieve user data: " + error.message });
+    return res.status(404).json({ oou: 1 });
   }
 
   const { data: pictureLinks, error: dataError } = await supabase
@@ -862,12 +858,13 @@ app.post("/next-user-data", async (req, res) => {
     .eq("uuid", nextUserUuid)
     .single();
 
-    if (nextUserNum > 5 || nextUserNum === null) {
-      console.log("Over 5, reloading users now");
+  if (nextUserNum > 5 || nextUserNum === null) {
+    console.log("Over 5, reloading users now");
     try {
       outofuserstate = await matchClosestUsers(userId);
       console.log(outofuserstate);
     } catch (error) {
+      outofuserstate = 1;
       console.error("Failed to match closest users:", error);
     }
   }
@@ -892,9 +889,7 @@ app.post("/next-user-data", async (req, res) => {
     currentUserData = data;
   } catch (error) {
     console.error("Error retrieving current user data:", error.message);
-    return res.status(500).json({
-      error: "Failed to retrieve current user data: " + error.message,
-    });
+    return res.status(404).json({ oou: 1 });
   }
 
   let CurrentLatitude = currentUserData.latitude; // this is the data thats of the current user
@@ -1240,7 +1235,7 @@ app.post("/signup-complete", async (req, res) => {
           likeability,
           energy,
           longitude: -122.147966,
-          latitude:37.485576,
+          latitude: 37.485576,
           playfulness,
           aggression,
           size,

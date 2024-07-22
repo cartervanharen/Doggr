@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import "./global.css";
 import TraitModal from "./TraitModal.jsx";
 import FilterModal from "./filters.jsx";
@@ -18,14 +17,12 @@ const SettingsPage = () => {
   const [maxDistance, setMaxDistance] = useState(5);
   const [bio, setBio] = useState("");
   const [bioEditMode, setBioEditMode] = useState(false);
-
-  const navigate = useNavigate();
   const verifyTokenAndGetUserID = async () => {
     const token = localStorage.getItem("accessToken");
     const wholeToken = "Bearer " + token;
     if (!token) {
       console.error("No token found in local storage.");
-      navigate("/login");
+
       return;
     }
     try {
@@ -39,7 +36,6 @@ const SettingsPage = () => {
         "Error verifying token:",
         error.response ? error.response.data : error.message
       );
-      navigate("/login");
     }
   };
 
@@ -49,7 +45,6 @@ const SettingsPage = () => {
     console.log(wholeToken);
     if (!token) {
       console.error("No token found in local storage.");
-      navigate("/login");
       return;
     }
 
@@ -80,7 +75,7 @@ const SettingsPage = () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
       console.error("No token found in local storage.");
-      navigate("/login");
+
       return;
     }
 
@@ -106,7 +101,7 @@ const SettingsPage = () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
       console.error("No token found in local storage.");
-      navigate("/login");
+
       return;
     }
     try {
@@ -244,7 +239,6 @@ const SettingsPage = () => {
   };
 
   return (
-    
     <div className="RootofRoot_MainPage">
       <LeftSidebar></LeftSidebar>
 
