@@ -9,10 +9,11 @@ import calculateDistance from './utils/distanceCalc.js';
 app.use(express.json());
 app.use(cors());
 import axios from "axios";
-import internal from "./routes/internalOps.js";
+import internalOps from "./routes/internalOps.js";
+import signUp from "./routes/signUp.js";
+app.use(internalOps);
 
-app.use(internal);
-
+app.use(signUp);
 
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
@@ -439,66 +440,6 @@ app.post("/update-dog-pictures", async (req, res) => {
   }
 });
 
-app.post("/new-signup-base-data", async (req, res) => {
-  const { accessToken } = req.body;
-
-  if (!accessToken) {
-    return res.status(401).json({ error: "Access token is required" });
-  }
-
-  try {
-    const { data: user, error } = await supabase.auth.api.getUser(accessToken);
-
-    const { error: insertUserDataError } = await supabase
-      .from("userdata")
-      .insert([
-        {
-          uuid: user.id,
-          longitude: -122.147966,
-          latitude: 37.485576,
-          likeability: 5,
-          energy: 5,
-          playfulness: 5,
-          aggression: 5,
-          size: 5,
-          training: 5,
-          maxDistance: 1,
-          likeabilityFilter: { min: 1, max: 10 },
-          energyFilter: { min: 1, max: 10 },
-          playfulnessFilter: { min: 1, max: 10 },
-          aggressionFilter: { min: 1, max: 10 },
-          sizeFilter: { min: 1, max: 10 },
-          trainingFilter: { min: 1, max: 10 },
-        },
-      ]);
-
-    if (insertUserDataError) {
-      throw insertUserDataError;
-    }
-
-    const { error: insertImagesError } = await supabase.from("images").insert([
-      {
-        uuid: user.id,
-        picture1: "https://i.ibb.co/nwPz4Hw/blank.jpg",
-        picture2: "https://i.ibb.co/nwPz4Hw/blank.jpg",
-        picture3: "https://i.ibb.co/nwPz4Hw/blank.jpg",
-        picture4: "https://i.ibb.co/nwPz4Hw/blank.jpg",
-        picture5: "https://i.ibb.co/nwPz4Hw/blank.jpg",
-      },
-    ]);
-
-    if (insertImagesError) {
-      throw insertImagesError;
-    }
-
-    return res
-      .status(200)
-      .json({ message: "User account created successfully", user });
-  } catch (error) {
-    console.error("Error creating user:", error.message);
-    return res.status(401).json({ error: error.message });
-  }
-});
 
 app.post("/next-user-data", async (req, res) => {
   let nextUserUuid = "";
@@ -853,170 +794,6 @@ app.post("/mark-user-seen", async (req, res) => {
   } catch (error) {
     console.error("Error updating bio:", error.message);
     return res.status(500).json({ error: error.message });
-  }
-});
-
-app.post("/signup-complete", async (req, res) => {
-  const {
-    email,
-    password,
-    human_first_name,
-    human_last_name,
-    address,
-    dog_name,
-    bio,
-    picture1,
-    picture2,
-    picture3,
-    picture4,
-    picture5,
-    likeability,
-    energy,
-    playfulness,
-    aggression,
-    size,
-    training,
-  } = req.body;
-
-  const currentTime = new Date().toISOString();
-
-  if (
-    !email ||
-    !password ||
-    !human_first_name ||
-    !human_last_name ||
-    !address ||
-    !dog_name ||
-    !picture1 ||
-    !picture2 ||
-    !picture3 ||
-    !picture4 ||
-    !picture5
-  ) {
-    return res
-      .status(400)
-      .json({ error: "All fields are required and must not be empty" });
-  }
-
-  try {
-    // Sign up the user
-    const {
-      user,
-      session,
-      error: signupError,
-    } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (signupError) {
-      throw signupError;
-    }
-
-    const { error: insertUserError } = await supabase.from("users").insert([
-      {
-        uuid: user.id,
-        human_first_name,
-        human_last_name,
-        address,
-        dog_name,
-        created_at: currentTime,
-        last_active: currentTime,
-        user_level: 1,
-      },
-    ]);
-
-    if (insertUserError) {
-      throw insertUserError;
-    }
-
-    const { error: insertNextUserError } = await supabase
-      .from("nextusers")
-      .insert([
-        {
-          uuid: user.id,
-          nextuser: 1,
-          user1: user.id,
-        },
-      ]);
-
-    if (insertNextUserError) {
-      throw insertNextUserError;
-    }
-
-    const { error: insertUserDataError } = await supabase
-      .from("userdata")
-      .insert([
-        {
-          uuid: user.id,
-          likeability,
-          energy,
-          longitude: -122.147966,
-          latitude: 37.485576,
-          playfulness,
-          aggression,
-          size,
-          bio,
-          training,
-          maxDistance: 1,
-          likeabilityFilter: { min: 1, max: 10 },
-          energyFilter: { min: 1, max: 10 },
-          playfulnessFilter: { min: 1, max: 10 },
-          aggressionFilter: { min: 1, max: 10 },
-          sizeFilter: { min: 1, max: 10 },
-          trainingFilter: { min: 1, max: 10 },
-        },
-      ]);
-
-    if (insertUserDataError) {
-      throw insertUserDataError;
-    }
-
-    const { error: insertImagesError } = await supabase.from("images").insert([
-      {
-        uuid: user.id,
-        picture1,
-        picture2,
-        picture3,
-        picture4,
-        picture5,
-      },
-    ]);
-
-    if (insertImagesError) {
-      throw insertImagesError;
-    }
-
-    const positionStackApiKey = "be2efb6b90f3a1015d928b4186ca5ec4";
-    const formattedAddress = encodeURIComponent(address);
-    const positionStackUrl = `http://api.positionstack.com/v1/forward?access_key=${positionStackApiKey}&query=${formattedAddress}`;
-
-    const response = await axios.get(positionStackUrl);
-
-    if (!response.data.data || response.data.data.length === 0) {
-      throw new Error("No location data found for the provided address.");
-    }
-
-    const locationData = response.data.data[0];
-
-    const { error: updateLocationError } = await supabase
-      .from("userdata")
-      .update({
-        longitude: locationData.longitude,
-        latitude: locationData.latitude,
-      })
-      .eq("uuid", user.id);
-
-    if (updateLocationError) {
-      throw updateLocationError;
-    }
-
-    return res
-      .status(200)
-      .json({ message: "User account created successfully", user, session });
-  } catch (error) {
-    console.error("Error creating user:", error.message);
-    return res.status(401).json({ error: error.message });
   }
 });
 
