@@ -10,6 +10,7 @@ import { Button } from "@mui/material";
 function ShowProfilebyUUID() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
+  const [error, setError] = useState(false); // Error state
 
   useEffect(() => {
     const fetchData = async () => {
@@ -19,11 +20,12 @@ function ShowProfilebyUUID() {
         setUserData(data);
       } catch (error) {
         console.error("Error fetching data:", error);
-        navigate("/login");
+        setError(true); // Set error state on catching an error
       }
     };
 
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
   const verifyTokenAndGetUserID = async () => {
@@ -31,6 +33,7 @@ function ShowProfilebyUUID() {
     const wholeToken = "Bearer " + token;
     if (!token) {
       console.error("No token found in local storage.");
+      setError(true); // Set error state if no token
       navigate("/login");
       return;
     }
@@ -46,7 +49,7 @@ function ShowProfilebyUUID() {
         "Error verifying token:",
         error.response ? error.response.data : error.message
       );
-      throw error;
+      setError(true); // Set error state on catching an error
     }
   };
 
@@ -67,9 +70,39 @@ function ShowProfilebyUUID() {
         "Error fetching next user data:",
         error.response ? error.response.data : error.message
       );
-      throw error;
+      setError(true); // Set error state on catching an error
     }
   };
+
+  if (error) {
+    // Render this UI when there is an error
+    return (
+      <Box
+        sx={{
+          position: "fixed",
+          top: 20,
+          left: 0,
+          right: 0,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          backgroundColor: "white",
+          flexDirection: "column",
+        }}
+      >
+        {/* eslint-disable-next-line react/no-unescaped-entities */}
+        <h1>You've seen em all!</h1>
+        <Button
+          variant="contained"
+          color="warning"
+          onClick={() => navigate("/settings")}
+        >
+          Adjust filters to see new users
+        </Button>
+      </Box>
+    );
+  }
 
   if (!userData) {
     return (
@@ -85,8 +118,9 @@ function ShowProfilebyUUID() {
     );
   }
 
+  // Extracting user data
   const {
-    basic: { human_first_name, human_last_name, dog_name, address },
+    basic: { dog_name },
     userdata: {
       bio,
       likeability,
@@ -119,35 +153,6 @@ function ShowProfilebyUUID() {
     );
   };
 
-  if (userData.oou == 1) {
-    return (
-      <Box
-        sx={{
-          position: "fixed",
-          top: 20,
-          left: 0,
-          right: 0,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          backgroundColor: "white",
-          flexDirection: "column",
-        }}
-      >
-        <h1>You've seen em all!</h1>
-        <Button
-          variant="contained"
-          color="warning"
-          onClick={() => navigate("/settings")}
-        >
-          Adjust filters to see new users
-        </Button>
-      </Box>
-    );
-  }
-
-  console.log(userData.oou);
   return (
     <div className="Whole_ShowProfile">
       <div className="DogImageCard_ShowProfile">

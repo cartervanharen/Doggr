@@ -36,45 +36,13 @@ const MainPage = () => {
         "Error verifying token:",
         error.response ? error.response.data : error.message
       );
-      navigate("/login");
-    }
-  };
-
-  const refreshUsers = async () => {
-    const token = localStorage.getItem("accessToken");
-    const wholeToken = "Bearer " + token;
-    console.log(wholeToken);
-    if (!token) {
-      console.error("No token found in local storage.");
-      navigate("/login");
-      return;
-    }
-
-    try {
-      const response = await axios.post("http://localhost:3000/verify-token", {
-        authorization: wholeToken,
-      });
-      const userId = response.data.user.id;
-      console.log("User ID retrieved:", userId);
-
-      const responseUsers = await axios.post(
-        "http://localhost:3000/verify-token",
-        {
-          userid: userId,
-        }
-      );
-      console.log("Users Refreshed:", userId);
-      return responseUsers;
-    } catch (error) {
-      console.error(
-        "Error verifying token:",
-        error.response ? error.response.data : error.message
-      );
+      navigate("/settings");
     }
   };
 
   useEffect(() => {
     verifyTokenAndGetUserID();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleHoverEnter = (direction) => {

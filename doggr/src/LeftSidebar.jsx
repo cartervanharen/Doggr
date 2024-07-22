@@ -93,6 +93,7 @@ function LeftSidebar() {
     fetchPfp();
     fetchUserId();
     fetchUserProfile();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const isSelected = (path) => location.pathname === path;

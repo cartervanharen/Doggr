@@ -28,6 +28,7 @@ function RightSidebar() {
       messagesEndRef.current.scrollIntoView();
     }
     setPrevMessagesLength(messages.length);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
   useEffect(() => {
@@ -45,6 +46,7 @@ function RightSidebar() {
     }, 100000); //Chats wont load in untill 100000 seconds, CHANGE THIS FOR ACTUAL DEMO. Currently set high to reduce db calls during testing.
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [UserTo, userFrom]);
 
   const fetchUserUUID = async () => {
@@ -199,7 +201,11 @@ function RightSidebar() {
               alignItems: "center",
             }}
           >
-            {UserTo ? <CircularProgress /> : <Typography>Click a Match to Start Talking!</Typography>}
+            {UserTo ? (
+              <CircularProgress />
+            ) : (
+              <Typography>Click a Match to Start Talking!</Typography>
+            )}
           </div>
         ) : (
           <List sx={{ flex: 1, overflowY: "auto" }}>
@@ -222,9 +228,7 @@ function RightSidebar() {
                     maxWidth: "70%",
                   }}
                 >
-                  <ListItemText
-                    primary={msg.message_content}
-                  />
+                  <ListItemText primary={msg.message_content} />
                 </Box>
               </ListItem>
             ))}

@@ -13,6 +13,7 @@ function SignUp() {
   const [lastName, setLastName] = useState("");
   const [dogName, setDogName] = useState("");
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleSignUp = async () => {
     const userData = {
@@ -27,8 +28,10 @@ function SignUp() {
     try {
       const response = await createUser(userData);
       console.log("User created successfully:", response);
-      navigate("/login");//NOT WORKING 
-      
+      setSuccessMessage("Account created successfully!"); 
+      setTimeout(() => {
+        navigate("/login");
+      }, 5000); //wait 5 seconds before redirect to login
     } catch (error) {
       console.error("Error creating user:", error);
       setError(error.response ? error.response.data : error.message);
@@ -47,94 +50,94 @@ function SignUp() {
 
   return (
     <div className="Whole_LoginPage">
-
-    <Container component="main" maxWidth="sm">
-      <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Typography component="h1" variant="h5">
-          Sign Up for Doggr
-        </Typography>
-        {error && <Alert severity="error">{error}</Alert>}
-        <Box component="form" noValidate sx={{ mt: 1 }}>
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            label="First Name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            autoComplete="fname"
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            label="Last Name"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            autoComplete="lname"
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            label="Dog's Name"
-            value={dogName}
-            onChange={(e) => setDogName(e.target.value)}
-            autoComplete="dog-name"
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            label="Full Home Address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            autoComplete="address"
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password"
-            helperText="6+ characters long"
-          />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-            onClick={handleSignUp}
-          >
-            Create Account
-          </Button>
-          <Typography variant="body2" color="textSecondary" align="center">
-            Your email will be your username.
+      <Container component="main" maxWidth="sm">
+        <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Typography component="h1" variant="h5">
+            Sign Up for Doggr
           </Typography>
-          <Button
-            fullWidth
-            variant="text"
-            sx={{ mt: 1 }}
-            onClick={() => navigate("/login")}
-          >
-            Already Have an Account? Sign In
-          </Button>
+          {error && <Alert severity="error">{error}</Alert>}
+          {successMessage && <Alert severity="success">{successMessage}</Alert>}
+          <Box component="form" noValidate sx={{ mt: 1 }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              label="First Name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              autoComplete="fname"
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              label="Last Name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              autoComplete="lname"
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              label="Dog's Name"
+              value={dogName}
+              onChange={(e) => setDogName(e.target.value)}
+              autoComplete="dog-name"
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              label="Full Home Address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              autoComplete="address"
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
+              helperText="6+ characters long"
+            />
+            <Button
+              type="button"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              onClick={handleSignUp}
+            >
+              Create Account
+            </Button>
+            <Typography variant="body2" color="textSecondary" align="center">
+              Your email will be your username.
+            </Typography>
+            <Button
+              fullWidth
+              variant="text"
+              sx={{ mt: 1 }}
+              onClick={() => navigate("/login")}
+            >
+              Already Have an Account? Sign In
+            </Button>
+          </Box>
         </Box>
-      </Box>
-    </Container>
+      </Container>
     </div>
   );
 }
