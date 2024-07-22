@@ -1,84 +1,21 @@
 import express from "express";
 import cors from "cors";
-const app = express();
-import { supabase } from './utils/supabaseClient.js';
+import axios from "axios";
+import { supabase } from "./utils/supabaseClient.js";
+import matchClosestUsers from "./utils/userMatching.js";
+import calculateDistance from "./utils/distanceCalc.js";
+import internalOps from "./routes/internalOps.js";
+import signUp from "./routes/signUp.js";
+import login from "./routes/login.js";
+
 const PORT = process.env.PORT || 3000;
-import matchClosestUsers from './utils/userMatching.js';
-import calculateDistance from './utils/distanceCalc.js';
+const app = express();
 
 app.use(express.json());
 app.use(cors());
-import axios from "axios";
-import internalOps from "./routes/internalOps.js";
-import signUp from "./routes/signUp.js";
 app.use(internalOps);
-
+app.use(login);
 app.use(signUp);
-
-app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ error: "Email and password are required" });
-  }
-
-  try {
-    const { user, session, error } = await supabase.auth.signIn({
-      email: email,
-      password: password,
-    });
-
-    if (error) throw error;
-    const access_token = session.access_token;
-    return res.status(200).json({ access_token });
-  } catch (error) {
-    return res.status(401).json({ error: error.message });
-  }
-});
-
-
-app.post("/verify-token", async (req, res) => {
-  const token = req.body.authorization?.split(" ")[1];
-
-  if (!token) {
-    return res
-      .status(403)
-      .json({ error: "A token is required for authentication" });
-  }
-
-  try {
-    const { data: user, error } = await supabase.auth.api.getUser(token);
-
-    if (error) {
-      throw error;
-    }
-
-    return res.status(200).json({ message: "Token is valid", user });
-  } catch (error) {
-    return res.status(401).json({ error: "Invalid Token or Token Expired" });
-  }
-});
-
-app.post("/signin", async (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ error: "Email and password are required" });
-  }
-
-  try {
-    const { user, session, error } = await supabase.auth.signIn({
-      email: email,
-      password: password,
-    });
-
-    if (error) throw error;
-
-    return res.status(200).json({ message: "Login successful", user, session });
-  } catch (error) {
-    return res.status(401).json({ error: error.message });
-  }
-});
 
 app.post("/get-user-info", async (req, res) => {
   const token = req.body.accessToken;
@@ -439,7 +376,6 @@ app.post("/update-dog-pictures", async (req, res) => {
     console.error("Error config:", error.config);
   }
 });
-
 
 app.post("/next-user-data", async (req, res) => {
   let nextUserUuid = "";
