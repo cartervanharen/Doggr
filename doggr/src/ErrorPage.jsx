@@ -11,20 +11,15 @@ const ErrorPage = ({ children }) => {
       setHasError(true);
       console.error("ErrorBoundary caught an error", error);
     };
-
     window.addEventListener('error', errorHandler);
-
     return () => {
       window.removeEventListener('error', errorHandler);
     };
   }, []);
-
   const handleButtonClick = () => {
     navigate('/settings');
     window.location.reload();
-
   };
-
   if (hasError) {
     return (
       <Box
@@ -52,7 +47,6 @@ const ErrorPage = ({ children }) => {
       </Box>
     );
   }
-
   return children;
 };
 

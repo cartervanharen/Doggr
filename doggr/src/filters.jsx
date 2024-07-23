@@ -21,14 +21,12 @@ function FilterModal() {
       console.error("No token found in local storage.");
       return;
     }
-
     try {
       const response = await axios.post("http://localhost:3000/verify-token", {
         authorization: wholeToken,
       });
       const userId = response.data.user.id;
       console.log("User ID retrieved:", userId);
-
       const responseUsers = await axios.post(
         "http://localhost:3000/generate-new-nextusers",
         {
@@ -44,7 +42,6 @@ function FilterModal() {
       );
     }
   };
-
   useEffect(() => {
     const fetchUserInfo = async () => {
       const token = localStorage.getItem("accessToken");
@@ -52,7 +49,6 @@ function FilterModal() {
         console.error("No token found in local storage.");
         return;
       }
-
       try {
         const response = await axios.get(
           "http://localhost:3000/get-dog-filters",
@@ -88,7 +84,6 @@ function FilterModal() {
 
   function Modal({ isOpen, close, children }) {
     if (!isOpen) return null;
-
     return (
       <Box className="modalBackdrop_SettingsPage">
         <Box className="modalContent_SettingsPage">
@@ -116,7 +111,6 @@ function FilterModal() {
       }
       setValue(newValue);
     };
-
     return (
       <Box sx={{ width: 300, margin: "20px" }}>
         <Typography gutterBottom>
@@ -174,7 +168,7 @@ function FilterModal() {
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
   };
-
+  
   return (
     <div style={{ margin: "20px" }}>
       <Button

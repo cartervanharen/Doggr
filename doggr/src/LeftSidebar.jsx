@@ -25,17 +25,14 @@ function LeftSidebar() {
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [userData, setUserData] = useState(null);
   const [userId, setUserId] = useState(null);
-
   const navigate = useNavigate();
   const location = useLocation();
-
   const fetchUserProfile = async () => {
     const token = localStorage.getItem("accessToken");
     if (!token || !userId) {
       console.log("No access token or user ID found");
       return;
     }
-
     try {
       const response = await axios.get("http://localhost:3000/get-user-profile", {
         headers: { userId },
@@ -53,7 +50,6 @@ function LeftSidebar() {
         console.log("No access token found");
         return;
       }
-
       try {
         const response = await axios.get(
           "http://localhost:3000/get-dog-pictures",
@@ -69,14 +65,12 @@ function LeftSidebar() {
         console.error("Error fetching profile picture:", error);
       }
     };
-
     const fetchUserId = async () => {
       const token = localStorage.getItem("accessToken");
       if (!token) {
         console.log("No access token found");
         return;
       }
-
       try {
         const response = await axios.post(
           "http://localhost:3000/verify-token",
@@ -87,30 +81,24 @@ function LeftSidebar() {
         console.error("Error fetching user ID:", error);
       }
     };
-
     fetchPfp();
     fetchUserId();
     fetchUserProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const isSelected = (path) => location.pathname === path;
-
   const handleOpenProfileModal = async () => {
     await fetchUserProfile();
     setProfileModalOpen(true);
   };
-
   const handleCloseProfileModal = () => {
     setProfileModalOpen(false);
   };
-
   function logout() {
     localStorage.removeItem("accessToken");
     navigate("/login");
     window.location.reload();
   }
-
   return (
     <>
       <Drawer

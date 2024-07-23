@@ -4,9 +4,7 @@ import LoginPage from "./LoginPage.jsx";
 import SignUp from "./SignUpPage.jsx";
 import ErrorPage from "./ErrorPage.jsx";
 import Messages from "./Matches&Messages.jsx";
-
 import "./general.css";
-
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 function App() {

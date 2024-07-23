@@ -4,7 +4,6 @@ import "./global.css";
 
 function GetDogImages() {
   const [imagesUrl, setImagesUrl] = useState({});
-
   useEffect(() => {
     const fetchImages = async () => {
       const token = localStorage.getItem("accessToken");
@@ -12,7 +11,6 @@ function GetDogImages() {
         console.error("No token found in local storage.");
         return;
       }
-
       try {
         const response = await axios.get(
           "http://localhost:3000/get-dog-pictures",
@@ -20,7 +18,6 @@ function GetDogImages() {
             headers: {Authorization: token},
           }
         );
-
         if (response.status === 200) {
           const { picture1, picture2, picture3, picture4, picture5 } =
             response.data.userFilters;
@@ -38,10 +35,8 @@ function GetDogImages() {
         console.error("Error fetching dog images:", error.message);
       }
     };
-
     fetchImages();
   }, []);
-
   return (
     <div className="DogImageCard_MainPage BorderRadius10px_MainPage">
       <img
@@ -60,4 +55,3 @@ function GetDogImages() {
 }
 
 export default GetDogImages;
-//     <div className="Whole_LoginPage">
