@@ -1,6 +1,44 @@
+/**
+ *         ____
+ *        / __ \  ____    ____ _   ____ _   _____
+ *       / / / / / __ \  / __ `/  / __ `/  / ___/
+ *      / /_/ / / /_/ / / /_/ /  / /_/ /  / /
+ *     /_____/  \____/  \__, /   \__, /  /_/
+ *                     /____/   /____/
+ *
+ * @fileoverview This file contains the function that generates new suggestions for the next users to show the logged-in user by-
+ * fetching user data, filtering potential matches, and accessing a neural network for personalized recommendations.
+ * The function interacts with Supabase for database operations and a Flask server for trait prediction.
+
+ * Author: Carter VanHaren
+ */
+
 import { supabase } from './supabaseClient.js';
 import calculateDistance from './distanceCalc.js';
 
+/**
+ * Generates new suggestions for the next users to show to the logged-in user.
+ * This function fetches the current user's data, predicts traits, filters out seen users,
+ * and sorts potential matches based on proximity and similarity of traits.
+ * It then updates the `nextusers` table with the closest matching users.
+ * 
+ * How it works:
+ * 1. Fetches current user data based on the providede UUID.
+ * 2. Fetches all relation records of those whose user_from matches the UUID (indicating that this user has already been seen before). 
+ * 3. Filters users out that have been seen already.
+ * 4. Filters users out thast are outside the distance radius.
+ * 5. Filters users out based on manual trait filters.
+ * 6. Send the current users traits to the ML running on the flask server to find predicted traits.
+ * 7. Match the top 10 closes users to the predicted users.
+ * 8. Update users in the nextuser table.
+ * 
+ * @param {string} uuid - The UUID of the current user.
+ * @returns {Promise<number>} - Returns 0 if new users are found, 1 if no new users are available.
+ * @throws {Error} - Throws an error if the UUID is not provided, or if there are issues fetching data or updating the database.
+ * 
+ * @async
+ * @function
+ */
 async function matchClosestUsers(uuid) {
   let outofusers = 0;
   if (!uuid) {
@@ -35,7 +73,7 @@ async function matchClosestUsers(uuid) {
     )
   );
   const { data: allUsers, error: allUsersError } = await supabase
-    .from("userdata")
+    .from("userdata")       
     .select("*")
     .not("uuid", "eq", uuid);
   if (allUsersError) {
