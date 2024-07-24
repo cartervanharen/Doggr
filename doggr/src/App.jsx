@@ -3,8 +3,11 @@ import Settings from "./SettingsPage.jsx";
 import LoginPage from "./LoginPage.jsx";
 import SignUp from "./SignUpPage.jsx";
 import ErrorPage from "./ErrorPage.jsx";
-import Messages from "./Matches&Messages.jsx";
+import Messages from "./MatchesMessages.jsx";
+import Dashboard from "./Dashboard.jsx";
+
 import "./general.css";
+
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 function App() {
@@ -18,6 +21,8 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/*" element={<MainPage />} />
           <Route path="login" element={<LoginPage />} />
+          <Route path="status" element={<Dashboard />} />
+
         </Routes>
       </ErrorPage>
     </Router>
