@@ -22,13 +22,11 @@ function RightSidebar() {
   const [userFrom, setUserFrom] = useState("null");
   const messagesEndRef = useRef(null);
   const [prevMessagesLength, setPrevMessagesLength] = useState(0);
-
   useEffect(() => {
     if (messagesEndRef.current && messages.length > prevMessagesLength) {
       messagesEndRef.current.scrollIntoView();
     }
     setPrevMessagesLength(messages.length);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
   useEffect(() => {
@@ -46,7 +44,6 @@ function RightSidebar() {
     }, 100000); //Chats wont load in untill 100000 seconds, CHANGE THIS FOR ACTUAL DEMO. Currently set high to reduce db calls during testing.
 
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [UserTo, userFrom]);
 
   const fetchUserUUID = async () => {

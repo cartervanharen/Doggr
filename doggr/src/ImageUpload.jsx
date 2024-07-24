@@ -19,7 +19,6 @@ function ImageUpload() {
   const handleUpload = async (file, index) => {
     const formData = new FormData();
     formData.append("image", file);
-
     try {
       const response = await axios({
         method: "post",
@@ -32,7 +31,6 @@ function ImageUpload() {
           "Content-Type": "multipart/form-data",
         },
       });
-
       if (response.status === 200) {
         const imageUrl = response.data.data.url;
         setImagesUrl({ ...imagesUrl, [index]: imageUrl });
@@ -52,18 +50,15 @@ function ImageUpload() {
       console.error("No token found in local storage.");
       return;
     }
-
     const updatedUserInfo = {
       accessToken: token,
       [`picture${index}`]: imageUrl,
     };
-
     try {
       const response = await axios.post(
         "http://localhost:3000/update-dog-pictures",
         updatedUserInfo
       );
-
       console.log(
         `Picture ${index} updated successfully:`,
         response.data.message
@@ -72,11 +67,9 @@ function ImageUpload() {
       console.error(`Error updating picture ${index}:`, error.message);
     }
   };
-
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
   };
-
   return (
     <Box sx={{ height: 100, padding: 2, maxWidth: 300, margin: "auto" }}>
       <Button
@@ -144,7 +137,6 @@ function ImageUpload() {
           onChange={(e) => handleFileChange(e, 5)}
         />
       </Button>
-
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}

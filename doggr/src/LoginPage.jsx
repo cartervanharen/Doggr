@@ -22,7 +22,6 @@ function LoginPage() {
       email: email,
       password: password,
     };
-
     try {
       const response = await signUserIn(userData);
       console.log("User signed in successfully:", response);
@@ -38,7 +37,6 @@ function LoginPage() {
       setError("Failed to sign in. Check your email and password.");
     }
   };
-
   const signUserIn = async (userData) => {
     try {
       const response = await axios.post(
@@ -56,7 +54,6 @@ function LoginPage() {
       throw error;
     }
   };
-
   return (
     <div className="Whole_LoginPage">
       <Container maxWidth="sm">
