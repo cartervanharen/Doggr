@@ -15,13 +15,15 @@ import MessageTest from "./Tests/MessageTest.jsx";
 import Addtoken from "./Tests/AddTokenTest.jsx";
 import UpdateInfoTest from "./Tests/UpdateInfoTest.jsx";
 import generateNextUsers from "./Tests/NextUserTest.jsx";
+import SupabaseTest from "./Tests/SupabaseTest.jsx";
+
 function Dashboard() {
   const [logs, setLogs] = useState([]);
   const [open, setOpen] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const logsEndRef = useRef(null);
-  const isTokenLogged = useRef(false); // Ref to check if token is already logged
+  const isTokenLogged = useRef(false);
 
   const [allUserData, setAllUserData] = useState([
     { title: "SupaBase", value: "Failed" },
@@ -63,7 +65,6 @@ function Dashboard() {
     }
   };
 
-  //not done
   const populateNextUsers = async () => {
     const currentToken = localStorage.getItem("accessToken");
     if (currentToken) {
@@ -100,12 +101,25 @@ function Dashboard() {
             addLog(error.message || error);
             console.error("Error during message test:", error);
           }
+
+          try {
+            const messageTest = await SupabaseTest();
+            setAllUserData((prevData) => {
+              const newData = [...prevData];
+              newData[0].value = messageTest[1];
+              return newData;
+            });
+            addLog(messageTest[0]);
+          } catch (error) {
+            addLog(error.message || error);
+            console.error("Error during message test:", error);
+          }
         }
       }
     };
 
     fetchData();
-  }, []); // Empty dependency array ensures this runs only once after the initial render
+  }, []);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
