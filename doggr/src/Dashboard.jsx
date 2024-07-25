@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Container,
   Grid,
@@ -12,37 +12,35 @@ import {
   TextField,
 } from "@mui/material";
 import SignInTest from "./Tests/SignInTest";
+import Addtoken from "./Tests/AddToken.jsx";
 
 function Dashboard() {
-  const signInStatus = SignInTest();
   const [logs, setLogs] = useState([]);
   const [open, setOpen] = useState(false);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const logsEndRef = useRef(null);
+  const currentToken = localStorage.getItem("accessToken");
+  const isTokenLogged = useRef(false); // Ref to check if token is already logged
 
-  const AllUserData = [
+  const [allUserData, setAllUserData] = useState([
     { title: "SupaBase", value: "Failed" },
-    { title: "Node Server", value: "Passing" },
+    { title: "Node Server", value: "Failed" },
     { title: "Flask Server", value: "Failed" },
     { title: "Neural Network", value: "Failed" },
+  ]);
 
-  ];
-
-  const SingleUserData = [
-    { title: "Messaging", value: "Passing" },                                                                  
-    { title: "Sign Up", value: "Failed" },
+  const signInStatus = SignInTest();
+  const [singleUserData, setSingleUserData] = useState([
+    { title: "Messaging", value: "Failed" },
     { title: "Login", value: signInStatus },
     { title: "Populate Next Users", value: "Failed" },
-    { title: "Token Verification", value: "Passing" },
-    { title: "Adjust Settings", value: "Passing" },
-
-  ];
+    { title: "Token Verification", value: "Failed" },
+    { title: "Adjust Settings", value: "Failed" },
+  ]);
 
   const StatusCard = ({ title, value }) => {
-    const getStatusColor = (status) => {
-      return status === "Passing" ? "green" : "red";
-    };
+    const getStatusColor = (status) => (status === "Passing" ? "green" : "red");
 
     return (
       <Card data-testid="card">
@@ -70,7 +68,7 @@ function Dashboard() {
   };
 
   const addLog = (message) => {
-    setLogs((prevLogs) => [...prevLogs, message]);
+    setLogs((prevLogs) => [...prevLogs, String(message)]);
   };
 
   useEffect(() => {
@@ -79,10 +77,47 @@ function Dashboard() {
     }
   }, [logs]);
 
+  useEffect(() => {
+    if (!isTokenLogged.current) {
+      const currentToken = localStorage.getItem("accessToken");
+      addLog(`Current Token: ${String(currentToken)}`);
+      isTokenLogged.current = true; 
+    }
+  }, []); 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  const handleLogin = async () => {
+    try {
+      if (username && password) {
+        const userData = {
+          email: username,
+          password: password,
+        };
+
+        const signInAttempt = await Addtoken(userData);
+        console.log(signInAttempt[0]);
+        updateSingleUserData(1, signInAttempt[1]);
+        addLog(signInAttempt[0]);
+      }
+    } catch (error) {
+      addLog(error.message || error);
+      console.error("Error during sign-in attempt:", error);
+    }
+
+    handleClose();
+  };
+
   const handleUsernameChange = (event) => setUsername(event.target.value);
   const handlePasswordChange = (event) => setPassword(event.target.value);
+
+  const updateSingleUserData = (index, newValue) => {
+    setSingleUserData((prevData) => {
+      const newData = [...prevData];
+      newData[index].value = newValue;
+      return newData;
+    });
+  };
 
   return (
     <>
@@ -100,7 +135,7 @@ function Dashboard() {
               </Grid>
               <div className="content_divider">
                 <Grid container spacing={3}>
-                  {AllUserData.map((card, index) => (
+                  {allUserData.map((card, index) => (
                     <Grid item xs={12} sm={6} md={4} key={index}>
                       <StatusCard title={card.title} value={card.value} />
                     </Grid>
@@ -117,34 +152,32 @@ function Dashboard() {
                 >
                   <Button
                     variant="outlined"
-                    onClick={() => addLog("Refreshed Test")}
+                    onClick={() => {
+                      window.location.reload();
+                    }}
                     color="primary"
                   >
-                    Refresh Test
+                    Refresh
                   </Button>
-
                   <Button
                     variant="outlined"
-                    onClick={() => addLog("Signed in as TestUser1")}
+                    onClick={async () => {
+                      try {
+                        const signInAttempt1 = await Addtoken({
+                          email: "test@test.com",
+                          password: "testtest",
+                        });
+                        console.log(signInAttempt1[0]);
+                        updateSingleUserData(1, signInAttempt1[1]);
+                        addLog(signInAttempt1[0]);
+                      } catch (error) {
+                        addLog(error.message || error);
+                        console.error("Error during sign-in attempt:", error);
+                      }
+                    }}
                     color="secondary"
                   >
                     Sign in as TestUser1
-                  </Button>
-
-                  <Button
-                    variant="outlined"
-                    onClick={() => addLog("Signed in as TestUser2")}
-                    color="secondary"
-                  >
-                    Sign in as TestUser2
-                  </Button>
-
-                  <Button
-                    variant="outlined"
-                    onClick={() => addLog("Signed in as TestUser3")}
-                    color="secondary"
-                  >
-                    Sign in as TestUser3
                   </Button>
 
                   <Button
@@ -157,7 +190,7 @@ function Dashboard() {
                 </Box>
 
                 <Grid container spacing={3}>
-                  {SingleUserData.map((card, index) => (
+                  {singleUserData.map((card, index) => (
                     <Grid item xs={12} sm={6} md={4} key={index}>
                       <StatusCard title={card.title} value={card.value} />
                     </Grid>
@@ -173,6 +206,7 @@ function Dashboard() {
                   sx={{
                     padding: 2,
                     height: 200,
+                    width: 1045,
                     overflow: "auto",
                     backgroundColor: "#f5f5f5",
                   }}
@@ -200,13 +234,13 @@ function Dashboard() {
       >
         <Box
           sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
             width: 400,
-            bgcolor: 'background.paper',
-            border: '2px solid #000',
+            bgcolor: "background.paper",
+            border: "2px solid #000",
             boxShadow: 24,
             p: 4,
           }}
@@ -234,10 +268,7 @@ function Dashboard() {
           <Button
             variant="contained"
             color="primary"
-            onClick={() => {
-              addLog(`Custom User Login attempted with username: ${username}`);
-              handleClose();
-            }}
+            onClick={handleLogin}
             sx={{ mt: 2 }}
           >
             Login

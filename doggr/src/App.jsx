@@ -13,18 +13,24 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 function App() {
   return (
     <Router>
-      <ErrorPage>
-        <Routes>
-          <Route path="/messages" element={<Messages />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/dogs" element={<MainPage />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/*" element={<MainPage />} />
-          <Route path="login" element={<LoginPage />} />
-          <Route path="status" element={<Dashboard />} />
-
-        </Routes>
-      </ErrorPage>
+      <Routes>
+        <Route path="/status" element={<Dashboard />} />
+        <Route
+          path="/*"
+          element={
+            <ErrorPage>
+              <Routes>
+                <Route path="/messages" element={<Messages />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/dogs" element={<MainPage />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="*" element={<MainPage />} />
+              </Routes>
+            </ErrorPage>
+          }
+        />
+      </Routes>
     </Router>
   );
 }
