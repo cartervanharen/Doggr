@@ -9,9 +9,10 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 import tensorflow as tf
+from flask_cors import CORS
 
 app = Flask(__name__)
-
+CORS(app)
 def fetch_data(url):
     response = requests.get(url)
     if response.status_code == 200:
@@ -37,7 +38,6 @@ def create_features_and_targets(user_from, user_to, users_df):
     else:
         return None, None
         
-        
 def ML_ReTrain():
     print("ReTraining NN now")
     user_data_url = "http://localhost:3000/get-all-userdata"
@@ -55,6 +55,7 @@ def ML_ReTrain():
     ]
     if len(samples) == 0:
         print("No valid samples found.")
+        return "No valid samples found."
     else:
         features = [sample[0] for sample in samples]
         targets = [sample[1] for sample in samples]
@@ -66,20 +67,33 @@ def ML_ReTrain():
         features_scaled = scaler.fit_transform(features)
         joblib.dump(scaler, scaler_path)
         X_train, X_test, y_train, y_test = train_test_split(features_scaled, targets, test_size=0.2, random_state=42)
-        y_train = np.array(y_train)
-        y_test = np.array(y_test)
         model = tf.keras.models.Sequential([
             tf.keras.layers.Dense(64, activation="relu", input_shape=(X_train.shape[1],)),
             tf.keras.layers.Dense(64, activation="relu"),
             tf.keras.layers.Dense(64, activation="relu"),
-            tf.keras.layers.Dense(y_train.shape[1])])
+            tf.keras.layers.Dense(y_train.shape[1])
+        ])
         model.compile(optimizer="adam", loss="mean_squared_error")
+        model.fit(X_train, y_train, epochs=20, validation_split=0.2)
         loss = model.evaluate(X_test, y_test)
         print(f"Test loss (MSE): {loss}")
-        model.fit(X_train, y_train, epochs=20, validation_split=0.2)
+
+        y_pred = model.predict(X_test)
+        mae = np.mean(np.abs(y_test - y_pred))
+        rmse = np.sqrt(np.mean(np.square(y_test - y_pred)))
+        print(f"Test MAE: {mae}")
+        print(f"Test RMSE: {rmse}")
+
+        # Save the model
         model.save(model_path)
         print("Model saved successfully")
-    
+        
+        # Return metrics
+        return {
+            "loss": loss,
+            "mae": mae,
+            "rmse": rmse
+        }
 def load_model(path):
     return tf.keras.models.load_model(path, compile=False)
 
@@ -104,8 +118,8 @@ def schedule_ML_ReTrain():
 @app.route("/retrain", methods=["GET"])
 def retrain():
     try:
-        result = ML_ReTrain()
-        return jsonify({"message": result}), 200
+        metrics = ML_ReTrain()
+        return jsonify({"message": "Retraining completed", "metrics": metrics}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

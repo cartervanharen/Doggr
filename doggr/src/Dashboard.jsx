@@ -16,6 +16,7 @@ import Addtoken from "./Tests/AddTokenTest.jsx";
 import UpdateInfoTest from "./Tests/UpdateInfoTest.jsx";
 import generateNextUsers from "./Tests/NextUserTest.jsx";
 import SupabaseTest from "./Tests/SupabaseTest.jsx";
+import NeuralNetTest from "./Tests/NeuralNetTest.jsx";
 
 function Dashboard() {
   const [logs, setLogs] = useState([]);
@@ -110,6 +111,19 @@ function Dashboard() {
               return newData;
             });
             addLog(messageTest[0]);
+          } catch (error) {
+            addLog(error.message || error);
+            console.error("Error during message test:", error);
+          }
+
+          try {
+            const NetTest = await NeuralNetTest();
+            setAllUserData((prevData) => {
+              const newData = [...prevData];
+              newData[3].value = NetTest[1];
+              return newData;
+            });
+            addLog(NetTest[0]);
           } catch (error) {
             addLog(error.message || error);
             console.error("Error during message test:", error);
