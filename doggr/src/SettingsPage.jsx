@@ -124,7 +124,7 @@ const SettingsPage = () => {
   useEffect(() => {
     verifyTokenAndGetUserID();
     fetchBio();
-  }, []); //[] are needed to it doesn't run on every keystroke
+  }, []);
 
   useEffect(() => {
     const fetchMaxDistance = async () => {
