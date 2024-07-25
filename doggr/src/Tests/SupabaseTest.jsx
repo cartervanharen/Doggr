@@ -4,7 +4,7 @@ async function SupabaseTest() {
     const response = await axios.get(
       `http://localhost:3000/get-all-users`
     );
-    console.log(response.data);
+    response
     return ["SupaBase Operational", "Passing"];
   } catch (error) {
     console.error(

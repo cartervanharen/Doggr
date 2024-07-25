@@ -28,8 +28,6 @@ function Dashboard() {
 
   const [allUserData, setAllUserData] = useState([
     { title: "SupaBase", value: "Failed" },
-    { title: "Node Server", value: "Failed" },
-    { title: "Flask Server", value: "Failed" },
     { title: "Neural Network", value: "Failed" },
     { title: "Messaging", value: "Failed" },
   ]);
@@ -94,7 +92,7 @@ function Dashboard() {
             const messageTest = await MessageTest({ token: currentToken });
             setAllUserData((prevData) => {
               const newData = [...prevData];
-              newData[4].value = messageTest[1];
+              newData[2].value = messageTest[1];
               return newData;
             });
             addLog(messageTest[0]);
@@ -104,13 +102,13 @@ function Dashboard() {
           }
 
           try {
-            const messageTest = await SupabaseTest();
+            const supaTest = await SupabaseTest();
             setAllUserData((prevData) => {
               const newData = [...prevData];
-              newData[0].value = messageTest[1];
+              newData[0].value = supaTest[1];
               return newData;
             });
-            addLog(messageTest[0]);
+            addLog(supaTest[0]);
           } catch (error) {
             addLog(error.message || error);
             console.error("Error during message test:", error);
@@ -120,7 +118,7 @@ function Dashboard() {
             const NetTest = await NeuralNetTest();
             setAllUserData((prevData) => {
               const newData = [...prevData];
-              newData[3].value = NetTest[1];
+              newData[1].value = NetTest[1];
               return newData;
             });
             addLog(NetTest[0]);

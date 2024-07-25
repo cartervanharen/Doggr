@@ -5,7 +5,6 @@ async function NeuralNetTest() {
     const response = await axios.get(`http://localhost:3001/retrain`);
     const metrics = response.data.metrics;
     const metricsString = JSON.stringify(metrics);
-    console.log(metricsString);
     return [metricsString, "Passing"];
   } catch (error) {
     console.error(
