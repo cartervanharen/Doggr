@@ -33,7 +33,7 @@ function LoginPage() {
         window.location.reload();
       }, 300);
     } catch (error) {
-      console.error("Error signing in user:", error);
+      error("Error signing in user:", error);
       setError("Failed to sign in. Check your email and password.");
     }
   };
