@@ -19,7 +19,6 @@ function ImageUpload() {
   const handleUpload = async (file, index) => {
     const formData = new FormData();
     formData.append("image", file);
-    try {
       const response = await axios({
         method: "post",
         url: "https://api.imgbb.com/1/upload",
@@ -36,36 +35,23 @@ function ImageUpload() {
         setImagesUrl({ ...imagesUrl, [index]: imageUrl });
         handleSave(index, imageUrl);
         setSnackbarOpen(true); 
-      } else {
-        console.error("Failed to upload image");
-      }
-    } catch (error) {
-      console.error("Error uploading image:", error);
-    }
+      } 
   };
 
   const handleSave = async (index, imageUrl) => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      console.error("No token found in local storage.");
       return;
     }
     const updatedUserInfo = {
       accessToken: token,
       [`picture${index}`]: imageUrl,
     };
-    try {
       const response = await axios.post(
         "http://localhost:3000/update-dog-pictures",
         updatedUserInfo
       );
-      console.log(
-        `Picture ${index} updated successfully:`,
-        response.data.message
-      );
-    } catch (error) {
-      console.error(`Error updating picture ${index}:`, error.message);
-    }
+      response
   };
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);

@@ -63,88 +63,66 @@ function MessagingApp() {
   const fetchUserUUID = async () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      console.error("No access token found.");
       return;
     }
     const wholeToken = "Bearer " + token;
-    try {
-      const response = await axios.post("http://localhost:3000/verify-token", {
-        authorization: wholeToken,
-      });
-      if (response.data && response.data.user) {
-        setUserFrom(response.data.user.id);
-      } else {
-        console.error("Invalid token response structure:", response.data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch user UUID:", error);
+
+    const response = await axios.post("http://localhost:3000/verify-token", {
+      authorization: wholeToken,
+    });
+    if (response.data && response.data.user) {
+      setUserFrom(response.data.user.id);
     }
   };
 
   const fetchMatches = async () => {
     const accessToken = localStorage.getItem("accessToken");
-    try {
-      const response = await axios.post("http://localhost:3000/find-matches", {
-        accessToken,
-      });
-      setMatches(response.data.matches);
-    } catch (error) {
-      console.error("Failed to fetch matches:", error);
-    }
+    const response = await axios.post("http://localhost:3000/find-matches", {
+      accessToken,
+    });
+    setMatches(response.data.matches);
   };
 
   const fetchMessages = async (isIntervalFetch = false) => {
     if (!userFrom || !userTo) return;
-    try {
-      const response = await axios.get(
-        `http://localhost:3000/messages?user_from=${userFrom}&user_to=${userTo}`
-      );
-      const fetchedMessages = response.data.filter(
-        (msg) =>
-          (msg.user_from === userFrom && msg.user_to === userTo) ||
-          (msg.user_from === userTo && msg.user_to === userFrom)
-      );
 
-      if (JSON.stringify(messages) !== JSON.stringify(fetchedMessages)) {
-        setMessages(fetchedMessages);
-        if (!isIntervalFetch) {
-          messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-        }
+    const response = await axios.get(
+      `http://localhost:3000/messages?user_from=${userFrom}&user_to=${userTo}`
+    );
+    const fetchedMessages = response.data.filter(
+      (msg) =>
+        (msg.user_from === userFrom && msg.user_to === userTo) ||
+        (msg.user_from === userTo && msg.user_to === userFrom)
+    );
+
+    if (JSON.stringify(messages) !== JSON.stringify(fetchedMessages)) {
+      setMessages(fetchedMessages);
+      if (!isIntervalFetch) {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       }
-    } catch (error) {
-      console.error("Failed to fetch messages:", error);
     }
+
     setLoading(false);
   };
 
   const fetchUserProfile = async (userId) => {
-    try {
-      const response = await axios.get(
-        "http://localhost:3000/get-user-profile",
-        {
-          headers: { userId },
-        }
-      );
-      setUserData(response.data);
-    } catch (error) {
-      console.error("Error fetching user profile:", error);
-    }
+    const response = await axios.get("http://localhost:3000/get-user-profile", {
+      headers: { userId },
+    });
+    setUserData(response.data);
   };
 
   const sendMessage = async (event) => {
     event.preventDefault();
     if (!text.trim() || !userFrom || !userTo) return;
-    try {
-      await axios.post("http://localhost:3000/send-message", {
-        user_from: userFrom,
-        user_to: userTo,
-        text,
-      });
-      setText("");
-      fetchMessages();
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
+
+    await axios.post("http://localhost:3000/send-message", {
+      user_from: userFrom,
+      user_to: userTo,
+      text,
+    });
+    setText("");
+    fetchMessages();
   };
 
   const handleUserSelection = (uuid) => {

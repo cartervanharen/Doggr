@@ -17,33 +17,22 @@ const MainPage = () => {
   const verifyTokenAndGetUserID = async () => {
     const token = localStorage.getItem("accessToken");
     const wholeToken = "Bearer " + token;
-    console.log(wholeToken);
     if (!token) {
-      console.error("No token found in local storage.");
-
       return;
     }
-
     try {
       const response = await axios.post("http://localhost:3000/verify-token", {
         authorization: wholeToken,
       });
       const userId = response.data.user.id;
-      console.log("User ID retrieved:", userId);
       return userId;
     } catch (error) {
-      console.error(
-        "Error verifying token:",
-        error.response ? error.response.data : error.message
-      );
       navigate("/login");
-      
     }
   };
 
   useEffect(() => {
     verifyTokenAndGetUserID();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleHoverEnter = (direction) => {
@@ -66,14 +55,11 @@ const MainPage = () => {
         }
       );
       const userId = response.data.id;
-      console.log("usersendlikeform:", userId);
+      userId
 
       setProfileKey((prevKey) => prevKey + 1);
     } catch (error) {
-      console.error(
-        "error liking:",
-        error.response ? error.response.data : error.message
-      );
+      error
     }
 
     handleHoverLeave();
@@ -91,14 +77,10 @@ const MainPage = () => {
         }
       );
       const userId = response.data.id;
-      console.log("usersendlikeform:", userId);
-
+      userId
       setProfileKey((prevKey) => prevKey + 1);
     } catch (error) {
-      console.error(
-        "error liking:",
-        error.response ? error.response.data : error.message
-      );
+      error
     }
     handleHoverLeave();
   };

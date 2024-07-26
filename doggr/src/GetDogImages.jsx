@@ -8,10 +8,9 @@ function GetDogImages() {
     const fetchImages = async () => {
       const token = localStorage.getItem("accessToken");
       if (!token) {
-        console.error("No token found in local storage.");
         return;
       }
-      try {
+
         const response = await axios.get(
           "http://localhost:3000/get-dog-pictures",
           {
@@ -28,12 +27,7 @@ function GetDogImages() {
             4: picture4,
             5: picture5,
           });
-        } else {
-          console.error("Failed to fetch images");
-        }
-      } catch (error) {
-        console.error("Error fetching dog images:", error.message);
-      }
+        } 
     };
     fetchImages();
   }, []);

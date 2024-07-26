@@ -1,3 +1,12 @@
+"""
+@fileoverview This file contains the implementation of a Flask-based web application for Doggr, integrating a machine learning model to predict user traits based on their interactions. The application provides two primary functionalities:
+1. Retraining the neural network model with updated user data and interactions.
+2. Predicting traits for a user based on provided input traits using the trained model.
+This script includes functions for data fetching, feature creation, model training, and prediction. It also sets up a background scheduler to automate the model retraining process.
+
+@author Carter VanHaren
+"""
+
 import os
 import numpy as np
 import tensorflow as tf
@@ -13,6 +22,13 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
+
+"""
+Fetch data from a given URL.
+
+@param url: The URL to fetch data from.
+@return: JSON data if successful, None otherwise.
+"""
 def fetch_data(url):
     response = requests.get(url)
     if response.status_code == 200:
@@ -21,6 +37,14 @@ def fetch_data(url):
         print("Failed to fetch data:", response.status_code)
         return None
 
+"""
+Create feature and target arrays for the machine learning model.
+
+@param user_from: UUID of the 'from' user.
+@param user_to: UUID of the 'to' user.
+@param users_df: DataFrame containing user data.
+@return: Tuple of features and targets if both users exist, (None, None) otherwise.
+"""
 def create_features_and_targets(user_from, user_to, users_df):
     user_from_traits = users_df[users_df["uuid"] == user_from].squeeze()
     user_to_traits = users_df[users_df["uuid"] == user_to].squeeze()
@@ -36,8 +60,13 @@ def create_features_and_targets(user_from, user_to, users_df):
         targets = [user_to_traits[key] for key in trait_keys if key in user_to_traits]
         return features, targets
     else:
-        return None, None
+        return None, None    
         
+"""
+Re-train the neural network model using the latest data.
+
+@return: Dictionary containing metrics such as loss, MAE, and RMSE.
+"""
 def ML_ReTrain():
     print("ReTraining NN now")
     user_data_url = "http://localhost:3000/get-all-userdata"
@@ -94,9 +123,25 @@ def ML_ReTrain():
             "mae": mae,
             "rmse": rmse
         }
+        
+"""
+Load a TensorFlow model from entered path.
+
+@param path: The path to the model file.
+@return: The loaded TensorFlow model.
+"""
 def load_model(path):
     return tf.keras.models.load_model(path, compile=False)
 
+
+"""
+Predict user traits using the trained model and scaler.
+
+@param model: The trained TensorFlow model.
+@param scaler: The scaler used to scale the input features.
+@param user_traits: List of user traits to predict from.
+@return: List of predicted traits.
+"""
 def predict_user_traits(model, scaler, user_traits):
     user_traits = np.array(user_traits).reshape(1, -1)
     user_traits_scaled = scaler.transform(user_traits)
@@ -110,6 +155,9 @@ scaler_path = os.path.join(base_dir, "scaler.pkl")
 model = load_model(model_path)
 scaler = joblib.load(scaler_path)
 
+"""
+Runs ML_ReTrain at 1 am everday with cron job
+"""
 def schedule_ML_ReTrain():
     scheduler = BackgroundScheduler()
     scheduler.add_job(ML_ReTrain, 'cron', hour=1) #Re trains the neural network every day at 1 am
@@ -123,6 +171,11 @@ def retrain():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+"""
+Endpoint to predict traits based on provided user traits.
+
+@return: JSON response with predicted traits or error message.
+"""
 @app.route("/predict", methods=["GET"])
 def predict():
     print("call")

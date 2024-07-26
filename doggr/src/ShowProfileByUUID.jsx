@@ -19,20 +19,17 @@ function ShowProfilebyUUID() {
         const data = await getNextUser();
         setUserData(data);
       } catch (error) {
-        console.error("Error fetching data:", error);
         setError(true); // Set error state on catching an error
       }
     };
 
     fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const verifyTokenAndGetUserID = async () => {
     const token = localStorage.getItem("accessToken");
     const wholeToken = "Bearer " + token;
     if (!token) {
-      console.error("No token found in local storage.");
       setError(true); // Set error state if no token
       return;
     }
@@ -42,12 +39,8 @@ function ShowProfilebyUUID() {
         authorization: wholeToken,
       });
       const userId = response.data.user.id;
-      console.log("User ID:", userId);
     } catch (error) {
-      console.error(
-        "Error verifying token:",
-        error.response ? error.response.data : error.message
-      );
+
       setError(true); // Set error state on catching an error
     }
   };
@@ -58,17 +51,12 @@ function ShowProfilebyUUID() {
       const response = await axios.get(
         "http://localhost:3000/get-next-user-data",
         {
-          headers: {Authorization: token},
+          headers: { Authorization: token },
         }
       );
 
-      console.log("Next user data:", response.data);
       return response.data;
     } catch (error) {
-      console.error(
-        "Error fetching next user data:",
-        error.response ? error.response.data : error.message
-      );
       setError(true); // Set error state on catching an error
     }
   };
@@ -90,7 +78,6 @@ function ShowProfilebyUUID() {
           flexDirection: "column",
         }}
       >
-        {/* eslint-disable-next-line react/no-unescaped-entities */}
         <h1>You've seen em all!</h1>
         <Button
           variant="contained"

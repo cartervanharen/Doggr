@@ -9,7 +9,6 @@ const ErrorPage = ({ children }) => {
   useEffect(() => {
     const errorHandler = (error) => {
       setHasError(true);
-      console.error("ErrorBoundary caught an error", error);
     };
     window.addEventListener('error', errorHandler);
     return () => {

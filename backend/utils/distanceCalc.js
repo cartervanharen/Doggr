@@ -1,3 +1,5 @@
+
+
 function calculateDistance(lat1, lon1, lat2, lon2) {  //haversine formula
   const R = 3959; //earth radius
   const dLat = degeesRadian(lat2 - lat1);
