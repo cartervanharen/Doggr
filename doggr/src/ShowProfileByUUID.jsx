@@ -40,7 +40,6 @@ function ShowProfilebyUUID() {
       });
       const userId = response.data.user.id;
     } catch (error) {
-
       setError(true); // Set error state on catching an error
     }
   };

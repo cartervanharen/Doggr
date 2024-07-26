@@ -34,7 +34,6 @@ def fetch_data(url):
     if response.status_code == 200:
         return response.json()
     else:
-        print("Failed to fetch data:", response.status_code)
         return None
 
 """
@@ -68,7 +67,6 @@ Re-train the neural network model using the latest data.
 @return: Dictionary containing metrics such as loss, MAE, and RMSE.
 """
 def ML_ReTrain():
-    print("ReTraining NN now")
     user_data_url = "http://localhost:3000/get-all-userdata"
     relation_data_url = "http://localhost:3000/get-all-relation"
     user_data = fetch_data(user_data_url)
@@ -83,15 +81,12 @@ def ML_ReTrain():
         sample for sample in samples if sample[0] is not None and sample[1] is not None
     ]
     if len(samples) == 0:
-        print("No valid samples found.")
         return "No valid samples found."
     else:
         features = [sample[0] for sample in samples]
         targets = [sample[1] for sample in samples]
         features = np.array(features)
         targets = np.array(targets)
-        print(f"Features shape: {features.shape}")
-        print(f"Targets shape: {targets.shape}")
         scaler = StandardScaler()
         features_scaled = scaler.fit_transform(features)
         joblib.dump(scaler, scaler_path)
@@ -114,9 +109,7 @@ def ML_ReTrain():
         print(f"Test RMSE: {rmse}")
 
         # Save the model
-        model.save(model_path)
-        print("Model saved successfully")
-        
+        model.save(model_path)        
         # Return metrics
         return {
             "loss": loss,
@@ -178,7 +171,6 @@ Endpoint to predict traits based on provided user traits.
 """
 @app.route("/predict", methods=["GET"])
 def predict():
-    print("call")
     user_traits = [
         request.args.get("trait1", type=int),
         request.args.get("trait2", type=int),

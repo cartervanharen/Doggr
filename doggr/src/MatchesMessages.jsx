@@ -49,7 +49,7 @@ function MessagingApp() {
       if (userTo) {
         fetchMessages(true);
       }
-    }, 100000); //Chats wont load in untill 100,000 seconds, CHANGE THIS FOR ACTUAL DEMO. Currently set high to reduce db calls during testing.
+    }, 1000); //message refresh rate
     return () => clearInterval(interval);
   }, [userTo, userFrom]);
 

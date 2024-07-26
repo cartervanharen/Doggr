@@ -125,7 +125,6 @@ async function matchClosestUsers(uuid) {
     })
     .slice(0, 10);
   if (filteredAndSortedUsers.length === 0) {
-    console.log("****no new users");
     outofusers = 1;
     return outofusers;
   }

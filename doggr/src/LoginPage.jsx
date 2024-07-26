@@ -24,7 +24,7 @@ function LoginPage() {
     };
     try {
       const response = await signUserIn(userData);
-      response
+      response;
       setTimeout(() => {
         //wait for access token to be stored.
         navigate("/settings");
@@ -45,7 +45,7 @@ function LoginPage() {
       localStorage.setItem("accessToken", response.data.session.access_token);
       return response.data;
     } catch (error) {
-      error
+      error;
       throw error;
     }
   };
