@@ -8,18 +8,12 @@
 
 """
 This file is meant to be run using pytests. It tests the endpoints that are defined in the following files,
-
 getInfo.js
 internalOps.js
 login.js
 messaging.js
 nextUser.js
-
-Please note this doesn't test the following files,
-signUp.js
 updateInfo.js
-as this could be disruptives to Doggr. 
-
 """
 
 import requests
@@ -253,6 +247,22 @@ def test_get_user_profile():
         assert "basic" in json_data
         assert "userdata" in json_data
         assert "pictures" in json_data
+
+#update info test below
+def test_update_max_distance():
+    assert access_token is not None, "Access token is not set. Ensure setup_session fixture is working properly."
+    
+    payload = {
+        "accessToken": access_token,
+        "maxDistance": 50
+    }
+    
+    response = requests.post(f"{BASE_URL}/update-max-distance", json=payload)
+    
+    assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
+    assert "message" in response.json(), "Response does not contain 'message'"
+    assert response.json()["message"] == "Max distance updated successfully", f"Unexpected message: {response.json()['message']}"
+
 
 if __name__ == "__main__":
     pytest.main()
