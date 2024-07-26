@@ -16,61 +16,40 @@ function TraitModal() {
   const refreshUsers = async () => {
     const token = localStorage.getItem("accessToken");
     const wholeToken = "Bearer " + token;
-    console.log(wholeToken);
     if (!token) {
-      console.error("No token found in local storage.");
       return;
     }
+    const response = await axios.post("http://localhost:3000/verify-token", {
+      authorization: wholeToken,
+    });
+    const userId = response.data.user.id;
 
-    try {
-      const response = await axios.post("http://localhost:3000/verify-token", {
-        authorization: wholeToken,
-      });
-      const userId = response.data.user.id;
-      console.log("User ID retrieved:", userId);
-
-      const responseUsers = await axios.post(
-        "http://localhost:3000/generate-new-nextusers",
-        {
-          userid: userId,
-        }
-      );
-      console.log("Users Refreshed:", userId);
-      return responseUsers;
-    } catch (error) {
-      console.error(
-        "Error verifying token:",
-        error.response ? error.response.data : error.message
-      );
-    }
+    const responseUsers = await axios.post(
+      "http://localhost:3000/generate-new-nextusers",
+      {
+        userid: userId,
+      }
+    );
+    return responseUsers;
   };
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       const token = localStorage.getItem("accessToken");
       if (!token) {
-        console.error("No token found in local storage.");
         return;
       }
 
-      try {
-
-        const response = await axios.get("http://localhost:3000/get-userdata", {
-          headers: {Authorization: token},
-        });
-        const userData = response.data.user;
-        setLikeability(userData.likeability);
-        setEnergy(userData.energy);
-        setPlayfulness(userData.playfulness);
-        setAggression(userData.aggression);
-        setSize(userData.size);
-        setTrainingLevel(userData.training);
-      } catch (error) {
-        console.error(
-          "Error fetching user information:",
-          error.response ? error.response.data : error.message
-        );
-      }
+      const response = await axios.get("http://localhost:3000/get-userdata", {
+        headers: { Authorization: token },
+      });
+      const userData = response.data.user;
+      setLikeability(userData.likeability);
+      setEnergy(userData.energy);
+      setPlayfulness(userData.playfulness);
+      setAggression(userData.aggression);
+      setSize(userData.size);
+      setTrainingLevel(userData.training);
     };
 
     fetchUserInfo();
@@ -80,31 +59,18 @@ function TraitModal() {
   const handleClose = async () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      console.error("No token found in local storage.");
       return;
     }
-
-    try {
-      await axios.post("http://localhost:3000/update-dog-traits", {
-        accessToken: token,
-        likeability,
-        energy,
-        playfulness,
-        aggression,
-        size,
-        training: trainingLevel,
-      });
-      refreshUsers();
-
-      console.log("Dog traits updated successfully.");
-    } catch (error) {
-      console.error(
-        "Error updating dog traits:",
-        error.response
-          ? JSON.stringify(error.response.data, null, 2)
-          : error.message
-      );
-    }
+    await axios.post("http://localhost:3000/update-dog-traits", {
+      accessToken: token,
+      likeability,
+      energy,
+      playfulness,
+      aggression,
+      size,
+      training: trainingLevel,
+    });
+    refreshUsers();
 
     setIsOpen(false);
   };

@@ -7,10 +7,7 @@ async function MessageTest() {
     response
     return ["Messages Received Properly", "Passing"];
   } catch (error) {
-    console.error(
-      "Error Finding Matches:",
-      error.response ? error.response.data : error.message
-    );
+
     const errorMessage = error.response
       ? JSON.stringify(error.response.data)
       : error.message;

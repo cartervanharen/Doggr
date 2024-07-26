@@ -6,10 +6,7 @@ async function addToken(userData) {
     localStorage.setItem("accessToken", response.data.session.access_token);
     return ["Access Token: " + response.data.session.access_token, "Passing"];
   } catch (error) {
-    console.error(
-      "Error signing in user:",
-      error.response ? error.response.data : error.message
-    );
+
     const errorMessage = error.response
       ? JSON.stringify(error.response.data)
       : error.message;

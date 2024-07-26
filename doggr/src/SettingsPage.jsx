@@ -21,61 +21,39 @@ const SettingsPage = () => {
     const token = localStorage.getItem("accessToken");
     const wholeToken = "Bearer " + token;
     if (!token) {
-      console.error("No token found in local storage.");
-
       return;
     }
-    try {
-      const response = await axios.post("http://localhost:3000/verify-token", {
-        authorization: wholeToken,
-      });
-      const userId = response.data.user.id;
-      console.log(userId);
-    } catch (error) {
-      console.error(
-        "Error verifying token:",
-        error.response ? error.response.data : error.message
-      );
-    }
+
+    const response = await axios.post("http://localhost:3000/verify-token", {
+      authorization: wholeToken,
+    });
+    const userId = response.data.user.id;
   };
 
   const refreshUsers = async () => {
     const token = localStorage.getItem("accessToken");
     const wholeToken = "Bearer " + token;
-    console.log(wholeToken);
     if (!token) {
-      console.error("No token found in local storage.");
       return;
     }
 
-    try {
-      const response = await axios.post("http://localhost:3000/verify-token", {
-        authorization: wholeToken,
-      });
-      const userId = response.data.user.id;
-      console.log("User ID retrieved:", userId);
+    const response = await axios.post("http://localhost:3000/verify-token", {
+      authorization: wholeToken,
+    });
+    const userId = response.data.user.id;
 
-      const responseUsers = await axios.post(
-        "http://localhost:3000/generate-new-nextusers",
-        {
-          userid: userId,
-        }
-      );
-      console.log("Users Refreshed:", userId);
-      return responseUsers;
-    } catch (error) {
-      console.error(
-        "Error verifying token:",
-        error.response ? error.response.data : error.message
-      );
-    }
+    const responseUsers = await axios.post(
+      "http://localhost:3000/generate-new-nextusers",
+      {
+        userid: userId,
+      }
+    );
+    return responseUsers;
   };
 
   const fetchLocation = async () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      console.error("No token found in local storage.");
-
       return;
     }
 
@@ -84,42 +62,23 @@ const SettingsPage = () => {
         headers: { Authorization: token },
       });
       const { latitude, longitude } = response.data;
-      console.log(
-        `Location fetched: Latitude ${latitude}, Longitude ${longitude}`
-      );
     } catch (error) {
-      console.error(
-        "Error fetching location:",
-        error.response
-          ? JSON.stringify(error.response.data, null, 2)
-          : error.message
-      );
+      error;
     }
   };
 
   const saveMaxDistance = async () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      console.error("No token found in local storage.");
-
       return;
     }
-    try {
-      await axios.post("http://localhost:3000/update-max-distance", {
-        accessToken: token,
-        maxDistance,
-      });
 
-      refreshUsers();
-      console.log("Max distance updated successfully.");
-    } catch (error) {
-      console.error(
-        "Error updating max distance:",
-        error.response
-          ? JSON.stringify(error.response.data, null, 2)
-          : error.message
-      );
-    }
+    await axios.post("http://localhost:3000/update-max-distance", {
+      accessToken: token,
+      maxDistance,
+    });
+
+    refreshUsers();
   };
   useEffect(() => {
     verifyTokenAndGetUserID();
@@ -130,42 +89,30 @@ const SettingsPage = () => {
     const fetchMaxDistance = async () => {
       const token = localStorage.getItem("accessToken");
       if (!token) {
-        console.error("No token found in local storage.");
         return;
       }
-      try {
-        const response = await axios.get(
-          "http://localhost:3000/get-max-distance",
-          {
-            headers: { Authorization: token },
-          }
-        );
-        setMaxDistance(response.data.maxDistance);
-      } catch (error) {
-        console.error("Error fetching max distance:", error.message);
-      }
+      const response = await axios.get(
+        "http://localhost:3000/get-max-distance",
+        {
+          headers: { Authorization: token },
+        }
+      );
+      setMaxDistance(response.data.maxDistance);
     };
     const fetchUserInfo = async () => {
       const token = localStorage.getItem("accessToken");
       if (!token) {
-        console.error("No token found in local storage.");
         return;
       }
-      try {
-        const response = await axios.get(
-          "http://localhost:3000/get-user-info",
-          {
-            headers: { Authorization: token },
-          }
-        );
-        const userData = response.data.user;
-        setFirstName(userData.human_first_name);
-        setLastName(userData.human_last_name);
-        setDogName(userData.dog_name);
-        setAddress(userData.address);
-      } catch (error) {
-        console.error("Error fetching user information:", error.message);
-      }
+
+      const response = await axios.get("http://localhost:3000/get-user-info", {
+        headers: { Authorization: token },
+      });
+      const userData = response.data.user;
+      setFirstName(userData.human_first_name);
+      setLastName(userData.human_last_name);
+      setDogName(userData.dog_name);
+      setAddress(userData.address);
     };
     fetchMaxDistance();
     fetchUserInfo();
@@ -175,67 +122,49 @@ const SettingsPage = () => {
     setEditMode(true);
   };
   const handleSave = async () => {
-    try {
-      const token = localStorage.getItem("accessToken");
-      if (!token) {
-        console.error("No token found in local storage.");
-        return;
-      }
-      const updatedUserInfo = {
-        accessToken: token,
-        firstName,
-        lastName,
-        dogName,
-        address,
-      };
-      const response = await axios.post(
-        "http://localhost:3000/update-user-info",
-        updatedUserInfo
-      );
-
-      fetchLocation();
-      refreshUsers();
-
-      console.log(
-        "User information updated successfully:",
-        response.data.message
-      );
-      setEditMode(false);
-    } catch (error) {
-      console.error("Error updating user information:", error.message);
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      return;
     }
+    const updatedUserInfo = {
+      accessToken: token,
+      firstName,
+      lastName,
+      dogName,
+      address,
+    };
+    const response = await axios.post(
+      "http://localhost:3000/update-user-info",
+      updatedUserInfo
+    );
+
+    fetchLocation();
+    refreshUsers();
+
+    setEditMode(false);
   };
   const fetchBio = async () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      console.error("No token found in local storage.");
       return;
     }
-    try {
-      const response = await axios.get("http://localhost:3000/get-bio", {
-        headers: { Authorization: token },
-      });
-      setBio(response.data.bio);
-    } catch (error) {
-      console.error("Error fetching bio:", error.message);
-    }
+
+    const response = await axios.get("http://localhost:3000/get-bio", {
+      headers: { Authorization: token },
+    });
+    setBio(response.data.bio);
   };
   const updateBio = async () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      console.error("No token found in local storage.");
       return;
     }
-    try {
-      await axios.post("http://localhost:3000/update-bio", {
-        accessToken: token,
-        bio,
-      });
-      console.log("Bio updated successfully.");
-      setBioEditMode(false);
-    } catch (error) {
-      console.error("Error updating bio:", error.message);
-    }
+
+    await axios.post("http://localhost:3000/update-bio", {
+      accessToken: token,
+      bio,
+    });
+    setBioEditMode(false);
   };
   const handleSliderChange = (event, newValue) => {
     setMaxDistance(newValue);

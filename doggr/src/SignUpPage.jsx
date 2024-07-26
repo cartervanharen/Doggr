@@ -1,7 +1,14 @@
-import { useState } from 'react';
-import { Button, TextField, Typography, Container, Box, Alert } from '@mui/material';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import {
+  Button,
+  TextField,
+  Typography,
+  Container,
+  Box,
+  Alert,
+} from "@mui/material";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "./global.css";
 
 function SignUp() {
@@ -27,31 +34,31 @@ function SignUp() {
 
     try {
       const response = await createUser(userData);
-      console.log("User created successfully:", response);
-      setSuccessMessage("Account created successfully!"); 
+      setSuccessMessage("Account created successfully!");
       setTimeout(() => {
         navigate("/login");
       }, 5000); //wait 5 seconds before redirect to login
     } catch (error) {
-      console.error("Error creating user:", error);
       setError(error.response ? error.response.data : error.message);
     }
   };
 
   const createUser = async (userData) => {
-    try {
-      const response = await axios.post("http://localhost:3000/signup", userData);
-      return response.data;
-    } catch (error) {
-      console.error("Error creating user:", error.response ? error.response.data : error.message);
-      throw error;
-    }
+    const response = await axios.post("http://localhost:3000/signup", userData);
+    return response.data;
   };
 
   return (
     <div className="Whole_LoginPage">
       <Container component="main" maxWidth="sm">
-        <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Box
+          sx={{
+            mt: 8,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
           <Typography component="h1" variant="h5">
             Sign Up for Doggr
           </Typography>

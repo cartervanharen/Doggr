@@ -11,12 +11,12 @@ import {
   Modal,
   TextField,
 } from "@mui/material";
-import MessageTest from "./Tests/MessageTest.jsx";
-import Addtoken from "./Tests/AddTokenTest.jsx";
-import UpdateInfoTest from "./Tests/UpdateInfoTest.jsx";
-import generateNextUsers from "./Tests/NextUserTest.jsx";
-import SupabaseTest from "./Tests/SupabaseTest.jsx";
-import NeuralNetTest from "./Tests/NeuralNetTest.jsx";
+import MessageTest from "./tests/MessageTest.jsx";
+import Addtoken from "./tests/AddTokenTest.jsx";
+import UpdateInfoTest from "./tests/UpdateInfoTest.jsx";
+import generateNextUsers from "./tests/NextUserTest.jsx";
+import SupabaseTest from "./tests/SupabaseTest.jsx";
+import NeuralNetTest from "./tests/NeuralNetTest.jsx";
 
 function Dashboard() {
   const [logs, setLogs] = useState([]);
@@ -57,7 +57,6 @@ function Dashboard() {
         addLog("INFO UPDATE TEST: " + infoTest[0]);
       } catch (error) {
         addLog("INFO UPDATE TEST: " + error.message || error);
-        console.error("Error during update info test:", error);
       }
     } else {
       addLog("No access token found.");
@@ -73,7 +72,6 @@ function Dashboard() {
         addLog("Generate Next User Test: " + infoTest[0]);
       } catch (error) {
         addLog("Generate Next User Test: " + error.message || error);
-        console.error("Error during generate test:", error);
       }
     } else {
       addLog("No access token found.");
@@ -98,9 +96,7 @@ function Dashboard() {
             addLog(messageTest[0]);
           } catch (error) {
             addLog(error.message || error);
-            console.error("Error during message test:", error);
           }
-
           try {
             const supaTest = await SupabaseTest();
             setAllUserData((prevData) => {
@@ -111,7 +107,6 @@ function Dashboard() {
             addLog(supaTest[0]);
           } catch (error) {
             addLog(error.message || error);
-            console.error("Error during message test:", error);
           }
 
           try {
@@ -124,7 +119,6 @@ function Dashboard() {
             addLog(NetTest[0]);
           } catch (error) {
             addLog(error.message || error);
-            console.error("Error during message test:", error);
           }
         }
       }
@@ -146,7 +140,6 @@ function Dashboard() {
       }
     } catch (error) {
       addLog(error.message || error);
-      console.error("Error during sign-in attempt:", error);
     }
 
     handleClose();
@@ -242,7 +235,6 @@ function Dashboard() {
                         addLog(signInAttempt1[0]);
                       } catch (error) {
                         addLog(error.message || error);
-                        console.error("Error during sign-in attempt:", error);
                       }
                       updateInfoTest();
                       populateNextUsers();

@@ -38,7 +38,7 @@ function ProfileView({ userData }) {
   } = userData;
 
   return (
-    <div className="SHRINK"> 
+    <div className="SHRINK">
       <div className="Whole_ShowMessages">
         <div className="DogImageCard_ShowProfile">
           <img src={picture1} id="MainDogImage_ShowProfile" alt="Dog 1" />

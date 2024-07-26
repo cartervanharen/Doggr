@@ -24,8 +24,7 @@ function LoginPage() {
     };
     try {
       const response = await signUserIn(userData);
-      console.log("User signed in successfully:", response);
-
+      response;
       setTimeout(() => {
         //wait for access token to be stored.
         navigate("/settings");
@@ -43,14 +42,10 @@ function LoginPage() {
         "http://localhost:3000/signin",
         userData
       );
-      console.log(response.data.session.access_token);
       localStorage.setItem("accessToken", response.data.session.access_token);
       return response.data;
     } catch (error) {
-      console.error(
-        "Error signing in user:",
-        error.response ? error.response.data : error.message
-      );
+      error;
       throw error;
     }
   };

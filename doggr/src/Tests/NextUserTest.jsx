@@ -4,7 +4,6 @@ const generateNextUsers = async ({ token }) => {
     const uuidGet = await axios.post("http://localhost:3000/verify-token", {
       authorization: "Bearer " + token,
     });
-
     const response = await axios.post("http://localhost:3000/generate-new-nextusers", {
       userid: uuidGet.data.user.id,
     });

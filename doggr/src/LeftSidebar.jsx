@@ -30,56 +30,44 @@ function LeftSidebar() {
   const fetchUserProfile = async () => {
     const token = localStorage.getItem("accessToken");
     if (!token || !userId) {
-      console.log("No access token or user ID found");
       return;
     }
     try {
-      const response = await axios.get("http://localhost:3000/get-user-profile", {
-        headers: { userId },
-      });
+      const response = await axios.get(
+        "http://localhost:3000/get-user-profile",
+        {
+          headers: { userId },
+        }
+      );
       setUserData(response.data);
-      console.log("User Data fetched:", response.data);
     } catch (error) {
-      console.error("Error fetching user profile:", error);
+      error;
     }
   };
   useEffect(() => {
     const fetchPfp = async () => {
       const token = localStorage.getItem("accessToken");
       if (!token) {
-        console.log("No access token found");
         return;
       }
-      try {
-        const response = await axios.get(
-          "http://localhost:3000/get-dog-pictures",
-          { headers: { Authorization: token } }
-        );
-        const firstImage = response.data.images[0];
-        if (firstImage && firstImage.picture1) {
-          setPfpUrl(firstImage.picture1);
-        } else {
-          console.log("No profile picture available");
-        }
-      } catch (error) {
-        console.error("Error fetching profile picture:", error);
+      const response = await axios.get(
+        "http://localhost:3000/get-dog-pictures",
+        { headers: { Authorization: token } }
+      );
+      const firstImage = response.data.images[0];
+      if (firstImage && firstImage.picture1) {
+        setPfpUrl(firstImage.picture1);
       }
     };
     const fetchUserId = async () => {
       const token = localStorage.getItem("accessToken");
       if (!token) {
-        console.log("No access token found");
         return;
       }
-      try {
-        const response = await axios.post(
-          "http://localhost:3000/verify-token",
-          { authorization: "Bearer " + token }
-        );
-        setUserId(response.data.user.id);
-      } catch (error) {
-        console.error("Error fetching user ID:", error);
-      }
+      const response = await axios.post("http://localhost:3000/verify-token", {
+        authorization: "Bearer " + token,
+      });
+      setUserId(response.data.user.id);
     };
     fetchPfp();
     fetchUserId();

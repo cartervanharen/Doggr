@@ -99,10 +99,8 @@ router.get("/get-next-user-data", async (req, res) => {
     .eq("uuid", nextUserUuid)
     .single();
   if (nextUserNum > 5 || nextUserNum === null) {
-    console.log("Over 5, reloading users now");
     try {
       outofuserstate = await matchClosestUsers(userId);
-      console.log(outofuserstate);
     } catch (error) {
       outofuserstate = 1;
       console.error("Failed to match closest users:", error);
@@ -136,7 +134,6 @@ router.get("/get-next-user-data", async (req, res) => {
     NextLatitude,
     NextLongitude
   );
-  console.log(distance);
   return res.status(200).json({
     userUUID: nextUserUuid,
     userdata: userDataTable,
@@ -196,7 +193,6 @@ router.post("/mark-user-seen", async (req, res) => {
         throw insertUserDataError;
       }
     } else if (relation == "dislike") {
-      console.log("dislike");
       const { data: insertData, error: insertUserDataError } = await supabase
         .from("relation")
         .insert([
@@ -210,7 +206,6 @@ router.post("/mark-user-seen", async (req, res) => {
         throw insertUserDataError;
       }
     } else if (relation == "block") {
-      console.log("block");
       const { data: insertData, error: insertUserDataError } = await supabase
         .from("relation")
         .insert([
@@ -223,8 +218,6 @@ router.post("/mark-user-seen", async (req, res) => {
       if (insertUserDataError) {
         throw insertUserDataError;
       }
-    } else {
-      console.log("Unknown relation type.");
     }
     const { error: updateError } = await supabase
       .from("nextusers")

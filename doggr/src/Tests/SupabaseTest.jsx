@@ -7,10 +7,6 @@ async function SupabaseTest() {
     response
     return ["SupaBase Operational", "Passing"];
   } catch (error) {
-    console.error(
-      "Error:",
-      error.response ? error.response.data : error.message
-    );
     const errorMessage = error.response
       ? JSON.stringify(error.response.data)
       : error.message;

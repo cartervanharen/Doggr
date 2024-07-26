@@ -16,9 +16,7 @@ function FilterModal() {
   const refreshUsers = async () => {
     const token = localStorage.getItem("accessToken");
     const wholeToken = "Bearer " + token;
-    console.log(wholeToken);
     if (!token) {
-      console.error("No token found in local storage.");
       return;
     }
     try {
@@ -26,27 +24,21 @@ function FilterModal() {
         authorization: wholeToken,
       });
       const userId = response.data.user.id;
-      console.log("User ID retrieved:", userId);
       const responseUsers = await axios.post(
         "http://localhost:3000/generate-new-nextusers",
         {
           userid: userId,
         }
       );
-      console.log("Users Refreshed:", userId);
       return responseUsers;
     } catch (error) {
-      console.error(
-        "Error verifying token:",
-        error.response ? error.response.data : error.message
-      );
+      error
     }
   };
   useEffect(() => {
     const fetchUserInfo = async () => {
       const token = localStorage.getItem("accessToken");
       if (!token) {
-        console.error("No token found in local storage.");
         return;
       }
       try {
@@ -72,10 +64,7 @@ function FilterModal() {
         setSize([sizeFilter.min, sizeFilter.max]);
         setTrainingLevel([trainingFilter.min, trainingFilter.max]);
       } catch (error) {
-        console.error(
-          "Error fetching user information:",
-          error.response ? error.response.data : error.message
-        );
+        error
       }
     };
 
@@ -134,7 +123,6 @@ function FilterModal() {
   const handleClose = async () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      console.error("No token found in local storage.");
       return;
     }
 
@@ -149,15 +137,9 @@ function FilterModal() {
         trainingFilter: { min: trainingLevel[0], max: trainingLevel[1] },
       });
       refreshUsers();
-      console.log("User filters updated successfully.");
       setIsOpen(false);
     } catch (error) {
-      console.error(
-        "Error updating user filters:",
-        error.response
-          ? JSON.stringify(error.response.data, null, 2)
-          : error.message
-      );
+      error
     }
   };
 

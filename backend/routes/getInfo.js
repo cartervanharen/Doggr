@@ -148,7 +148,6 @@ router.get("/get-dog-pictures", async (req, res) => {
       console.error("Data fetch error:", dataError.message);
       throw dataError;
     }
-    console.log(userData);
     if (userData.length === 0) {
       return res.status(404).json({ error: "No images found for the user." });
     }
